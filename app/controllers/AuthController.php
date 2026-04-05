@@ -61,6 +61,7 @@ class AuthController {
         $_SESSION['username']      = $user['username'];
         $_SESSION['full_name']     = $user['full_name'];
         $_SESSION['profile_image'] = $user['profile_image'];
+        $_SESSION['toast_success'] = 'Welcome back, ' . $user['full_name'] . '!';
         header('Location: index.php?url=feed');
         exit;
     }

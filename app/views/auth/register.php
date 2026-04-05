@@ -30,9 +30,9 @@
         </div>
 
         <?php if (!empty($_SESSION['error'])): ?>
-            <div class="alert alert-error">
+            <div class="auth-alert auth-alert-error">
                 <i class="fa fa-circle-exclamation"></i>
-                <?= htmlspecialchars($_SESSION['error']) ?>
+                <span><?= htmlspecialchars($_SESSION['error']) ?></span>
             </div>
             <?php unset($_SESSION['error']); ?>
         <?php endif; ?>

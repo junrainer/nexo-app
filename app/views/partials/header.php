@@ -14,6 +14,28 @@
 </head>
 <body>
 
+<?php if (!empty($_SESSION['toast_success'])): ?>
+<div class="toast" id="main-toast">
+    <i class="fa fa-circle-check toast-icon-success"></i>
+    <span><?= htmlspecialchars($_SESSION['toast_success']) ?></span>
+    <button class="toast-close" onclick="this.closest('.toast').classList.remove('toast-show')" aria-label="Dismiss">
+        <i class="fa fa-xmark"></i>
+    </button>
+</div>
+<script>
+    (function () {
+        const t = document.getElementById('main-toast');
+        if (!t) return;
+        requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('toast-show')));
+        setTimeout(() => {
+            t.classList.remove('toast-show');
+            setTimeout(() => t.remove(), 400);
+        }, 4500);
+    })();
+</script>
+<?php unset($_SESSION['toast_success']); ?>
+<?php endif; ?>
+
 <?php if (isset($_SESSION['user_id'])): ?>
 <?php
 $currentUrl = $_GET['url'] ?? 'feed';

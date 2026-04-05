@@ -30,17 +30,17 @@
         </div>
 
         <?php if (!empty($_SESSION['error'])): ?>
-            <div class="alert alert-error">
+            <div class="auth-alert auth-alert-error">
                 <i class="fa fa-circle-exclamation"></i>
-                <?= htmlspecialchars($_SESSION['error']) ?>
+                <span><?= htmlspecialchars($_SESSION['error']) ?></span>
             </div>
             <?php unset($_SESSION['error']); ?>
         <?php endif; ?>
 
         <?php if (!empty($_SESSION['success'])): ?>
-            <div class="alert alert-success">
+            <div class="auth-alert auth-alert-success">
                 <i class="fa fa-circle-check"></i>
-                <?= htmlspecialchars($_SESSION['success']) ?>
+                <span><?= htmlspecialchars($_SESSION['success']) ?></span>
             </div>
             <?php unset($_SESSION['success']); ?>
         <?php endif; ?>
