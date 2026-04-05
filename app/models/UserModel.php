@@ -31,16 +31,17 @@ class UserModel {
         string $email,
         string $password,
         string $fullName,
-        ?string $mobile   = null,
-        ?string $birthday = null,
-        ?string $gender   = null
+        ?string $mobile       = null,
+        ?string $birthday     = null,
+        ?string $gender       = null,
+        string  $profileImage = 'default.png'
     ): int {
         $hashed = password_hash($password, PASSWORD_DEFAULT);
         $stmt = $this->db->prepare(
-            'INSERT INTO users (username, email, password, full_name, mobile, birthday, gender)
-             VALUES (?, ?, ?, ?, ?, ?, ?)'
+            'INSERT INTO users (username, email, password, full_name, mobile, birthday, gender, profile_image)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
         );
-        $stmt->execute([$username, $email, $hashed, $fullName, $mobile, $birthday, $gender]);
+        $stmt->execute([$username, $email, $hashed, $fullName, $mobile, $birthday, $gender, $profileImage]);
         return (int) $this->db->lastInsertId();
     }
 

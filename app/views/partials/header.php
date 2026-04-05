@@ -12,7 +12,51 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
+<body<?php if (isset($_SESSION['dark_mode']) && !$_SESSION['dark_mode']) echo ' class="light-mode"'; ?>>
+
+<?php if (!empty($_SESSION['toast_success'])): ?>
+<div class="toast" id="main-toast">
+    <i class="fa fa-circle-check toast-icon-success"></i>
+    <span><?= htmlspecialchars($_SESSION['toast_success']) ?></span>
+    <button class="toast-close" onclick="this.closest('.toast').classList.remove('toast-show')" aria-label="Dismiss">
+        <i class="fa fa-xmark"></i>
+    </button>
+</div>
+<script>
+    (function () {
+        const t = document.getElementById('main-toast');
+        if (!t) return;
+        requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('toast-show')));
+        setTimeout(() => {
+            t.classList.remove('toast-show');
+            setTimeout(() => t.remove(), 380);
+        }, 4500);
+    })();
+</script>
+<?php unset($_SESSION['toast_success']); ?>
+<?php endif; ?>
+
+<?php if (!empty($_SESSION['warning'])): ?>
+<div class="toast" id="main-toast-warning">
+    <i class="fa fa-triangle-exclamation toast-icon-warning"></i>
+    <span><?= htmlspecialchars($_SESSION['warning']) ?></span>
+    <button class="toast-close" onclick="this.closest('.toast').classList.remove('toast-show')" aria-label="Dismiss">
+        <i class="fa fa-xmark"></i>
+    </button>
+</div>
+<script>
+    (function () {
+        const t = document.getElementById('main-toast-warning');
+        if (!t) return;
+        requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('toast-show')));
+        setTimeout(() => {
+            t.classList.remove('toast-show');
+            setTimeout(() => t.remove(), 380);
+        }, 6000);
+    })();
+</script>
+<?php unset($_SESSION['warning']); ?>
+<?php endif; ?>
 
 <?php if (isset($_SESSION['user_id'])): ?>
 <?php

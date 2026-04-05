@@ -61,6 +61,14 @@ class AuthController {
         $_SESSION['username']      = $user['username'];
         $_SESSION['full_name']     = $user['full_name'];
         $_SESSION['profile_image'] = $user['profile_image'];
+
+        // Load dark mode preference so header.php can apply the right class immediately
+        $prefStmt = $this->db->prepare('SELECT dark_mode FROM user_preferences WHERE user_id = ?');
+        $prefStmt->execute([$user['id']]);
+        $pref = $prefStmt->fetch(PDO::FETCH_ASSOC);
+        $_SESSION['dark_mode'] = $pref ? (int) $pref['dark_mode'] : 1;
+
+        $_SESSION['toast_success'] = 'Welcome back, ' . $user['full_name'] . '!';
         header('Location: index.php?url=feed');
         exit;
     }
@@ -121,12 +129,24 @@ class AuthController {
         $gender = $gender !== '' ? $gender : null;
 
         $fullName = $firstName . ' ' . $lastName;
-        $id = $this->userModel->create($username, $email, $password, $fullName, $mobile, $birthday, $gender);
+
+        $profileImage = 'default.png';
+        if (!empty($_FILES['profile_image']['name'])) {
+            $uploaded = $this->handleImageUpload($_FILES['profile_image']);
+            if ($uploaded) {
+                $profileImage = $uploaded;
+            } else {
+                $_SESSION['warning'] = 'Profile picture could not be uploaded (invalid format or file too large). A default avatar was used.';
+            }
+        }
+
+        $id = $this->userModel->create($username, $email, $password, $fullName, $mobile, $birthday, $gender, $profileImage);
 
         $_SESSION['user_id']       = $id;
         $_SESSION['username']      = $username;
         $_SESSION['full_name']     = $fullName;
-        $_SESSION['profile_image'] = 'default.png';
+        $_SESSION['profile_image'] = $profileImage;
+        $_SESSION['dark_mode']     = 1; // new accounts default to dark mode
         $_SESSION['success']       = 'Account created! Welcome to Nexo.';
         header('Location: index.php?url=feed');
         exit;
@@ -274,6 +294,44 @@ class AuthController {
     }
 
     // ── Private helpers ───────────────────────────────
+
+    private function handleImageUpload(array $file): string|false {
+        $mimeToExt = [
+            'image/jpeg' => 'jpg',
+            'image/png'  => 'png',
+            'image/gif'  => 'gif',
+            'image/webp' => 'webp',
+        ];
+        $maxSize = 2 * 1024 * 1024;
+
+        if ($file['size'] > $maxSize) {
+            return false;
+        }
+
+        // Verify actual file content, not the browser-supplied type
+        $finfo    = new finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->file($file['tmp_name']);
+
+        if (!isset($mimeToExt[$mimeType])) {
+            return false;
+        }
+
+        $ext      = $mimeToExt[$mimeType];
+        $filename = uniqid('avatar_', true) . '.' . $ext;
+        $dir      = __DIR__ . '/../../public/assets/uploads/';
+
+        if (!is_dir($dir) || !is_writable($dir)) {
+            return false;
+        }
+
+        $dest = $dir . $filename;
+
+        if (!move_uploaded_file($file['tmp_name'], $dest)) {
+            return false;
+        }
+
+        return $filename;
+    }
 
     private function buildResetEmail(string $name, string $resetUrl): string {
         $safeUrl  = htmlspecialchars($resetUrl, ENT_QUOTES);
