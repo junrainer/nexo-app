@@ -50,8 +50,8 @@ class Mailer {
             $this->cmd($socket, 'STARTTLS');
             $this->expect($socket, '220');
 
-            // Upgrade socket to TLS
-            if (!stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT)) {
+            // Upgrade socket to TLS (allow best available version)
+            if (!stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_ANY_CLIENT)) {
                 throw new \RuntimeException('TLS handshake failed');
             }
 

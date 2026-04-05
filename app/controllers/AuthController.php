@@ -138,11 +138,20 @@ class AuthController {
             $stmt = $this->db->prepare('INSERT INTO password_resets (email, token) VALUES (?, ?)');
             $stmt->execute([$email, $token]);
 
-            // Build reset URL
-            $scheme   = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-            $host     = $_SERVER['HTTP_HOST'] ?? 'localhost';
-            $path     = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
-            $resetUrl = "{$scheme}://{$host}{$path}/index.php?url=reset-password&token={$token}";
+            // Build reset URL – use the configured base URL when available;
+            // otherwise derive it from SERVER variables and strip anything
+            // that looks like a Host-header injection attempt.
+            if (defined('APP_BASE_URL') && APP_BASE_URL !== '') {
+                $base = rtrim(APP_BASE_URL, '/');
+            } else {
+                $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                // Allow only safe hostname characters (letters, digits, dots, hyphens, brackets for IPv6, port).
+                $rawHost = $_SERVER['HTTP_HOST'] ?? 'localhost';
+                $host    = preg_replace('/[^a-zA-Z0-9.\-\[\]:_]/', '', $rawHost);
+                $path    = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+                $base    = "{$scheme}://{$host}{$path}";
+            }
+            $resetUrl = "{$base}/index.php?url=reset-password&token={$token}";
 
             // Send email
             $subject = 'Reset your Nexo password';

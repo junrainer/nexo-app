@@ -193,8 +193,9 @@ function showSettingsPanel(name, btn) {
 
 // Activate panel from URL hash on load
 (function () {
-    const hash = location.hash.replace('#', '');
-    if (hash) {
+    const VALID = ['account', 'preferences', 'privacy', 'danger'];
+    const hash  = location.hash.replace('#', '');
+    if (VALID.includes(hash)) {
         const btn = document.querySelector(`.settings-nav-item[onclick*="'${hash}'"]`);
         if (btn) showSettingsPanel(hash, btn);
     }
