@@ -73,7 +73,7 @@ function timeAgo(datetime) {
 }
 
 // ── Avatar dropdown ──────────────────────────────────
-const allDropdownsSelector = '.avatar-dropdown.open, .notification-dropdown.open, .message-dropdown.open, .sidebar-notification-dropdown.open';
+const allDropdownsSelector = '.avatar-dropdown.open, .notification-dropdown.open, .message-dropdown.open';
 
 function toggleAvatarMenu(e) {
     if (e) { e.preventDefault(); e.stopPropagation(); }
@@ -114,40 +114,10 @@ document.addEventListener('click', e => {
     }
 });
 
-// ── Sidebar notification dropdown ────────────────────
-function positionSidebarNotifDropdown() {
-    const dd  = document.getElementById('sidebar-notification-dropdown');
-    const btn = document.getElementById('sidebar-notif-btn');
-    if (!dd || !btn || !dd.classList.contains('open')) return;
-    const rect = btn.getBoundingClientRect();
-    dd.style.top  = rect.top + 'px';
-    dd.style.left = (rect.right + 8) + 'px';
+// ── Sidebar notification panel – auto-load on page init ──────────────────────
+if (document.getElementById('sidebar-notif-list')) {
+    loadNotificationsInto('sidebar-notif-list');
 }
-
-function toggleSidebarNotifications(e) {
-    if (e) { e.preventDefault(); e.stopPropagation(); }
-    const dd  = document.getElementById('sidebar-notification-dropdown');
-    const btn = document.getElementById('sidebar-notif-btn');
-    if (!dd || !btn) return;
-    const isOpen = dd.classList.contains('open');
-    document.querySelectorAll(allDropdownsSelector).forEach(el => el.classList.remove('open'));
-    if (!isOpen) {
-        dd.classList.add('open');
-        positionSidebarNotifDropdown();
-        loadNotificationsInto('sidebar-notif-list');
-    }
-}
-
-window.addEventListener('resize', positionSidebarNotifDropdown);
-window.addEventListener('scroll', positionSidebarNotifDropdown, true);
-
-document.addEventListener('click', e => {
-    const menu = document.getElementById('sidebar-notification-dropdown');
-    const btn  = document.getElementById('sidebar-notif-btn');
-    if (menu && !menu.contains(e.target) && btn && !btn.contains(e.target)) {
-        menu.classList.remove('open');
-    }
-});
 
 function loadNotifications() {
     loadNotificationsInto('notif-list');
