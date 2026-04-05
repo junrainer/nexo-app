@@ -159,10 +159,22 @@ $username   = $_SESSION['username'];
             </div>
             <div class="topbar-right">
                 <!-- Messages -->
-                <a href="index.php?url=messages" class="icon-btn" title="Messages">
+                <a href="index.php?url=messages" class="icon-<!-- Messages dropdown -->
+            <div class="notification-menu">
+                <button class="icon-btn" title="Messages" onclick="toggleMessages(event)" id="msg-btn">
                     <i class="fa fa-comment-dots"></i>
-                    <span class="icon-badge message-count" style="display:none"></span>
-                </a>
+                        <span class="icon-badge message-count" style="display:none"></span>
+                </button>
+            <div class="notification-dropdown" id="message-dropdown">
+                <div class="notif-header">
+                 <span>Messages</span>
+                     <a href="index.php?url=messages" class="mark-read-btn">See all</a>
+            </div>
+                <div class="notif-list" id="msg-list">
+                     <div class="notif-loading"><i class="fa fa-spinner fa-spin"></i> Loading...</div>
+                </div>
+             </div>
+        </div>
                 <!-- Notifications -->
                 <div class="notification-menu">
                     <button class="icon-btn" title="Notifications" onclick="toggleNotifications(event)" id="notif-btn">

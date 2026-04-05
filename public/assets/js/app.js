@@ -49,6 +49,63 @@ document.addEventListener('click', e => {
     }
 });
 
+
+// ── Messages dropdown ────────────────────────────────
+function toggleMessages(e) {
+    if (e) e.preventDefault();
+    if (e) e.stopPropagation();
+    const dd = document.getElementById('message-dropdown');
+    if (dd) {
+        dd.classList.toggle('open');
+        if (dd.classList.contains('open')) {
+            loadMessagePreviews();
+        }
+    }
+}
+
+document.addEventListener('click', e => {
+    const menu = document.getElementById('message-dropdown');
+    const btn  = document.getElementById('msg-btn');
+    if (menu && !menu.contains(e.target) && btn && !btn.contains(e.target)) {
+        menu.classList.remove('open');
+    }
+});
+
+function loadMessagePreviews() {
+    const list = document.getElementById('msg-list');
+    if (!list) return;
+
+    fetch('index.php?url=message/unread')
+        .then(r => r.json())
+        .then(data => {
+            fetch('index.php?url=messages/preview')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.conversations && data.conversations.length > 0) {
+                        list.innerHTML = data.conversations.map(c => `
+                            <a href="index.php?url=messages?with=${c.user_id}" class="notif-item ${c.unread > 0 ? 'unread' : ''}">
+                                <img src="assets/uploads/${c.profile_image || 'default.png'}" alt="avatar" class="notif-avatar"
+                                     onerror="this.onerror=null; this.src='assets/images/default.png'">
+                                <div class="notif-content">
+                                    <p><strong>${escapeHtml(c.full_name)}</strong></p>
+                                    <span class="notif-time">${escapeHtml(c.last_message)}</span>
+                                </div>
+                                ${c.unread > 0 ? `<span class="notif-dot"></span>` : ''}
+                            </a>
+                        `).join('');
+                    } else {
+                        list.innerHTML = '<div class="notif-empty"><i class="fa fa-comment-slash"></i><p>No messages yet</p></div>';
+                    }
+                })
+                .catch(() => {
+                    list.innerHTML = '<a href="index.php?url=messages" class="notif-item"><div class="notif-content"><p>Open Messages</p></div></a>';
+                });
+        })
+        .catch(() => {
+            list.innerHTML = '<a href="index.php?url=messages" class="notif-item"><div class="notif-content"><p>Open Messages</p></div></a>';
+        });
+}
+
 function loadNotifications() {
     const list = document.getElementById('notif-list');
     if (!list) return;
