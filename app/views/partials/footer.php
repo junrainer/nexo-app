@@ -3,21 +3,59 @@
 
             <!-- RIGHT SIDEBAR -->
             <?php if (!isset($hideRightSidebar)): ?>
+            <?php
+            $sidebarContacts = [];
+            try {
+                $db = Database::getInstance()->getConnection();
+                $stmt = $db->prepare("
+                    SELECT u.id, u.username, u.full_name, u.profile_image
+                    FROM friendships f
+                    JOIN users u ON f.friend_id = u.id
+                    WHERE f.user_id = ? AND f.status = 'accepted'
+                    ORDER BY u.full_name
+                    LIMIT 10
+                ");
+                $stmt->execute([$_SESSION['user_id']]);
+                $sidebarContacts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } catch (Exception $e) { /* friendships table may not exist */ }
+            ?>
             <aside class="right-sidebar">
-                <h3 class="right-sidebar-title">Suggested for you</h3>
-                <?php if (!empty($suggestions)): ?>
-                    <?php foreach ($suggestions as $s): ?>
-                    <a href="index.php?url=profile/<?= htmlspecialchars($s['username']) ?>" class="suggestion-item">
-                        <img src="assets/uploads/<?= htmlspecialchars($s['profile_image']) ?>"
-                             alt="avatar" class="avatar-sm"
-                             onerror="this.onerror=null; this.src='assets/images/default.png'">
-                        <div>
-                            <p class="suggestion-name"><?= htmlspecialchars($s['full_name']) ?></p>
-                            <p class="suggestion-username">@<?= htmlspecialchars($s['username']) ?></p>
-                        </div>
-                    </a>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                <div class="sidebar-half">
+                    <h3 class="right-sidebar-title">Suggested for you</h3>
+                    <?php if (!empty($suggestions)): ?>
+                        <?php foreach ($suggestions as $s): ?>
+                        <a href="index.php?url=profile/<?= htmlspecialchars($s['username']) ?>" class="suggestion-item">
+                            <img src="assets/uploads/<?= htmlspecialchars($s['profile_image']) ?>"
+                                 alt="avatar" class="avatar-sm"
+                                 onerror="this.onerror=null; this.src='assets/images/default.png'">
+                            <div>
+                                <p class="suggestion-name"><?= htmlspecialchars($s['full_name']) ?></p>
+                                <p class="suggestion-username">@<?= htmlspecialchars($s['username']) ?></p>
+                            </div>
+                        </a>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p class="sidebar-empty">No suggestions</p>
+                    <?php endif; ?>
+                </div>
+                <div class="sidebar-half sidebar-half--contacts">
+                    <h3 class="right-sidebar-title">Contacts</h3>
+                    <?php if (!empty($sidebarContacts)): ?>
+                        <?php foreach ($sidebarContacts as $c): ?>
+                        <a href="index.php?url=profile/<?= htmlspecialchars($c['username']) ?>" class="suggestion-item">
+                            <img src="assets/uploads/<?= htmlspecialchars($c['profile_image']) ?>"
+                                 alt="avatar" class="avatar-sm"
+                                 onerror="this.onerror=null; this.src='assets/images/default.png'">
+                            <div>
+                                <p class="suggestion-name"><?= htmlspecialchars($c['full_name']) ?></p>
+                                <p class="suggestion-username">@<?= htmlspecialchars($c['username']) ?></p>
+                            </div>
+                        </a>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p class="sidebar-empty">No contacts yet</p>
+                    <?php endif; ?>
+                </div>
             </aside>
             <?php endif; ?>
 
