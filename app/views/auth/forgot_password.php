@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forgot Password – Nexo</title>
+    <?php
+    require_once __DIR__ . '/../../../lib/Security.php';
+    $csrfField = Security::field();
+    ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,58 +16,51 @@
 </head>
 <body class="auth-body">
 
-<div class="auth-split">
+<div class="auth-page">
 
-    <!-- Left: Branding -->
-    <div class="auth-hero">
-        <div class="auth-hero-content">
-            <h1 class="auth-hero-title">FORGOT<br>PASSWORD?</h1>
-            <p class="auth-hero-sub">
-                No worries! Enter your email and we'll send you a reset link right away.
-            </p>
+    <div class="auth-card">
+
+        <!-- Logo -->
+        <div class="auth-logo">
+            <div class="auth-logo-icon"><i class="fa fa-lock"></i></div>
+            <div class="auth-logo-name">Forgot Password?</div>
+            <p class="auth-logo-tag">Enter your email and we'll send you a reset link.</p>
         </div>
+
+        <?php if (!empty($_SESSION['error'])): ?>
+            <div class="alert alert-error">
+                <i class="fa fa-circle-exclamation"></i>
+                <?= htmlspecialchars($_SESSION['error']) ?>
+            </div>
+            <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
+
+        <?php if (!empty($_SESSION['success'])): ?>
+            <div class="alert alert-success">
+                <i class="fa fa-circle-check"></i>
+                <?= htmlspecialchars($_SESSION['success']) ?>
+            </div>
+            <?php unset($_SESSION['success']); ?>
+        <?php endif; ?>
+
+        <form action="index.php?url=forgot-password" method="POST">
+            <?= $csrfField ?>
+
+            <div class="auth-field">
+                <div class="auth-input-wrap">
+                    <i class="fa fa-envelope auth-input-icon"></i>
+                    <input type="email" name="email" class="auth-input auth-input-icon-left"
+                           placeholder="Enter your email address" required autocomplete="email">
+                </div>
+            </div>
+
+            <button type="submit" class="auth-btn">Send Reset Link</button>
+        </form>
+
     </div>
 
-    <!-- Right: Form -->
-    <div class="auth-form-panel">
-        <div class="auth-form-inner">
-            <h2 class="auth-form-title">Reset your password</h2>
-            <p class="auth-form-sub">Enter the email address linked to your Nexo account.</p>
-
-            <?php if (!empty($_SESSION['error'])): ?>
-                <div class="alert alert-error">
-                    <i class="fa fa-circle-exclamation"></i>
-                    <?= htmlspecialchars($_SESSION['error']) ?>
-                </div>
-                <?php unset($_SESSION['error']); ?>
-            <?php endif; ?>
-
-            <?php if (!empty($_SESSION['success'])): ?>
-                <div class="alert alert-success">
-                    <i class="fa fa-circle-check"></i>
-                    <?= htmlspecialchars($_SESSION['success']) ?>
-                </div>
-                <?php unset($_SESSION['success']); ?>
-            <?php endif; ?>
-
-            <form action="index.php?url=forgot-password" method="POST" class="auth-form">
-
-                <div class="underline-field">
-                    <label>Email Address</label>
-                    <div class="underline-input-wrap">
-                        <input type="email" name="email" placeholder="Enter your email" required autocomplete="email">
-                        <i class="fa fa-envelope field-icon"></i>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-auth">Send Reset Link</button>
-
-                <p class="auth-switch">
-                    Remembered your password?
-                    <a href="index.php?url=login">Sign in</a>
-                </p>
-            </form>
-        </div>
+    <div class="auth-footer-card">
+        Remembered your password? <a href="index.php?url=login">Sign in</a>
     </div>
 
 </div>

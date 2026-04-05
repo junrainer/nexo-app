@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/mail.php';
 require_once __DIR__ . '/../../lib/Mailer.php';
+require_once __DIR__ . '/../../lib/Security.php';
 require_once __DIR__ . '/../models/UserModel.php';
 
 class AuthController {
@@ -31,6 +32,14 @@ class AuthController {
             exit;
         }
 
+        // Rate limiting: max 5 failed attempts per 15 minutes
+        if (!Security::checkRateLimit($identifier)) {
+            $wait = ceil(Security::lockoutSeconds($identifier) / 60);
+            $_SESSION['error'] = "Too many failed attempts. Please wait {$wait} minute(s) before trying again.";
+            header('Location: index.php?url=login');
+            exit;
+        }
+
         // Support login by email OR username
         $user = $this->userModel->findByEmail($identifier);
         if (!$user) {
@@ -38,10 +47,15 @@ class AuthController {
         }
 
         if (!$user || !password_verify($password, $user['password'])) {
+            Security::incrementAttempts($identifier);
             $_SESSION['error'] = 'Invalid email/username or password.';
             header('Location: index.php?url=login');
             exit;
         }
+
+        // Successful login – clear rate limit and regenerate session
+        Security::clearAttempts($identifier);
+        session_regenerate_id(true);
 
         $_SESSION['user_id']       = $user['id'];
         $_SESSION['username']      = $user['username'];

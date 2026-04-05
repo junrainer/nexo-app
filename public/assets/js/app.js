@@ -327,3 +327,55 @@ document.querySelectorAll('.alert').forEach(alert => {
         setTimeout(() => alert.remove(), 400);
     }, 4000);
 });
+
+// ── CSRF: auto-inject token into all POST forms & fetch calls ──
+(function () {
+    const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+    const csrf      = tokenMeta ? tokenMeta.content : '';
+    if (!csrf) return;
+
+    // 1. Automatically append _token to every <form method="post"> on submit
+    document.addEventListener('submit', function (e) {
+        const form = e.target;
+        if (form.method && form.method.toLowerCase() === 'post') {
+            if (!form.querySelector('input[name="_token"]')) {
+                const hidden = document.createElement('input');
+                hidden.type  = 'hidden';
+                hidden.name  = '_token';
+                hidden.value = csrf;
+                form.appendChild(hidden);
+            }
+        }
+    }, true);
+
+    // 2. Wrap window.fetch to auto-include the token in POST requests
+    const _fetch = window.fetch;
+    window.fetch = function (url, opts) {
+        opts = opts || {};
+        if (opts.method && opts.method.toUpperCase() === 'POST') {
+            if (opts.body instanceof FormData) {
+                if (!opts.body.has('_token')) {
+                    opts.body.append('_token', csrf);
+                }
+            }
+        }
+        return _fetch(url, opts);
+    };
+})();
+
+// ── Mobile sidebar (hamburger) ────────────────────────
+function openSidebar() {
+    const sidebar  = document.getElementById('main-sidebar');
+    const overlay  = document.getElementById('sidebar-overlay');
+    if (sidebar)  sidebar.classList.add('sidebar-open');
+    if (overlay)  overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSidebar() {
+    const sidebar  = document.getElementById('main-sidebar');
+    const overlay  = document.getElementById('sidebar-overlay');
+    if (sidebar)  sidebar.classList.remove('sidebar-open');
+    if (overlay)  overlay.classList.remove('active');
+    document.body.style.overflow = '';
+}

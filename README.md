@@ -1,62 +1,125 @@
 # Nexo – Setup Guide
 
 ## Requirements
-- XAMPP / WAMP / Laragon (PHP 8.1+, MySQL, Apache)
-- mod_rewrite enabled
+- **Local**: XAMPP / WAMP / Laragon (PHP 8.1+, MySQL, Apache) with mod_rewrite enabled
+- **Hosted**: InfinityFree (free) or any cPanel host with PHP 8.1+ and MySQL
 
-## Steps
+---
+
+## Option A – Local Development (XAMPP)
 
 ### 1. Place the project
-Your GitHub Desktop repo folder is called **NEXO APP**.
-Copy/clone it into your server root:
-- XAMPP → `C:/xampp/htdocs/NEXO APP`
-- WAMP  → `C:/wamp64/www/NEXO APP`
+Copy/clone the repo into your server root:
+- XAMPP → `C:/xampp/htdocs/nexo-app`
+- WAMP  → `C:/wamp64/www/nexo-app`
 
-### 2. Import the database
+### 2. Import the database (XAMPP)
 1. Open phpMyAdmin → http://localhost/phpmyadmin
 2. Create a new database named `nexo`
-3. Import `sql/nexo_app.sql` **(first)**
-4. Import `sql/navbar_features.sql` **(second)**
-5. Import `sql/forgot_password.sql` **(third – adds password reset table)**
+3. Import in order: `sql/nexo_app.sql` → `sql/navbar_features.sql` → `sql/forgot_password.sql`
 
-### 3. Configure database (if needed)
-Open `config/database.php` and update:
+### 3. Configure database (XAMPP)
+Edit `config/database.php`:
 ```php
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'nexo');
-define('DB_PORT', '3307');   // CHANGE to 3306 if using default MySQL port
-define('DB_USER', 'root');   // CHANGE if your MySQL user is different
-define('DB_PASS', '');       // CHANGE if you have a MySQL password
+define('DB_PORT', '3306');   // 3307 if you changed XAMPP's MySQL port
+define('DB_USER', 'root');
+define('DB_PASS', '');
 ```
 
-### 4. Configure Gmail for Forgot Password emails
-1. Go to https://myaccount.google.com/security → enable **2-Step Verification**.
-2. Go to https://myaccount.google.com/apppasswords → create a new App Password.
-3. Open `config/mail.php` and fill in:
+### 4. Configure email
+Open `config/mail.php` and set your Gmail address + App Password (see file for instructions).
+
+### 5. Run
+Access via: `http://localhost/nexo-app/public/`
+
+---
+
+## Option B – InfinityFree Hosting
+
+### 1. Sign up
+Go to https://infinityfree.com and create a free account + website.
+
+### 2. Upload files
+- Use the **File Manager** or **FTP** (FileZilla).
+- Upload the **entire project** to `htdocs/` (the web root).
+- The folder structure in `htdocs/` should be:
+  ```
+  htdocs/
+    app/
+    config/
+    lib/
+    public/       ← THIS becomes the web root (see step 5)
+    sql/
+  ```
+
+### 3. Import the database
+1. In your InfinityFree cPanel → **MySQL Databases** → create a database.
+2. Note your **DB host**, **DB name**, **username**, and **password**.
+3. Open **phpMyAdmin** from cPanel.
+4. Import in order: `sql/nexo_app.sql` → `sql/navbar_features.sql` → `sql/forgot_password.sql`
+
+### 4. Configure database
+Edit `config/database.php` with your InfinityFree credentials:
 ```php
-define('MAIL_ADDRESS',  'your_gmail@gmail.com');  // Your Gmail address
-define('MAIL_PASSWORD', 'xxxx xxxx xxxx xxxx');   // Your 16-char App Password
+define('DB_HOST', 'sql200.infinityfree.com'); // ← From cPanel (e.g. sql200.infinityfree.com)
+define('DB_NAME', 'epiz_12345678_nexo');       // ← Your DB name
+define('DB_PORT', '3306');                     // ← Always 3306 on InfinityFree
+define('DB_USER', 'epiz_12345678');            // ← Your DB username
+define('DB_PASS', 'yourpassword');             // ← Your DB password
 ```
 
-### 5. Make uploads folder writable
-The folder `public/assets/uploads/` must exist and be writable.
-On Linux/Mac: `chmod 775 public/assets/uploads/`
+### 5. Set document root to `public/`
+In InfinityFree cPanel → **Subdomains** or **Addon Domains** → point the document root to `htdocs/public`.
 
-### 6. Set your Apache document root to `public/`
-In XAMPP's httpd-vhosts.conf, add:
+Or alternatively, add an `.htaccess` in `htdocs/` that redirects to `public/`:
 ```apache
-<VirtualHost *:80>
-    DocumentRoot "C:/xampp/htdocs/NEXO APP/public"
-    ServerName nexo.local
-    <Directory "C:/xampp/htdocs/NEXO APP/public">
-        AllowOverride All
-        Require all granted
-    </Directory>
-</VirtualHost>
+RewriteEngine On
+RewriteRule ^(.*)$ public/$1 [L]
 ```
-Then add `127.0.0.1 nexo.local` to your hosts file.
 
-**OR** (simpler): just access via http://localhost/NEXO%20APP/public/
+### 6. Fix RewriteBase
+If the app is in a subdirectory, edit `public/.htaccess` and update:
+```apache
+RewriteBase /        # if at domain root
+# OR
+RewriteBase /nexo-app/public/   # if in a subdirectory
+```
+
+### 7. Set APP_BASE_URL
+Edit `config/mail.php`:
+```php
+define('APP_BASE_URL', 'http://yourdomain.infinityfreeapp.com');
+```
+
+### 8. Email on InfinityFree
+InfinityFree blocks outbound SMTP (ports 465 and 587). The app automatically
+falls back to PHP's `mail()` function, which uses InfinityFree's own relay.
+Set `MAIL_ADDRESS` in `config/mail.php` to your email so reset emails have a proper from address.
+
+---
+
+## Security features
+- **CSRF protection** on all forms and AJAX calls
+- **Login rate limiting** (5 attempts per 15 minutes)
+- **Session hardening** (regeneration, UA binding)
+- **Security headers** (X-Frame-Options, X-Content-Type-Options, etc.) via `.htaccess`
+- **Directory listing disabled**
+- **PHP execution blocked** in uploads folder
+
+## Demo accounts (password: `password`)
+- marcos_reyes / marcos@nexo.app
+- claire_santos / claire@nexo.app
+- javier_dc     / javier@nexo.app
+
+## Features
+- **Register** / **Login** (email or username)
+- **Forgot Password** → Gmail / InfinityFree mail reset link
+- **Responsive** – works on mobile, tablet, and desktop
+- **Settings** – tabbed frame (Account / Preferences / Privacy / Danger Zone)
+- Left sidebar hidden on mobile → slide-in hamburger menu
+- Mobile bottom navigation bar
 
 ### 7. Demo accounts (password: `password`)
 - marcos_reyes / marcos@nexo.app

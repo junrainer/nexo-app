@@ -174,6 +174,44 @@ input, textarea, select { font-family: inherit; }
 .sidebar-logout span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .logout-icon { color: var(--muted-fg); font-size: 14px; }
 
+/* Sidebar close button (mobile only, hidden on desktop via .hide-desktop) */
+.sidebar-top { justify-content: space-between; }
+.sidebar-close {
+    background: none;
+    border: none;
+    color: var(--muted-fg);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+    transition: color 0.15s;
+}
+.sidebar-close:hover { color: var(--fg); }
+
+/* Mobile sidebar overlay (dark backdrop) */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 148;
+}
+.sidebar-overlay.active { display: block; }
+
+/* Hamburger button */
+.hamburger-btn {
+    background: none;
+    border: none;
+    color: var(--fg);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 6px;
+    transition: background 0.15s;
+    line-height: 1;
+}
+.hamburger-btn:hover { background: var(--muted); }
+
 /* MAIN WRAPPER */
 .main-wrapper {
     flex: 1;
@@ -451,65 +489,232 @@ input, textarea, select { font-family: inherit; }
 .alert-success { background: hsla(142,70%,45%,0.12); border: 1px solid hsla(142,70%,45%,0.35); color: #5fd08c; }
 
 /* ============================================================
-   AUTH PAGES
+   AUTH PAGES – Card design (Instagram / Facebook style)
    ============================================================ */
 .auth-body { background: var(--bg); }
 
-.auth-split {
-    display: flex;
+/* Full-page centered container */
+.auth-page {
     min-height: 100vh;
-}
-
-.auth-split-reverse { flex-direction: row-reverse; }
-
-.auth-hero {
-    flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 60px 48px;
-    background: var(--bg);
+    padding: 20px 16px 40px;
+    gap: 12px;
 }
 
-.auth-hero-content { max-width: 420px; }
+/* Main card */
+.auth-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 28px 28px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+}
 
-.auth-hero-title {
-    font-size: clamp(3rem, 6vw, 5rem);
+/* Wider card for register form */
+.auth-card-wide { max-width: 440px; }
+
+/* Logo block */
+.auth-logo {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.auth-logo-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 18px;
+    font-size: 26px;
     font-weight: 800;
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-    color: var(--fg);
+    margin-bottom: 10px;
+    box-shadow: 0 4px 16px hsla(262,80%,55%,0.35);
 }
 
-.auth-hero-sub {
-    margin-top: 24px;
+.auth-logo-name {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--fg);
+    letter-spacing: -0.02em;
+}
+
+.auth-logo-tag {
+    font-size: 13px;
+    color: var(--muted-fg);
+    margin-top: 4px;
+}
+
+/* Form field */
+.auth-field { margin-bottom: 14px; }
+
+.auth-label {
+    display: block;
+    font-size: 12.5px;
+    color: var(--muted-fg);
+    margin-bottom: 6px;
+}
+
+.auth-optional { color: var(--muted-fg); opacity: 0.65; }
+
+/* Input wrapper */
+.auth-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* The actual <input> / <select> */
+.auth-input {
+    width: 100%;
+    background: var(--muted);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 14px;
+    color: var(--fg);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+}
+
+.auth-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px hsla(262,80%,55%,0.18);
+}
+
+.auth-input::placeholder { color: var(--muted-fg); }
+.auth-input option       { background: var(--card); color: var(--fg); }
+
+/* Left icon padding */
+.auth-input-icon {
+    position: absolute;
+    left: 13px;
+    color: var(--muted-fg);
+    font-size: 13.5px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.auth-input-icon-left  { padding-left: 38px; }
+.auth-input-icon-right { padding-right: 42px; }
+
+/* Eye button */
+.auth-eye-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted-fg);
+    font-size: 14px;
+    padding: 4px;
+    transition: color 0.15s;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.auth-eye-btn:hover { color: var(--fg); }
+
+/* Remember / Forgot row */
+.auth-row-split {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    margin-top: -4px;
+}
+
+.auth-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    color: var(--muted-fg);
+    cursor: pointer;
+}
+
+.auth-checkbox input { accent-color: var(--primary); width: 14px; height: 14px; }
+
+.auth-link-sm {
+    font-size: 12.5px;
+    color: var(--primary);
+    text-decoration: none;
+    transition: opacity 0.15s;
+}
+
+.auth-link-sm:hover { opacity: 0.75; text-decoration: underline; }
+
+/* Submit button */
+.auth-btn {
+    display: block;
+    width: 100%;
+    height: 46px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 14.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    letter-spacing: 0.01em;
+}
+
+.auth-btn:hover  { background: var(--primary-h); }
+.auth-btn:active { transform: scale(0.98); }
+
+/* Two-column row (first / last name) */
+.auth-row-two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+/* Three-column row (birthday) */
+.auth-row-three {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+.auth-select { cursor: pointer; }
+
+/* Footer card (sign up / sign in link) */
+.auth-footer-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    text-align: center;
     font-size: 13.5px;
     color: var(--muted-fg);
-    line-height: 1.7;
-    max-width: 360px;
-}
-
-.auth-form-panel {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 32px 24px;
-    background: var(--bg);
-}
-
-.auth-form-inner {
     width: 100%;
-    max-width: 380px;
+    max-width: 400px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
 }
 
-.auth-form-title {
-    font-size: 1.5rem;
+.auth-footer-card.wide { max-width: 440px; }
+
+.auth-footer-card a {
+    color: var(--primary);
     font-weight: 700;
-    margin-bottom: 28px;
-    color: var(--fg);
+    text-decoration: none;
 }
 
+.auth-footer-card a:hover { text-decoration: underline; }
+
+/* Keep the old underline-field styles for non-auth forms (settings, profile edit) */
 .auth-form {
     display: flex;
     flex-direction: column;
@@ -1952,20 +2157,68 @@ input, textarea, select { font-family: inherit; }
 }
 
 /* ============================================================
-   RESPONSIVE - NEW PAGES
+   RESPONSIVE – mobile (≤ 768px)
    ============================================================ */
 @media (max-width: 768px) {
+
+    /* ── Sidebar: hidden off-screen, slides in ── */
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        z-index: 149;
+        transform: translateX(-100%);
+        transition: transform 0.28s ease;
+    }
+
+    .sidebar.sidebar-open { transform: translateX(0); }
+
+    /* ── Show mobile nav bar ── */
+    .mobile-nav { display: flex; }
+
+    /* ── Topbar: show hamburger + brand ── */
+    .topbar-left { display: flex; align-items: center; gap: 8px; }
+
+    /* Search is still visible but smaller */
+    .topbar-search form { width: 100%; max-width: none; }
+
+    /* ── Hide right sidebar ── */
+    .right-sidebar { display: none; }
+
+    /* ── Add padding to account for bottom nav ── */
+    .page-main { padding-bottom: 64px; }
+    .feed-wrap { padding-bottom: 80px; }
+
+    /* ── Messages ── */
     .conversations-list { width: 100%; }
     .conversations-list.hide-mobile { display: none; }
     .chat-area.hide-mobile { display: none; }
-    .hide-desktop { display: flex !important; }
-    .notification-dropdown { width: 320px; right: -100px; }
+
+    /* ── Notification dropdown ── */
+    .notification-dropdown { width: 300px; right: -80px; }
+
+    /* ── Settings layout: stack ── */
+    .settings-layout { flex-direction: column; }
+    .settings-nav    { width: 100%; position: static; }
+
+    /* ── Friends tabs ── */
+    .friends-tabs { flex-wrap: nowrap; overflow-x: auto; }
+
+    /* ── Form grid ── */
     .form-row { grid-template-columns: 1fr; }
-    .friends-tabs { flex-wrap: nowrap; }
+
+    /* ── Auth card: slightly less padding ── */
+    .auth-card { padding: 24px 20px 20px; }
+    .auth-row-three { grid-template-columns: 1fr 1fr; }
+    .auth-row-two   { grid-template-columns: 1fr 1fr; }
 }
 
+/* ── Desktop: hamburger / sidebar-overlay / sidebar-close hidden ── */
 @media (min-width: 769px) {
-    .hide-desktop { display: none !important; }
+    .hide-desktop        { display: none !important; }
+    .sidebar-overlay     { display: none !important; }
+    .sidebar             { transform: none !important; position: sticky !important; }
 }
 
 /* ============================================================

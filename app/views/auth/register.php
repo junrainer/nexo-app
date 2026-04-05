@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Get Started – Nexo</title>
+    <title>Create Account – Nexo</title>
+    <?php
+    require_once __DIR__ . '/../../../lib/Security.php';
+    $csrfField = Security::field();
+    ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,58 +16,104 @@
 </head>
 <body class="auth-body">
 
-<div class="auth-split auth-split-reverse">
+<div class="auth-page">
 
-    <!-- Left: Form -->
-    <div class="auth-form-panel">
-        <div class="auth-form-inner">
-            <h2 class="auth-form-title">Get Started on Nexo</h2>
+    <div class="auth-card auth-card-wide">
 
-            <?php if (!empty($_SESSION['error'])): ?>
-                <div class="alert alert-error">
-                    <i class="fa fa-circle-exclamation"></i>
-                    <?= htmlspecialchars($_SESSION['error']) ?>
-                </div>
-                <?php unset($_SESSION['error']); ?>
-            <?php endif; ?>
+        <!-- Logo -->
+        <div class="auth-logo">
+            <div class="auth-logo-icon">N</div>
+            <div class="auth-logo-name">Nexo</div>
+            <p class="auth-logo-tag">Create your account</p>
+        </div>
 
-            <form action="index.php?url=register" method="POST" class="auth-form">
+        <?php if (!empty($_SESSION['error'])): ?>
+            <div class="alert alert-error">
+                <i class="fa fa-circle-exclamation"></i>
+                <?= htmlspecialchars($_SESSION['error']) ?>
+            </div>
+            <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
 
-                <!-- Name -->
-                <div class="underline-field">
-                    <label>Name</label>
-                    <div class="two-col-inputs">
-                        <input class="underline-input" type="text" name="first_name" placeholder="First Name" required>
-                        <input class="underline-input" type="text" name="last_name" placeholder="Last Name" required>
+        <form action="index.php?url=register" method="POST">
+            <?= $csrfField ?>
+
+            <!-- First + Last name -->
+            <div class="auth-row-two">
+                <div class="auth-field">
+                    <label class="auth-label">First Name</label>
+                    <div class="auth-input-wrap">
+                        <input type="text" name="first_name" class="auth-input"
+                               placeholder="First name" required>
                     </div>
                 </div>
-
-                <!-- Birthday -->
-                <div class="underline-field">
-                    <label>Birthday</label>
-                    <div class="three-col-inputs">
-                        <select class="underline-select" name="birth_month">
-                            <option value="" disabled selected>Month</option>
-                            <?php
-                            $months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-                            foreach ($months as $m) echo "<option value='$m'>$m</option>";
-                            ?>
-                        </select>
-                        <select class="underline-select" name="birth_day">
-                            <option value="" disabled selected>Day</option>
-                            <?php for ($d = 1; $d <= 31; $d++) echo "<option value='$d'>$d</option>"; ?>
-                        </select>
-                        <select class="underline-select" name="birth_year">
-                            <option value="" disabled selected>Year</option>
-                            <?php for ($y = 2026; $y >= 1960; $y--) echo "<option value='$y'>$y</option>"; ?>
-                        </select>
+                <div class="auth-field">
+                    <label class="auth-label">Last Name</label>
+                    <div class="auth-input-wrap">
+                        <input type="text" name="last_name" class="auth-input"
+                               placeholder="Last name" required>
                     </div>
                 </div>
+            </div>
 
-                <!-- Gender -->
-                <div class="underline-field">
-                    <label>Gender</label>
-                    <select class="underline-select full-select" name="gender">
+            <!-- Username -->
+            <div class="auth-field">
+                <label class="auth-label">Username</label>
+                <div class="auth-input-wrap">
+                    <i class="fa fa-at auth-input-icon"></i>
+                    <input type="text" name="username" class="auth-input auth-input-icon-left"
+                           placeholder="Choose a username" required>
+                </div>
+            </div>
+
+            <!-- Email -->
+            <div class="auth-field">
+                <label class="auth-label">Email Address</label>
+                <div class="auth-input-wrap">
+                    <i class="fa fa-envelope auth-input-icon"></i>
+                    <input type="email" name="email" class="auth-input auth-input-icon-left"
+                           placeholder="Enter your email" required>
+                </div>
+            </div>
+
+            <!-- Mobile -->
+            <div class="auth-field">
+                <label class="auth-label">Mobile Number <span class="auth-optional">(optional)</span></label>
+                <div class="auth-input-wrap">
+                    <i class="fa fa-phone auth-input-icon"></i>
+                    <input type="tel" name="mobile" class="auth-input auth-input-icon-left"
+                           placeholder="Enter mobile number">
+                </div>
+            </div>
+
+            <!-- Birthday -->
+            <div class="auth-field">
+                <label class="auth-label">Birthday</label>
+                <div class="auth-row-three">
+                    <select class="auth-input auth-select" name="birth_month">
+                        <option value="" disabled selected>Month</option>
+                        <?php
+                        $months = ['January','February','March','April','May','June',
+                                   'July','August','September','October','November','December'];
+                        foreach ($months as $m) echo "<option value='$m'>$m</option>";
+                        ?>
+                    </select>
+                    <select class="auth-input auth-select" name="birth_day">
+                        <option value="" disabled selected>Day</option>
+                        <?php for ($d = 1; $d <= 31; $d++) echo "<option value='$d'>$d</option>"; ?>
+                    </select>
+                    <select class="auth-input auth-select" name="birth_year">
+                        <option value="" disabled selected>Year</option>
+                        <?php for ($y = 2026; $y >= 1960; $y--) echo "<option value='$y'>$y</option>"; ?>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Gender -->
+            <div class="auth-field">
+                <label class="auth-label">Gender</label>
+                <div class="auth-input-wrap">
+                    <select class="auth-input auth-select" name="gender">
                         <option value="" disabled selected>Select your gender</option>
                         <option value="male">Male</option>
                         <option value="female">Female</option>
@@ -71,55 +121,29 @@
                         <option value="prefer-not">Prefer not to say</option>
                     </select>
                 </div>
+            </div>
 
-                <!-- Username or Email -->
-                <div class="underline-field">
-                    <label>Username or Email</label>
-                    <input class="underline-input full-input" type="text" name="username" placeholder="Enter username or email" required>
+            <!-- Password -->
+            <div class="auth-field">
+                <label class="auth-label">Password</label>
+                <div class="auth-input-wrap">
+                    <i class="fa fa-lock auth-input-icon"></i>
+                    <input type="password" name="password" id="regPass"
+                           class="auth-input auth-input-icon-left auth-input-icon-right"
+                           placeholder="Create a password (min. 6 chars)" required>
+                    <button type="button" class="auth-eye-btn" onclick="togglePass('regPass', this)">
+                        <i class="fa fa-eye-slash"></i>
+                    </button>
                 </div>
+            </div>
 
-                <!-- Email (hidden, same as username for simplicity) -->
-                <div class="underline-field">
-                    <label>Email</label>
-                    <input class="underline-input full-input" type="email" name="email" placeholder="Enter email address" required>
-                </div>
+            <button type="submit" class="auth-btn">Create Account</button>
+        </form>
 
-                <!-- Mobile -->
-                <div class="underline-field">
-                    <label>Mobile Number</label>
-                    <input class="underline-input full-input" type="tel" name="mobile" placeholder="Enter mobile number">
-                </div>
-
-                <!-- Password -->
-                <div class="underline-field">
-                    <label>Password</label>
-                    <div class="underline-input-wrap">
-                        <input type="password" name="password" id="regPass" placeholder="Enter password" required>
-                        <button type="button" class="field-eye" onclick="togglePass('regPass', this)">
-                            <i class="fa fa-eye-slash"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-auth">Submit</button>
-
-                <p class="auth-switch">
-                    Already have an account?
-                    <a href="index.php?url=login">Sign in</a>
-                </p>
-
-            </form>
-        </div>
     </div>
 
-    <!-- Right: Branding -->
-    <div class="auth-hero">
-        <div class="auth-hero-content">
-            <h1 class="auth-hero-title">WELCOME<br>BACK</h1>
-            <p class="auth-hero-sub">
-                Join Nexo and connect with your classmates and community today.
-            </p>
-        </div>
+    <div class="auth-footer-card">
+        Already have an account? <a href="index.php?url=login">Sign in</a>
     </div>
 
 </div>

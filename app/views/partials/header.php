@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle ?? 'Nexo' ?></title>
+    <?php require_once __DIR__ . '/../../../lib/Security.php'; ?>
+    <?= Security::meta() ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -20,13 +22,20 @@ $username   = $_SESSION['username'];
 
 <div class="app-shell">
 
+    <!-- MOBILE OVERLAY (closes sidebar) -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
     <!-- LEFT SIDEBAR -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="main-sidebar">
         <div class="sidebar-top">
             <a href="index.php?url=feed" class="sidebar-brand">
                 <div class="brand-icon">N</div>
                 <span>Nexo</span>
             </a>
+            <!-- Close button (mobile only) -->
+            <button class="sidebar-close hide-desktop" onclick="closeSidebar()" aria-label="Close menu">
+                <i class="fa fa-xmark"></i>
+            </button>
         </div>
 
         <nav class="sidebar-nav">
@@ -75,6 +84,10 @@ $username   = $_SESSION['username'];
         <!-- TOP BAR -->
         <header class="topbar">
             <div class="topbar-left">
+                <!-- Hamburger (mobile only) -->
+                <button class="hamburger-btn hide-desktop" onclick="openSidebar()" aria-label="Open menu">
+                    <i class="fa fa-bars"></i>
+                </button>
                 <a href="index.php?url=feed" class="mobile-brand">
                     <div class="brand-icon brand-icon-sm">N</div>
                     <span>Nexo</span>

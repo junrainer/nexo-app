@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reset Password – Nexo</title>
+    <?php
+    require_once __DIR__ . '/../../../lib/Security.php';
+    $csrfField = Security::field();
+    ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,77 +16,80 @@
 </head>
 <body class="auth-body">
 
-<div class="auth-split auth-split-reverse">
+<div class="auth-page">
 
-    <!-- Left: Form -->
-    <div class="auth-form-panel">
-        <div class="auth-form-inner">
-            <h2 class="auth-form-title">Set a new password</h2>
-            <p class="auth-form-sub">Choose a strong password you haven't used before.</p>
+    <div class="auth-card">
 
-            <?php if (!empty($_SESSION['error'])): ?>
-                <div class="alert alert-error">
-                    <i class="fa fa-circle-exclamation"></i>
-                    <?= htmlspecialchars($_SESSION['error']) ?>
-                </div>
-                <?php unset($_SESSION['error']); ?>
-            <?php endif; ?>
-
-            <?php if (!empty($_SESSION['success'])): ?>
-                <div class="alert alert-success">
-                    <i class="fa fa-circle-check"></i>
-                    <?= htmlspecialchars($_SESSION['success']) ?>
-                </div>
-                <?php unset($_SESSION['success']); ?>
-            <?php endif; ?>
-
-            <?php if (!empty($tokenValid)): ?>
-            <form action="index.php?url=reset-password" method="POST" class="auth-form">
-                <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
-
-                <div class="underline-field">
-                    <label>New Password</label>
-                    <div class="underline-input-wrap">
-                        <input type="password" name="password" id="resetPass" placeholder="At least 6 characters" required>
-                        <button type="button" class="field-eye" onclick="togglePass('resetPass', this)">
-                            <i class="fa fa-eye-slash"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="underline-field">
-                    <label>Confirm New Password</label>
-                    <div class="underline-input-wrap">
-                        <input type="password" name="confirm_password" id="resetPassConfirm" placeholder="Repeat password" required>
-                        <button type="button" class="field-eye" onclick="togglePass('resetPassConfirm', this)">
-                            <i class="fa fa-eye-slash"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-auth">Update Password</button>
-            </form>
-            <?php else: ?>
-                <p class="auth-switch" style="text-align:center; margin-top:16px;">
-                    This reset link is invalid or has expired.
-                    <a href="index.php?url=forgot-password">Request a new link</a>
-                </p>
-            <?php endif; ?>
-
-            <p class="auth-switch" style="margin-top:16px;">
-                <a href="index.php?url=login">← Back to Sign in</a>
-            </p>
+        <!-- Logo -->
+        <div class="auth-logo">
+            <div class="auth-logo-icon"><i class="fa fa-key"></i></div>
+            <div class="auth-logo-name">Set New Password</div>
+            <p class="auth-logo-tag">Choose a strong password you haven't used before.</p>
         </div>
+
+        <?php if (!empty($_SESSION['error'])): ?>
+            <div class="alert alert-error">
+                <i class="fa fa-circle-exclamation"></i>
+                <?= htmlspecialchars($_SESSION['error']) ?>
+            </div>
+            <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
+
+        <?php if (!empty($_SESSION['success'])): ?>
+            <div class="alert alert-success">
+                <i class="fa fa-circle-check"></i>
+                <?= htmlspecialchars($_SESSION['success']) ?>
+            </div>
+            <?php unset($_SESSION['success']); ?>
+        <?php endif; ?>
+
+        <?php if (!empty($tokenValid)): ?>
+        <form action="index.php?url=reset-password" method="POST">
+            <?= $csrfField ?>
+            <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
+
+            <div class="auth-field">
+                <label class="auth-label">New Password</label>
+                <div class="auth-input-wrap">
+                    <i class="fa fa-lock auth-input-icon"></i>
+                    <input type="password" name="password" id="resetPass"
+                           class="auth-input auth-input-icon-left auth-input-icon-right"
+                           placeholder="At least 6 characters" required>
+                    <button type="button" class="auth-eye-btn" onclick="togglePass('resetPass', this)">
+                        <i class="fa fa-eye-slash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="auth-field">
+                <label class="auth-label">Confirm New Password</label>
+                <div class="auth-input-wrap">
+                    <i class="fa fa-lock auth-input-icon"></i>
+                    <input type="password" name="confirm_password" id="resetConfirm"
+                           class="auth-input auth-input-icon-left auth-input-icon-right"
+                           placeholder="Repeat your password" required>
+                    <button type="button" class="auth-eye-btn" onclick="togglePass('resetConfirm', this)">
+                        <i class="fa fa-eye-slash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="auth-btn">Update Password</button>
+        </form>
+        <?php else: ?>
+            <div class="alert alert-error">
+                <i class="fa fa-triangle-exclamation"></i>
+                This reset link is invalid or has expired.
+            </div>
+            <a href="index.php?url=forgot-password" class="auth-btn" style="display:block; text-align:center; text-decoration:none; line-height:44px; margin-top:0;">
+                Request a new link
+            </a>
+        <?php endif; ?>
+
     </div>
 
-    <!-- Right: Branding -->
-    <div class="auth-hero">
-        <div class="auth-hero-content">
-            <h1 class="auth-hero-title">ALMOST<br>THERE</h1>
-            <p class="auth-hero-sub">
-                Create a strong password to keep your Nexo account safe.
-            </p>
-        </div>
+    <div class="auth-footer-card">
+        <a href="index.php?url=login">← Back to Sign in</a>
     </div>
 
 </div>
