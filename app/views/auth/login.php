@@ -436,7 +436,7 @@
                         <input type="checkbox" name="remember">
                         Remember me
                     </label>
-                    <a href="#" class="lf-forgot">Forgot password?</a>
+                    <a href="index.php?url=forgot-password" class="lf-forgot">Forgot password?</a>
                 </div>
 
                 <button type="submit" class="lf-btn">

@@ -201,19 +201,127 @@ class AuthController {
             header('Location: index.php?url=forgot-password');
             exit;
         }
-        // Always show success to prevent email enumeration
+
+        $user = $this->userModel->findByEmail($email);
+        if ($user) {
+            try {
+                $db = Database::getInstance()->getConnection();
+
+                // Remove any previous tokens for this email
+                $db->prepare('DELETE FROM password_resets WHERE email = ?')->execute([$email]);
+
+                // Generate a secure random token
+                $token = bin2hex(random_bytes(32));
+                $db->prepare('INSERT INTO password_resets (email, token) VALUES (?, ?)')->execute([$email, $token]);
+
+                // Build the reset URL
+                if (defined('APP_BASE_URL') && APP_BASE_URL !== '') {
+                    $baseUrl = APP_BASE_URL;
+                } else {
+                    $scheme  = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                    $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST']
+                             . rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+                }
+                $resetUrl = $baseUrl . '/index.php?url=reset-password&token=' . urlencode($token);
+
+                // Send the reset email
+                require_once __DIR__ . '/../../config/mail.php';
+                require_once __DIR__ . '/../../lib/Mailer.php';
+                $mailer = new Mailer(MAIL_ADDRESS, MAIL_PASSWORD, MAIL_FROM_NAME);
+                $body   = '<p>Hello,</p>'
+                        . '<p>We received a request to reset the password for your Nexo account. '
+                        . 'Click the link below to set a new password. This link is valid for <strong>1 hour</strong>.</p>'
+                        . '<p><a href="' . htmlspecialchars($resetUrl, ENT_QUOTES, 'UTF-8') . '">'
+                        . htmlspecialchars($resetUrl, ENT_QUOTES, 'UTF-8') . '</a></p>'
+                        . '<p>If you did not request a password reset, you can safely ignore this email.</p>'
+                        . '<p>– The Nexo Team</p>';
+                $mailer->send($email, 'Reset your Nexo password', $body);
+            } catch (\Throwable $e) {
+                error_log('forgotPassword error: ' . $e->getMessage());
+            }
+        }
+
+        // Always show the same message to prevent email enumeration
         $_SESSION['toast_success'] = 'If that email exists, a reset link has been sent.';
         header('Location: index.php?url=login');
         exit;
     }
 
     public function showResetPassword(): void {
+        $token      = trim($_GET['token'] ?? '');
+        $tokenValid = false;
+
+        if ($token !== '') {
+            $tokenValid = $this->findValidResetToken($token) !== null;
+        }
+
         require __DIR__ . '/../views/auth/reset_password.php';
     }
 
     public function resetPassword(): void {
-        $_SESSION['error'] = 'Password reset is not configured. Contact admin.';
-        header('Location: index.php?url=login');
-        exit;
+        $token    = trim($_POST['token'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $confirm  = $_POST['confirm_password'] ?? '';
+
+        if (empty($token)) {
+            $_SESSION['error'] = 'Invalid reset link.';
+            header('Location: index.php?url=login');
+            exit;
+        }
+
+        if (strlen($password) < 8) {
+            $_SESSION['error'] = 'Password must be at least 8 characters.';
+            header('Location: index.php?url=reset-password&token=' . urlencode($token));
+            exit;
+        }
+
+        if ($password !== $confirm) {
+            $_SESSION['error'] = 'Passwords do not match.';
+            header('Location: index.php?url=reset-password&token=' . urlencode($token));
+            exit;
+        }
+
+        try {
+            $row = $this->findValidResetToken($token);
+
+            if (!$row) {
+                $_SESSION['error'] = 'This reset link is invalid or has expired.';
+                header('Location: index.php?url=forgot-password');
+                exit;
+            }
+
+            $db = Database::getInstance()->getConnection();
+
+            // Update the user's password
+            $hash = password_hash($password, PASSWORD_DEFAULT);
+            $db->prepare('UPDATE users SET password = ? WHERE email = ?')->execute([$hash, $row['email']]);
+
+            // Delete the consumed token
+            $db->prepare('DELETE FROM password_resets WHERE token = ?')->execute([$token]);
+
+            $_SESSION['toast_success'] = 'Password updated! You can now sign in with your new password.';
+            header('Location: index.php?url=login');
+            exit;
+        } catch (\Throwable $e) {
+            error_log('resetPassword error: ' . $e->getMessage());
+            $_SESSION['error'] = 'Something went wrong. Please try again.';
+            header('Location: index.php?url=forgot-password');
+            exit;
+        }
+    }
+
+    private function findValidResetToken(string $token): ?array {
+        try {
+            $db   = Database::getInstance()->getConnection();
+            $stmt = $db->prepare(
+                'SELECT email FROM password_resets WHERE token = ? AND created_at >= NOW() - INTERVAL 1 HOUR'
+            );
+            $stmt->execute([$token]);
+            $row = $stmt->fetch();
+            return $row ?: null;
+        } catch (\Throwable $e) {
+            error_log('findValidResetToken error: ' . $e->getMessage());
+            return null;
+        }
     }
 }
