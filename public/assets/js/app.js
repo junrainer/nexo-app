@@ -516,12 +516,11 @@ function showSettingsPanel(name, btn) {
 })();
 
 // ── Friend page tab switching ─────────────────────────
-function switchFriendTab(tabName) {
-    document.querySelectorAll('.friends-tabs .tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    const btn = document.querySelector(`.friends-tabs [data-tab="${tabName}"]`);
-    const content = document.getElementById('tab-' + tabName);
+function switchFriendTab(tabName, btn) {
+    document.querySelectorAll('.gm-tab-sw').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.gm-tab-panel').forEach(p => p.classList.remove('active'));
     if (btn) btn.classList.add('active');
+    const content = document.getElementById('tab-' + tabName);
     if (content) content.classList.add('active');
 }
 
