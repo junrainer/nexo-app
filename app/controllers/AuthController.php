@@ -107,13 +107,13 @@ class AuthController {
         $mobile = $mobile !== '' ? $mobile : null;
 
         $birthMonth = trim($_POST['birth_month'] ?? '');
-        $birthDay   = trim($_POST['birth_day']   ?? '');
-        $birthYear  = trim($_POST['birth_year']  ?? '');
+        $birthDay   = (int) ($_POST['birth_day']   ?? 0);
+        $birthYear  = (int) ($_POST['birth_year']  ?? 0);
         $birthday   = null;
-        if ($birthMonth !== '' && $birthDay !== '' && $birthYear !== '') {
-            $parsed = date_create("{$birthMonth} {$birthDay}, {$birthYear}");
-            if ($parsed) {
-                $birthday = $parsed->format('Y-m-d');
+        if ($birthMonth !== '' && $birthDay > 0 && $birthYear > 0) {
+            $monthNum = (int) date('n', strtotime("1 {$birthMonth} 2000"));
+            if ($monthNum > 0 && checkdate($monthNum, $birthDay, $birthYear)) {
+                $birthday = sprintf('%04d-%02d-%02d', $birthYear, $monthNum, $birthDay);
             }
         }
 
