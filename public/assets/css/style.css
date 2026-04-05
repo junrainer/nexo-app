@@ -23,6 +23,26 @@
     --sidebar-w: 240px;
 }
 
+/* Light mode overrides (applied when user has dark mode OFF) */
+body.light-mode {
+    --bg:       #f0f2f5;
+    --card:     #ffffff;
+    --card2:    #f7f8fa;
+    --sidebar:  #ffffff;
+    --border:   #dde1e7;
+    --input:    #f7f8fa;
+    --muted:    #f0f2f5;
+    --muted-fg: #8d8f93;
+    --fg:       #1c1e21;
+    --fg2:      #65676b;
+}
+
+body.light-mode .nav-item,
+body.light-mode .sidebar-logout { color: rgba(28,30,33,0.65); }
+
+body.light-mode .nav-item:hover,
+body.light-mode .sidebar-logout:hover { color: var(--fg); }
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 

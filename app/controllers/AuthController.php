@@ -61,6 +61,13 @@ class AuthController {
         $_SESSION['username']      = $user['username'];
         $_SESSION['full_name']     = $user['full_name'];
         $_SESSION['profile_image'] = $user['profile_image'];
+
+        // Load dark mode preference so header.php can apply the right class immediately
+        $prefStmt = $this->db->prepare('SELECT dark_mode FROM user_preferences WHERE user_id = ?');
+        $prefStmt->execute([$user['id']]);
+        $pref = $prefStmt->fetch(PDO::FETCH_ASSOC);
+        $_SESSION['dark_mode'] = $pref ? (int) $pref['dark_mode'] : 1;
+
         $_SESSION['toast_success'] = 'Welcome back, ' . $user['full_name'] . '!';
         header('Location: index.php?url=feed');
         exit;
@@ -139,6 +146,7 @@ class AuthController {
         $_SESSION['username']      = $username;
         $_SESSION['full_name']     = $fullName;
         $_SESSION['profile_image'] = $profileImage;
+        $_SESSION['dark_mode']     = 1; // new accounts default to dark mode
         $_SESSION['success']       = 'Account created! Welcome to Nexo.';
         header('Location: index.php?url=feed');
         exit;

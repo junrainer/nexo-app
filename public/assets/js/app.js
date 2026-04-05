@@ -158,7 +158,7 @@ function toggleDarkMode() {
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                document.body.classList.toggle('dark-mode', data.dark_mode);
+                document.body.classList.toggle('light-mode', !data.dark_mode);
             }
         });
 }
