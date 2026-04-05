@@ -17,7 +17,7 @@
                 ");
                 $stmt->execute([$_SESSION['user_id']]);
                 $sidebarContacts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            } catch (Exception $e) { /* friendships table may not exist */ }
+            } catch (PDOException $e) { /* friendships table may not exist */ }
             ?>
             <aside class="right-sidebar">
                 <div class="sidebar-half">
