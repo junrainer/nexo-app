@@ -214,7 +214,7 @@ $csrfField = Security::field();
                                 <i class="fa fa-eye-slash"></i>
                             </button>
                         </div>
-                        <p class="auth-input-hint">At least 8 characters with uppercase, number, and special character</p>
+                        <p class="auth-input-hint">Minimum 6 characters required</p>
                     </div>
 
                     <!-- Confirm Password -->
@@ -231,7 +231,7 @@ $csrfField = Security::field();
                                 <i class="fa fa-eye-slash"></i>
                             </button>
                         </div>
-                        <p class="auth-input-hint" id="regPassMismatch" style="display:none; color:var(--danger)">
+                        <p class="auth-input-hint auth-input-hint--error" id="regPassMismatch" style="display:none">
                             Passwords do not match.
                         </p>
                     </div>

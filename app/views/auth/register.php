@@ -214,7 +214,7 @@ $csrfField = Security::field();
                                 <i class="fa fa-eye-slash"></i>
                             </button>
                         </div>
-                        <p class="auth-input-hint">At least 8 characters with uppercase, number, and special character</p>
+                        <p class="auth-input-hint">Minimum 6 characters required</p>
                     </div>
 
                     <!-- Confirm Password -->

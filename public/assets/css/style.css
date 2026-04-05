@@ -773,6 +773,7 @@ input, textarea, select { font-family: inherit; }
     margin-top: 4px;
     line-height: 1.4;
 }
+.auth-input-hint--error { color: var(--danger); }
 
 /* Terms line */
 .auth-terms {
