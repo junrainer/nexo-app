@@ -100,19 +100,13 @@ $username   = $_SESSION['username'];
                 <i class="fa fa-comment-dots"></i> Messages
                 <span class="nav-badge message-count" style="display:none"></span>
             </a>
-            <div class="sidebar-notif-menu">
-                <a href="#" class="nav-item" id="sidebar-notif-btn" onclick="toggleSidebarNotifications(event)">
-                    <i class="fa fa-bell"></i> Notifications
-                    <span class="nav-badge notif-count" style="display:none"></span>
-                </a>
-                <div class="sidebar-notification-dropdown" id="sidebar-notification-dropdown">
-                    <div class="notif-header">
-                        <span>Notifications</span>
-                        <button onclick="markAllNotificationsRead()" class="mark-read-btn">Mark all read</button>
-                    </div>
-                    <div class="notif-list" id="sidebar-notif-list">
-                        <div class="notif-loading"><i class="fa fa-spinner fa-spin"></i> Loading...</div>
-                    </div>
+            <div class="sidebar-notif-panel">
+                <div class="notif-header">
+                    <span><i class="fa fa-bell"></i> Notifications <span class="nav-badge notif-count" style="display:none"></span></span>
+                    <button onclick="markAllNotificationsRead()" class="mark-read-btn">Mark all read</button>
+                </div>
+                <div class="notif-list" id="sidebar-notif-list">
+                    <div class="notif-loading"><i class="fa fa-spinner fa-spin"></i> Loading...</div>
                 </div>
             </div>
 
