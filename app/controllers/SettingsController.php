@@ -116,9 +116,10 @@ class SettingsController {
     public function updatePreferences() {
         $userId = $_SESSION['user_id'];
         
-        $darkMode = isset($_POST['dark_mode']) ? 1 : 0;
-        $emailNotifications = isset($_POST['email_notifications']) ? 1 : 0;
-        $pushNotifications = isset($_POST['push_notifications']) ? 1 : 0;
+        // Handles both checkbox ('on') and hidden-field ('1'/'0') submissions
+        $darkMode           = in_array($_POST['dark_mode']            ?? '0', ['on', '1', 1], true) ? 1 : 0;
+        $emailNotifications = in_array($_POST['email_notifications']  ?? '0', ['on', '1', 1], true) ? 1 : 0;
+        $pushNotifications  = in_array($_POST['push_notifications']   ?? '0', ['on', '1', 1], true) ? 1 : 0;
         $friendRequestsPrivacy = $_POST['friend_requests_privacy'] ?? 'everyone';
         $postPrivacy = $_POST['post_privacy'] ?? 'public';
         
