@@ -122,12 +122,21 @@ class AuthController {
         $gender = $gender !== '' ? $gender : null;
 
         $fullName = $firstName . ' ' . $lastName;
-        $id = $this->userModel->create($username, $email, $password, $fullName, $mobile, $birthday, $gender);
+
+        $profileImage = 'default.png';
+        if (!empty($_FILES['profile_image']['name'])) {
+            $uploaded = $this->handleImageUpload($_FILES['profile_image']);
+            if ($uploaded) {
+                $profileImage = $uploaded;
+            }
+        }
+
+        $id = $this->userModel->create($username, $email, $password, $fullName, $mobile, $birthday, $gender, $profileImage);
 
         $_SESSION['user_id']       = $id;
         $_SESSION['username']      = $username;
         $_SESSION['full_name']     = $fullName;
-        $_SESSION['profile_image'] = 'default.png';
+        $_SESSION['profile_image'] = $profileImage;
         $_SESSION['success']       = 'Account created! Welcome to Nexo.';
         header('Location: index.php?url=feed');
         exit;
@@ -275,6 +284,25 @@ class AuthController {
     }
 
     // ── Private helpers ───────────────────────────────
+
+    private function handleImageUpload(array $file): string|false {
+        $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        $maxSize = 2 * 1024 * 1024;
+
+        if (!in_array($file['type'], $allowed) || $file['size'] > $maxSize) {
+            return false;
+        }
+
+        $ext      = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $filename = uniqid('avatar_', true) . '.' . $ext;
+        $dest     = __DIR__ . '/../../public/assets/uploads/' . $filename;
+
+        if (!move_uploaded_file($file['tmp_name'], $dest)) {
+            return false;
+        }
+
+        return $filename;
+    }
 
     private function buildResetEmail(string $name, string $resetUrl): string {
         $safeUrl  = htmlspecialchars($resetUrl, ENT_QUOTES);

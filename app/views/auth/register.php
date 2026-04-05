@@ -37,8 +37,25 @@
             <?php unset($_SESSION['error']); ?>
         <?php endif; ?>
 
-        <form action="index.php?url=register" method="POST">
+        <form action="index.php?url=register" method="POST" enctype="multipart/form-data">
             <?= $csrfField ?>
+
+            <!-- Profile Picture -->
+            <div class="auth-field reg-avatar-field">
+                <label class="auth-label">Profile Picture <span class="auth-optional">(optional)</span></label>
+                <div class="reg-avatar-wrap">
+                    <div class="reg-avatar-preview" id="regAvatarPreview">
+                        <i class="fa fa-user reg-avatar-icon" id="regAvatarIcon"></i>
+                        <img id="regAvatarImg" src="" alt="Preview" style="display:none">
+                    </div>
+                    <label class="reg-avatar-label" for="profileImageInput">
+                        <i class="fa fa-camera"></i> Choose photo
+                    </label>
+                    <input type="file" name="profile_image" id="profileImageInput"
+                           accept="image/jpeg,image/png,image/gif,image/webp" style="display:none">
+                    <span class="reg-avatar-hint">Max 2 MB · JPEG, PNG, GIF, WebP</span>
+                </div>
+            </div>
 
             <!-- First + Last name -->
             <div class="auth-row-two">
@@ -151,5 +168,24 @@
 </div>
 
 <script src="assets/js/app.js"></script>
+<script>
+(function () {
+    var input   = document.getElementById('profileImageInput');
+    var img     = document.getElementById('regAvatarImg');
+    var icon    = document.getElementById('regAvatarIcon');
+    if (!input) return;
+    input.addEventListener('change', function () {
+        var file = input.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            img.src = e.target.result;
+            img.style.display = 'block';
+            icon.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    });
+}());
+</script>
 </body>
 </html>
