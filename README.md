@@ -108,30 +108,19 @@ Set `MAIL_ADDRESS` in `config/mail.php` to your email so reset emails have a pro
 - **Directory listing disabled**
 - **PHP execution blocked** in uploads folder
 
+## Features
+- **Register** / **Login** (email or username)
+- **Forgot Password** → Gmail SMTP (XAMPP) or PHP mail() (InfinityFree)
+- **Responsive** – works on mobile, tablet, and desktop
+- **Settings** – click the avatar (top-right) → Settings & privacy
+  - Opens a tabbed frame: Account · Preferences · Privacy · Danger Zone
+- Left sidebar hidden on mobile → slide-in hamburger menu
+- Mobile bottom navigation bar
+
 ## Demo accounts (password: `password`)
 - marcos_reyes / marcos@nexo.app
 - claire_santos / claire@nexo.app
 - javier_dc     / javier@nexo.app
-
-## Features
-- **Register** / **Login** (email or username)
-- **Forgot Password** → Gmail / InfinityFree mail reset link
-- **Responsive** – works on mobile, tablet, and desktop
-- **Settings** – tabbed frame (Account / Preferences / Privacy / Danger Zone)
-- Left sidebar hidden on mobile → slide-in hamburger menu
-- Mobile bottom navigation bar
-
-### 7. Demo accounts (password: `password`)
-- marcos_reyes / marcos@nexo.app
-- claire_santos / claire@nexo.app
-- javier_dc     / javier@nexo.app
-
-## Features
-- **Register** – Create a new account (saves to database)
-- **Login** – Sign in with your **email or username**
-- **Forgot Password** – Enter your email, receive a Gmail reset link
-- **Settings** – Click the avatar (top-right) → Settings & privacy
-  - Opens a tabbed frame: Account · Preferences · Privacy · Danger Zone
 
 ## Folder Structure
 ```

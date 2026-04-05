@@ -135,7 +135,7 @@ require __DIR__ . '/../partials/header.php';
                         <label for="friend_requests_privacy">Who can send you friend requests?</label>
                         <select name="friend_requests_privacy" id="friend_requests_privacy" class="form-select">
                             <option value="everyone"          <?= $preferences['friend_requests_privacy'] === 'everyone'          ? 'selected' : '' ?>>Everyone</option>
-                            <option value="friends_of_friends"<?= $preferences['friend_requests_privacy'] === 'friends_of_friends' ? 'selected' : '' ?>>Friends of friends</option>
+                            <option value="friends_of_friends" <?= $preferences['friend_requests_privacy'] === 'friends_of_friends' ? 'selected' : '' ?>>Friends of friends</option>
                             <option value="nobody"            <?= $preferences['friend_requests_privacy'] === 'nobody'            ? 'selected' : '' ?>>Nobody</option>
                         </select>
                     </div>
