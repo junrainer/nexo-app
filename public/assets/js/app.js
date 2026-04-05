@@ -79,7 +79,7 @@ function toggleAvatarMenu(e) {
     if (!dd) return;
     const isOpen = dd.classList.contains('open');
     // Close all dropdowns first
-    document.querySelectorAll('.avatar-dropdown.open, .notification-dropdown.open, .message-dropdown.open').forEach(el => el.classList.remove('open'));
+    document.querySelectorAll('.avatar-dropdown.open, .notification-dropdown.open, .message-dropdown.open, .sidebar-notification-dropdown.open').forEach(el => el.classList.remove('open'));
     if (!isOpen) dd.classList.add('open');
 }
 
@@ -97,7 +97,7 @@ function toggleNotifications(e) {
     const dd = document.getElementById('notification-dropdown');
     if (!dd) return;
     const isOpen = dd.classList.contains('open');
-    document.querySelectorAll('.avatar-dropdown.open, .notification-dropdown.open, .message-dropdown.open').forEach(el => el.classList.remove('open'));
+    document.querySelectorAll('.avatar-dropdown.open, .notification-dropdown.open, .message-dropdown.open, .sidebar-notification-dropdown.open').forEach(el => el.classList.remove('open'));
     if (!isOpen) {
         dd.classList.add('open');
         loadNotifications();
@@ -112,17 +112,43 @@ document.addEventListener('click', e => {
     }
 });
 
-function loadNotifications() {
-    const list = document.getElementById('notif-list');
-    if (!list) return;
+// ── Sidebar notification dropdown ────────────────────
+function toggleSidebarNotifications(e) {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    const dd = document.getElementById('sidebar-notification-dropdown');
+    if (!dd) return;
+    const isOpen = dd.classList.contains('open');
+    document.querySelectorAll('.avatar-dropdown.open, .notification-dropdown.open, .message-dropdown.open, .sidebar-notification-dropdown.open').forEach(el => el.classList.remove('open'));
+    if (!isOpen) {
+        dd.classList.add('open');
+        loadNotifications();
+    }
+}
 
-    list.innerHTML = '<div class="notif-loading"><i class="fa fa-spinner fa-spin"></i> Loading...</div>';
+document.addEventListener('click', e => {
+    const menu = document.getElementById('sidebar-notification-dropdown');
+    const trigger = e.target.closest('.sidebar-notif-menu');
+    if (menu && menu.classList.contains('open') && !menu.contains(e.target) && !trigger) {
+        menu.classList.remove('open');
+    }
+});
+
+function loadNotifications() {
+    const lists = [
+        document.getElementById('notif-list'),
+        document.getElementById('sidebar-notif-list')
+    ].filter(Boolean);
+    if (!lists.length) return;
+
+    const loading = '<div class="notif-loading"><i class="fa fa-spinner fa-spin"></i> Loading...</div>';
+    lists.forEach(l => { l.innerHTML = loading; });
 
     fetch('index.php?url=notifications')
         .then(r => r.json())
         .then(data => {
+            let html;
             if (data.success && data.notifications && data.notifications.length > 0) {
-                list.innerHTML = data.notifications.map(n => `
+                html = data.notifications.map(n => `
                     <a href="${escapeHtml(getNotificationLink(n))}"
                        class="notif-item ${n.is_read ? '' : 'unread'}"
                        onclick="markNotificationRead(${n.id})">
@@ -137,11 +163,13 @@ function loadNotifications() {
                     </a>
                 `).join('');
             } else {
-                list.innerHTML = '<div class="notif-empty"><i class="fa fa-bell-slash"></i><p>No notifications yet</p></div>';
+                html = '<div class="notif-empty"><i class="fa fa-bell-slash"></i><p>No notifications yet</p></div>';
             }
+            lists.forEach(l => { l.innerHTML = html; });
         })
         .catch(() => {
-            list.innerHTML = '<div class="notif-empty"><i class="fa fa-circle-exclamation"></i><p>Failed to load</p></div>';
+            const err = '<div class="notif-empty"><i class="fa fa-circle-exclamation"></i><p>Failed to load</p></div>';
+            lists.forEach(l => { l.innerHTML = err; });
         });
 }
 
@@ -182,7 +210,7 @@ function toggleMessages(e) {
     const dd = document.getElementById('message-dropdown');
     if (!dd) return;
     const isOpen = dd.classList.contains('open');
-    document.querySelectorAll('.avatar-dropdown.open, .notification-dropdown.open, .message-dropdown.open')
+    document.querySelectorAll('.avatar-dropdown.open, .notification-dropdown.open, .message-dropdown.open, .sidebar-notification-dropdown.open')
         .forEach(el => el.classList.remove('open'));
     if (!isOpen) {
         dd.classList.add('open');

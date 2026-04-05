@@ -2154,6 +2154,28 @@ input, textarea, select { font-family: inherit; }
     position: relative;
 }
 
+/* ── Sidebar notification dropdown ──────────────────────── */
+.sidebar-notif-menu {
+    position: relative;
+}
+
+.sidebar-notification-dropdown {
+    position: absolute;
+    top: 0;
+    left: calc(100% + 8px);
+    width: 360px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    z-index: 999;
+    display: none;
+    max-height: 400px;
+    overflow: hidden;
+}
+
+.sidebar-notification-dropdown.open { display: block; }
+
 .notification-dropdown {
     position: absolute;
     top: calc(100% + 8px);
