@@ -553,6 +553,251 @@ input, textarea, select { font-family: inherit; }
 .auth-alert-success { background: hsla(142,70%,45%,0.12); border: 1px solid hsla(142,70%,45%,0.35); color: #5fd08c; }
 
 /* ============================================================
+   AUTH – Split-screen layout (hero left / form right)
+   ============================================================ */
+
+/* Full-viewport container */
+.auth-split-body { background: var(--bg); margin: 0; overflow-x: hidden; }
+
+.auth-split-page {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ── LEFT: Hero / Branding panel ───────────────────────────── */
+.auth-hero {
+    flex: 0 0 50%;
+    width: 50%;
+    background: linear-gradient(135deg, #120228 0%, #2d0a5e 35%, #4a1a8c 65%, #7c3aed 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 36px 44px 32px;
+}
+
+/* Decorative blurred circles */
+/* TODO: Replace these CSS gradients with actual design assets/images if you have them */
+.auth-hero-shape {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+}
+.auth-hero-shape-1 {
+    width: 420px; height: 420px;
+    background: radial-gradient(circle at center, rgba(168,85,247,0.35), transparent 70%);
+    top: -130px; right: -100px;
+}
+.auth-hero-shape-2 {
+    width: 320px; height: 320px;
+    background: radial-gradient(circle at center, rgba(109,40,217,0.3), transparent 70%);
+    bottom: -100px; left: -90px;
+}
+.auth-hero-shape-3 {
+    width: 180px; height: 180px;
+    background: radial-gradient(circle at center, rgba(192,132,252,0.2), transparent 70%);
+    top: 42%; left: 22%;
+}
+
+/* Top-left logo */
+.auth-hero-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    z-index: 1;
+}
+.auth-hero-logo-icon {
+    width: 40px; height: 40px;
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    font-weight: 800;
+    color: #fff;
+    backdrop-filter: blur(6px);
+    flex-shrink: 0;
+}
+.auth-hero-logo-name {
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+}
+
+/* Centre body */
+.auth-hero-body {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 48px 0 32px;
+}
+.auth-hero-heading {
+    font-size: clamp(1.75rem, 3vw, 2.4rem);
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+    margin-bottom: 16px;
+}
+.auth-hero-sub {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.68);
+    line-height: 1.7;
+    margin-bottom: 32px;
+    max-width: 380px;
+}
+
+/* Feature pills */
+.auth-hero-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.auth-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(8px);
+    color: rgba(255,255,255,0.9);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.auth-pill i { font-size: 12px; opacity: 0.8; }
+
+/* Bottom footer text */
+.auth-hero-footer {
+    position: relative;
+    z-index: 1;
+    font-size: 12px;
+    color: rgba(255,255,255,0.35);
+    text-align: center;
+    margin-top: auto;
+    padding-top: 16px;
+}
+
+/* ── RIGHT: Form panel ─────────────────────────────────────── */
+.auth-form-panel {
+    flex: 0 0 50%;
+    width: 50%;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 32px;
+    overflow-y: auto;
+    min-height: 100vh;
+}
+
+/* Card (max-width container) */
+.auth-form-card {
+    width: 100%;
+    max-width: 440px;
+}
+
+/* ── Toggle tabs ───────────────────────────────────────────── */
+.auth-tab-toggle {
+    display: flex;
+    background: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px;
+    gap: 4px;
+    margin-bottom: 28px;
+}
+.auth-tab-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted-fg);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s, background 0.2s, box-shadow 0.2s;
+    white-space: nowrap;
+}
+.auth-tab-btn.active {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 2px 10px hsla(262,80%,55%,0.35);
+}
+.auth-tab-btn:not(.active):hover {
+    color: var(--fg);
+    background: var(--card2);
+}
+
+/* ── Tab panes ─────────────────────────────────────────────── */
+.auth-tab-pane { animation: authFadeIn 0.2s ease; }
+
+@keyframes authFadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Form title inside a pane */
+.auth-form-title {
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: var(--fg);
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+}
+
+/* Bottom "switch" link (Don't have an account? …) */
+.auth-form-switch {
+    text-align: center;
+    font-size: 13.5px;
+    color: var(--muted-fg);
+    margin-top: 18px;
+}
+.auth-form-switch a { color: var(--primary); font-weight: 600; }
+.auth-form-switch a:hover { text-decoration: underline; }
+
+/* Password / input hints */
+.auth-input-hint {
+    font-size: 11.5px;
+    color: var(--muted-fg);
+    margin-top: 4px;
+    line-height: 1.4;
+}
+
+/* Terms line */
+.auth-terms {
+    font-size: 11.5px;
+    color: var(--muted-fg);
+    text-align: center;
+    line-height: 1.5;
+    margin: 12px 0 16px;
+}
+.auth-terms a { color: var(--primary); }
+
+/* Bio / multi-line textarea */
+.auth-textarea {
+    resize: vertical;
+    min-height: 70px;
+    height: auto;
+}
+
+/* ── Responsive: collapse hero on smaller screens ──────────── */
+@media (max-width: 900px) {
+    .auth-hero       { display: none; }
+    .auth-form-panel { flex: 1; width: 100%; }
+}
+
+/* ============================================================
    AUTH PAGES – Card design (Instagram / Facebook style)
    ============================================================ */
 .auth-body { background: var(--bg); }
@@ -1799,8 +2044,6 @@ input, textarea, select { font-family: inherit; }
 @media (max-width: 600px) {
     .two-col-inputs   { grid-template-columns: 1fr; }
     .three-col-inputs { grid-template-columns: 1fr 1fr; }
-    .auth-hero        { display: none; }
-    .auth-form-panel  { min-height: 100vh; }
     .photos-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
