@@ -36,6 +36,28 @@
 <?php unset($_SESSION['toast_success']); ?>
 <?php endif; ?>
 
+<?php if (!empty($_SESSION['warning'])): ?>
+<div class="toast" id="main-toast-warning">
+    <i class="fa fa-triangle-exclamation toast-icon-warning"></i>
+    <span><?= htmlspecialchars($_SESSION['warning']) ?></span>
+    <button class="toast-close" onclick="this.closest('.toast').classList.remove('toast-show')" aria-label="Dismiss">
+        <i class="fa fa-xmark"></i>
+    </button>
+</div>
+<script>
+    (function () {
+        const t = document.getElementById('main-toast-warning');
+        if (!t) return;
+        requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('toast-show')));
+        setTimeout(() => {
+            t.classList.remove('toast-show');
+            setTimeout(() => t.remove(), 380);
+        }, 6000);
+    })();
+</script>
+<?php unset($_SESSION['warning']); ?>
+<?php endif; ?>
+
 <?php if (isset($_SESSION['user_id'])): ?>
 <?php
 $currentUrl = $_GET['url'] ?? 'feed';

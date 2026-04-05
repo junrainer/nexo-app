@@ -173,10 +173,27 @@
     var input   = document.getElementById('profileImageInput');
     var img     = document.getElementById('regAvatarImg');
     var icon    = document.getElementById('regAvatarIcon');
+    var hint    = document.querySelector('.reg-avatar-hint');
     if (!input) return;
+    var allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    var maxSize = 2 * 1024 * 1024;
     input.addEventListener('change', function () {
         var file = input.files[0];
         if (!file) return;
+        if (!allowed.includes(file.type)) {
+            hint.textContent = 'Unsupported format. Please use JPEG, PNG, GIF or WebP.';
+            hint.style.color = '#e53e3e';
+            input.value = '';
+            return;
+        }
+        if (file.size > maxSize) {
+            hint.textContent = 'File too large. Maximum size is 2 MB.';
+            hint.style.color = '#e53e3e';
+            input.value = '';
+            return;
+        }
+        hint.textContent = 'Max 2 MB \u00B7 JPEG, PNG, GIF, WebP';
+        hint.style.color = '';
         var reader = new FileReader();
         reader.onload = function (e) {
             img.src = e.target.result;

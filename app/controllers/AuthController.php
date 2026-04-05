@@ -128,6 +128,8 @@ class AuthController {
             $uploaded = $this->handleImageUpload($_FILES['profile_image']);
             if ($uploaded) {
                 $profileImage = $uploaded;
+            } else {
+                $_SESSION['warning'] = 'Profile picture could not be uploaded (invalid format or file too large). A default avatar was used.';
             }
         }
 
@@ -286,16 +288,35 @@ class AuthController {
     // ── Private helpers ───────────────────────────────
 
     private function handleImageUpload(array $file): string|false {
-        $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        $mimeToExt = [
+            'image/jpeg' => 'jpg',
+            'image/png'  => 'png',
+            'image/gif'  => 'gif',
+            'image/webp' => 'webp',
+        ];
         $maxSize = 2 * 1024 * 1024;
 
-        if (!in_array($file['type'], $allowed) || $file['size'] > $maxSize) {
+        if ($file['size'] > $maxSize) {
             return false;
         }
 
-        $ext      = pathinfo($file['name'], PATHINFO_EXTENSION);
+        // Verify actual file content, not the browser-supplied type
+        $finfo    = new finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->file($file['tmp_name']);
+
+        if (!isset($mimeToExt[$mimeType])) {
+            return false;
+        }
+
+        $ext      = $mimeToExt[$mimeType];
         $filename = uniqid('avatar_', true) . '.' . $ext;
-        $dest     = __DIR__ . '/../../public/assets/uploads/' . $filename;
+        $dir      = __DIR__ . '/../../public/assets/uploads/';
+
+        if (!is_dir($dir) || !is_writable($dir)) {
+            return false;
+        }
+
+        $dest = $dir . $filename;
 
         if (!move_uploaded_file($file['tmp_name'], $dest)) {
             return false;
