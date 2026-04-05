@@ -157,7 +157,7 @@
 
         .reg-photo-circle:hover { border-color: #6d28d9; }
 
-        .reg-photo-circle i { font-size: 28px; color: #6d28d9; }
+        .reg-photo-circle > i { font-size: 28px; color: #6d28d9; }
 
         .reg-photo-circle img {
             position: absolute; inset: 0;
@@ -209,10 +209,24 @@
             color: #9ca3af; font-size: 14px;
             padding: 4px; cursor: pointer;
             background: none; border: none;
-            transition: color 0.15s;
+            transition: color 0.15s, opacity 0.15s;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .rf-eye.visible {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .rf-eye:hover { color: #374151; }
+
+        /* Hide browser's native password reveal button (Edge/Chrome) */
+        #regPass::-ms-reveal,
+        #regPass::-ms-clear { display: none; }
+        #regPass2::-ms-reveal,
+        #regPass2::-ms-clear { display: none; }
+        input[type="password"]::-webkit-textfield-decoration-container { display: none; }
 
         /* Prefix icon for username */
         .rf-prefix {
@@ -358,7 +372,7 @@
                         <div class="reg-photo-circle" id="regPhotoCircle">
                             <i class="fa fa-camera" id="regPhotoIcon"></i>
                             <img id="regPhotoPreview" src="" alt="" style="display:none;">
-                            <div class="reg-photo-badge"><i class="fa fa-camera"></i></div>
+                            <div class="reg-photo-badge"><i class="fa fa-pen"></i></div>
                         </div>
                     </label>
                     <input type="file" name="profile_image" id="profileImageInput"
@@ -401,9 +415,10 @@
                     <p class="rf-hint">At least 8 characters with uppercase, number, and special character</p>
                     <div class="rf-input-wrap" style="margin-top:4px;">
                         <input type="password" name="password" id="regPass" class="rf-input"
-                               placeholder="••••••••" required style="padding-right:42px;">
-                        <button type="button" class="rf-eye" onclick="togglePassR('regPass', this)">
-                            <i class="fa fa-eye"></i>
+                               placeholder="••••••••" required style="padding-right:42px;"
+                               oninput="handlePassInput(this, 'regPassEye')">
+                        <button type="button" class="rf-eye" id="regPassEye" onclick="togglePassR('regPass', this)">
+                            <i class="fa fa-eye-slash"></i>
                         </button>
                     </div>
                 </div>
@@ -413,9 +428,10 @@
                     <label class="rf-label">Confirm Password</label>
                     <div class="rf-input-wrap">
                         <input type="password" name="confirm_password" id="regPass2" class="rf-input"
-                               placeholder="••••••••" required style="padding-right:42px;">
-                        <button type="button" class="rf-eye" onclick="togglePassR('regPass2', this)">
-                            <i class="fa fa-eye"></i>
+                               placeholder="••••••••" required style="padding-right:42px;"
+                               oninput="handlePassInput(this, 'regPass2Eye')">
+                        <button type="button" class="rf-eye" id="regPass2Eye" onclick="togglePassR('regPass2', this)">
+                            <i class="fa fa-eye-slash"></i>
                         </button>
                     </div>
                 </div>
@@ -448,15 +464,26 @@
 </div>
 
 <script>
+function handlePassInput(input, eyeId) {
+    var eye = document.getElementById(eyeId);
+    if (input.value.length > 0) {
+        eye.classList.add('visible');
+    } else {
+        eye.classList.remove('visible');
+        input.type = 'password';
+        eye.querySelector('i').className = 'fa fa-eye-slash';
+    }
+}
+
 function togglePassR(id, btn) {
     var input = document.getElementById(id);
     var icon  = btn.querySelector('i');
     if (input.type === 'password') {
         input.type = 'text';
-        icon.classList.replace('fa-eye', 'fa-eye-slash');
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
     } else {
         input.type = 'password';
-        icon.classList.replace('fa-eye-slash', 'fa-eye');
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
     }
 }
 
