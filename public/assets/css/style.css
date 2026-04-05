@@ -98,6 +98,32 @@ input, textarea, select { font-family: inherit; }
 
 .brand-icon-sm { width: 28px; height: 28px; font-size: 12px; }
 
+/* Logo image (sidebar wordmark) */
+.brand-wordmark {
+    height: 36px;
+    width: auto;
+    object-fit: contain;
+    flex-shrink: 0;
+    display: block;
+}
+
+/* Logo image (topbar small square icon) */
+.brand-logo-sm {
+    height: 28px;
+    width: 28px;
+    object-fit: contain;
+    border-radius: 7px;
+    flex-shrink: 0;
+    display: block;
+}
+
+/* Fallback container */
+.brand-fallback {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .sidebar-nav {
     flex: 1;
     padding: 12px;
@@ -522,6 +548,18 @@ input, textarea, select { font-family: inherit; }
 .auth-logo {
     text-align: center;
     margin-bottom: 28px;
+}
+
+/* The logo <img> on auth pages */
+.auth-logo-img {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    border-radius: 20px;
+    margin: 0 auto 10px;
+    display: block;
+    /* subtle drop shadow matching the brand colour */
+    filter: drop-shadow(0 4px 12px hsla(262,80%,55%,0.45));
 }
 
 .auth-logo-icon {

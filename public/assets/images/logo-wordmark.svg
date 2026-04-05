@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 56" width="220" height="56">
+  <defs>
+    <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#8b3cf7"/>
+      <stop offset="100%" stop-color="#6d28d9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Icon square -->
+  <rect x="0" y="4" width="48" height="48" rx="13" fill="url(#g2)"/>
+
+  <!-- Tiny network lines inside icon -->
+  <line x1="12" y1="14" x2="12" y2="42" stroke="rgba(255,255,255,0.30)" stroke-width="3" stroke-linecap="round"/>
+  <line x1="36" y1="14" x2="36" y2="42" stroke="rgba(255,255,255,0.30)" stroke-width="3" stroke-linecap="round"/>
+  <line x1="12" y1="14" x2="36" y2="42" stroke="rgba(255,255,255,0.30)" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- N letter in icon -->
+  <text x="24" y="39"
+        font-family="'Inter','Arial Black',Arial,sans-serif"
+        font-size="30" font-weight="900" fill="#fff"
+        text-anchor="middle" dominant-baseline="auto"
+        letter-spacing="-1">N</text>
+
+  <!-- "Nexo" wordmark -->
+  <text x="62" y="37"
+        font-family="'Inter','Arial Black',Arial,sans-serif"
+        font-size="24" font-weight="800" fill="#f2f2f2"
+        dominant-baseline="auto"
+        letter-spacing="-0.5">Nexo</text>
+</svg>

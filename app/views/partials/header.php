@@ -29,8 +29,15 @@ $username   = $_SESSION['username'];
     <aside class="sidebar" id="main-sidebar">
         <div class="sidebar-top">
             <a href="index.php?url=feed" class="sidebar-brand">
-                <div class="brand-icon">N</div>
-                <span>Nexo</span>
+                <img src="assets/images/logo-wordmark.svg"
+                     alt="Nexo"
+                     class="brand-wordmark"
+                     onerror="this.style.display='none'; document.getElementById('brand-fallback-sb').style.display='flex'">
+                <!-- Text fallback if image not found -->
+                <span id="brand-fallback-sb" class="brand-fallback" style="display:none">
+                    <span class="brand-icon">N</span>
+                    <span>Nexo</span>
+                </span>
             </a>
             <!-- Close button (mobile only) -->
             <button class="sidebar-close hide-desktop" onclick="closeSidebar()" aria-label="Close menu">
@@ -89,8 +96,14 @@ $username   = $_SESSION['username'];
                     <i class="fa fa-bars"></i>
                 </button>
                 <a href="index.php?url=feed" class="mobile-brand">
-                    <div class="brand-icon brand-icon-sm">N</div>
-                    <span>Nexo</span>
+                    <img src="assets/images/logo.svg"
+                         alt="Nexo"
+                         class="brand-logo-sm"
+                         onerror="this.style.display='none'; document.getElementById('brand-fallback-tb').style.display='flex'">
+                    <span id="brand-fallback-tb" class="brand-fallback" style="display:none">
+                        <span class="brand-icon brand-icon-sm">N</span>
+                        <span>Nexo</span>
+                    </span>
                 </a>
             </div>
             <div class="topbar-search">

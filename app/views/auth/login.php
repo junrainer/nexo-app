@@ -22,7 +22,9 @@
 
         <!-- Logo -->
         <div class="auth-logo">
-            <div class="auth-logo-icon">N</div>
+            <img src="assets/images/logo.svg" alt="Nexo" class="auth-logo-img"
+                 onerror="this.style.display='none'; document.getElementById('auth-logo-fb-l').style.display='flex'">
+            <div id="auth-logo-fb-l" class="auth-logo-icon" style="display:none">N</div>
             <div class="auth-logo-name">Nexo</div>
             <p class="auth-logo-tag">Connect with your community</p>
         </div>

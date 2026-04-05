@@ -22,7 +22,9 @@
 
         <!-- Logo -->
         <div class="auth-logo">
-            <div class="auth-logo-icon"><i class="fa fa-key"></i></div>
+            <img src="assets/images/logo.svg" alt="Nexo" class="auth-logo-img"
+                 onerror="this.style.display='none'; document.getElementById('auth-logo-fb-rp').style.display='flex'">
+            <div id="auth-logo-fb-rp" class="auth-logo-icon" style="display:none"><i class="fa fa-key"></i></div>
             <div class="auth-logo-name">Set New Password</div>
             <p class="auth-logo-tag">Choose a strong password you haven't used before.</p>
         </div>
