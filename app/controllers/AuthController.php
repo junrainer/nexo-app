@@ -27,15 +27,15 @@ class AuthController {
             exit;
         }
 
+        // Strip leading @ if user typed it
+        $identifier = ltrim($identifier, '@');
+
         // Rate limit check
         if (!Security::checkRateLimit($identifier)) {
             $_SESSION['error'] = 'Too many login attempts. Please try again in 15 minutes.';
             header('Location: index.php?url=login');
             exit;
         }
-
-        // Strip leading @ if user typed it
-        $identifier = ltrim($identifier, '@');
 
         // Try finding by email first, then by username
         $user = $this->userModel->findByEmail($identifier);
