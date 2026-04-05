@@ -14,7 +14,8 @@ function togglePass(inputId, btn) {
 }
 
 // ── Avatar dropdown ──────────────────────────────────
-function toggleAvatarMenu() {
+function toggleAvatarMenu(e) {
+    if (e) e.stopPropagation();
     const dd = document.getElementById('avatar-dropdown');
     if (dd) dd.classList.toggle('open');
 }
@@ -30,6 +31,7 @@ document.addEventListener('click', e => {
 // ── Notification dropdown ────────────────────────────
 function toggleNotifications(e) {
     if (e) e.preventDefault();
+    if (e) e.stopPropagation();
     const dd = document.getElementById('notification-dropdown');
     if (dd) {
         dd.classList.toggle('open');
