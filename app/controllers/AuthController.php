@@ -18,19 +18,26 @@ class AuthController {
     }
 
     public function login(): void {
-        $email    = trim($_POST['email'] ?? '');
-        $password = $_POST['password'] ?? '';
+        $identifier = trim($_POST['email'] ?? '');
+        $password   = $_POST['password'] ?? '';
 
-        if (empty($email) || empty($password)) {
+        if (empty($identifier) || empty($password)) {
             $_SESSION['error'] = 'Please fill in all fields.';
             header('Location: index.php?url=login');
             exit;
         }
 
-        $user = $this->userModel->findByEmail($email);
+        // Strip leading @ if user typed it
+        $identifier = ltrim($identifier, '@');
+
+        // Try finding by email first, then by username
+        $user = $this->userModel->findByEmail($identifier);
+        if (!$user) {
+            $user = $this->userModel->findByUsername($identifier);
+        }
 
         if (!$user || !password_verify($password, $user['password'])) {
-            $_SESSION['error'] = 'Invalid email or password.';
+            $_SESSION['error'] = 'Invalid username/email or password.';
             header('Location: index.php?url=login');
             exit;
         }
@@ -45,7 +52,7 @@ class AuthController {
 
     public function register(): void {
         $fullName = trim($_POST['full_name'] ?? '');
-        $username = trim($_POST['username'] ?? '');
+        $username = ltrim(trim($_POST['username'] ?? ''), '@'); // strip @ if typed
         $email    = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
         $confirm  = $_POST['confirm_password'] ?? '';
@@ -59,6 +66,12 @@ class AuthController {
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $_SESSION['error'] = 'Please enter a valid email address.';
+            header('Location: index.php?url=register');
+            exit;
+        }
+
+        if (!preg_match('/^[a-zA-Z0-9._]+$/', $username)) {
+            $_SESSION['error'] = 'Username can only contain letters, numbers, dots, and underscores.';
             header('Location: index.php?url=register');
             exit;
         }
@@ -104,15 +117,10 @@ class AuthController {
             }
         }
 
-        // Save bio if provided
-        if (!empty($bio)) {
-            require_once __DIR__ . '/../models/UserModel.php';
+        // Save bio and/or image if provided
+        if (!empty($bio) || $image !== 'default.png') {
             $um = new UserModel();
             $um->update($id, htmlspecialchars($fullName, ENT_QUOTES, 'UTF-8'), $username, htmlspecialchars($bio, ENT_QUOTES, 'UTF-8'), $image);
-        } elseif ($image !== 'default.png') {
-            require_once __DIR__ . '/../models/UserModel.php';
-            $um = new UserModel();
-            $um->update($id, htmlspecialchars($fullName, ENT_QUOTES, 'UTF-8'), $username, '', $image);
         }
 
         $_SESSION['user_id']       = $id;

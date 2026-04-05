@@ -365,7 +365,7 @@
             <?php endif; ?>
 
             <form action="index.php?url=register" method="POST" enctype="multipart/form-data">
-
+                <?= Security::field() ?>
                 <!-- Profile photo upload -->
                 <div class="reg-photo-wrap">
                     <label for="profileImageInput" style="cursor:pointer;">

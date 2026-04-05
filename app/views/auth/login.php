@@ -410,12 +410,12 @@
             <?php endif; ?>
 
             <form action="index.php?url=login" method="POST">
-
+                 <?= Security::field() ?>
                 <div class="lf-group">
-                    <label class="lf-label">Email address</label>
+                    <label class="lf-label">Username or Email</label>
                     <div class="lf-input-wrap">
-                        <input type="email" name="email" class="lf-input"
-                               placeholder="you@smcc.edu.ph" required autocomplete="email">
+                        <input type="text" name="email" class="lf-input"
+                               placeholder="juandelacruz or you@smcc.edu.ph" required autocomplete="username">
                     </div>
                 </div>
 
@@ -460,7 +460,6 @@ function handlePassInput(input) {
         eye.classList.add('visible');
     } else {
         eye.classList.remove('visible');
-        // Reset to hidden state when field is cleared
         input.type = 'password';
         eye.querySelector('i').className = 'fa fa-eye-slash';
     }
