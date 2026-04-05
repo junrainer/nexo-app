@@ -1,12 +1,16 @@
 <?php
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../config/mail.php';
+require_once __DIR__ . '/../../lib/Mailer.php';
 require_once __DIR__ . '/../models/UserModel.php';
 
 class AuthController {
     private UserModel $userModel;
+    private PDO       $db;
 
     public function __construct() {
         $this->userModel = new UserModel();
+        $this->db        = Database::getInstance()->getConnection();
     }
 
     public function showLogin(): void {
@@ -18,19 +22,23 @@ class AuthController {
     }
 
     public function login(): void {
-        $email    = trim($_POST['email'] ?? '');
-        $password = $_POST['password'] ?? '';
+        $identifier = trim($_POST['email'] ?? '');
+        $password   = $_POST['password'] ?? '';
 
-        if (empty($email) || empty($password)) {
+        if (empty($identifier) || empty($password)) {
             $_SESSION['error'] = 'Please fill in all fields.';
             header('Location: index.php?url=login');
             exit;
         }
 
-        $user = $this->userModel->findByEmail($email);
+        // Support login by email OR username
+        $user = $this->userModel->findByEmail($identifier);
+        if (!$user) {
+            $user = $this->userModel->findByUsername($identifier);
+        }
 
         if (!$user || !password_verify($password, $user['password'])) {
-            $_SESSION['error'] = 'Invalid email or password.';
+            $_SESSION['error'] = 'Invalid email/username or password.';
             header('Location: index.php?url=login');
             exit;
         }
@@ -96,5 +104,167 @@ class AuthController {
         session_destroy();
         header('Location: index.php?url=login');
         exit;
+    }
+
+    // ── Forgot / Reset Password ───────────────────────
+
+    public function showForgotPassword(): void {
+        require __DIR__ . '/../views/auth/forgot_password.php';
+    }
+
+    public function forgotPassword(): void {
+        $email = trim($_POST['email'] ?? '');
+
+        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['error'] = 'Please enter a valid email address.';
+            header('Location: index.php?url=forgot-password');
+            exit;
+        }
+
+        $user = $this->userModel->findByEmail($email);
+
+        // Always show the same message to prevent email enumeration
+        $_SESSION['success'] = 'If that email is registered, a reset link has been sent.';
+
+        if ($user) {
+            // Delete any existing token for this email
+            $stmt = $this->db->prepare('DELETE FROM password_resets WHERE email = ?');
+            $stmt->execute([$email]);
+
+            // Generate secure token
+            $token = bin2hex(random_bytes(32));
+
+            // Store token (expires in 1 hour via application logic)
+            $stmt = $this->db->prepare('INSERT INTO password_resets (email, token) VALUES (?, ?)');
+            $stmt->execute([$email, $token]);
+
+            // Build reset URL
+            $scheme   = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $host     = $_SERVER['HTTP_HOST'] ?? 'localhost';
+            $path     = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+            $resetUrl = "{$scheme}://{$host}{$path}/index.php?url=reset-password&token={$token}";
+
+            // Send email
+            $subject = 'Reset your Nexo password';
+            $body    = $this->buildResetEmail($user['full_name'], $resetUrl);
+
+            $mailer = new Mailer(MAIL_ADDRESS, MAIL_PASSWORD, MAIL_FROM_NAME);
+            $sent   = $mailer->send($email, $subject, $body);
+
+            if (!$sent) {
+                error_log("Mailer: Failed to send password reset email to {$email}");
+            }
+        }
+
+        header('Location: index.php?url=forgot-password');
+        exit;
+    }
+
+    public function showResetPassword(): void {
+        $token      = trim($_GET['token'] ?? '');
+        $tokenValid = false;
+
+        if (!empty($token)) {
+            $stmt = $this->db->prepare(
+                'SELECT * FROM password_resets WHERE token = ?
+                 AND created_at > DATE_SUB(NOW(), INTERVAL 1 HOUR)
+                 LIMIT 1'
+            );
+            $stmt->execute([$token]);
+            $row = $stmt->fetch();
+            if ($row) {
+                $tokenValid = true;
+            }
+        }
+
+        require __DIR__ . '/../views/auth/reset_password.php';
+    }
+
+    public function resetPassword(): void {
+        $token           = trim($_POST['token'] ?? '');
+        $password        = $_POST['password'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
+
+        if (empty($token) || empty($password)) {
+            $_SESSION['error'] = 'Invalid request.';
+            header('Location: index.php?url=login');
+            exit;
+        }
+
+        if (strlen($password) < 6) {
+            $_SESSION['error'] = 'Password must be at least 6 characters.';
+            header("Location: index.php?url=reset-password&token=" . urlencode($token));
+            exit;
+        }
+
+        if ($password !== $confirmPassword) {
+            $_SESSION['error'] = 'Passwords do not match.';
+            header("Location: index.php?url=reset-password&token=" . urlencode($token));
+            exit;
+        }
+
+        // Validate token (1-hour window)
+        $stmt = $this->db->prepare(
+            'SELECT * FROM password_resets WHERE token = ?
+             AND created_at > DATE_SUB(NOW(), INTERVAL 1 HOUR)
+             LIMIT 1'
+        );
+        $stmt->execute([$token]);
+        $row = $stmt->fetch();
+
+        if (!$row) {
+            $_SESSION['error'] = 'This reset link is invalid or has expired.';
+            header('Location: index.php?url=forgot-password');
+            exit;
+        }
+
+        // Update the user's password
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+        $stmt   = $this->db->prepare('UPDATE users SET password = ? WHERE email = ?');
+        $stmt->execute([$hashed, $row['email']]);
+
+        // Delete used token
+        $stmt = $this->db->prepare('DELETE FROM password_resets WHERE email = ?');
+        $stmt->execute([$row['email']]);
+
+        $_SESSION['success'] = 'Password updated! You can now sign in with your new password.';
+        header('Location: index.php?url=login');
+        exit;
+    }
+
+    // ── Private helpers ───────────────────────────────
+
+    private function buildResetEmail(string $name, string $resetUrl): string {
+        $safeUrl  = htmlspecialchars($resetUrl, ENT_QUOTES);
+        $safeName = htmlspecialchars($name, ENT_QUOTES);
+        return <<<HTML
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Inter, Arial, sans-serif; background: #1f1f1f; color: #f2f2f2; margin: 0; padding: 20px; }
+    .card { background: #262626; border-radius: 12px; max-width: 480px; margin: 0 auto; padding: 32px 28px; }
+    .brand { font-size: 24px; font-weight: 800; color: hsl(262,80%,65%); margin-bottom: 24px; }
+    h1 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    p { font-size: 14px; color: #b3b3b3; line-height: 1.6; margin: 0 0 20px; }
+    .btn { display: inline-block; background: hsl(262,80%,55%); color: #fff; padding: 14px 28px;
+           border-radius: 8px; font-weight: 600; font-size: 15px; text-decoration: none; }
+    .note { font-size: 12px; color: #8c8c8c; margin-top: 20px; }
+    .url  { word-break: break-all; font-size: 12px; color: #8c8c8c; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">Nexo</div>
+    <h1>Password Reset Request</h1>
+    <p>Hi {$safeName}, we received a request to reset your Nexo password. Click the button below to choose a new one.</p>
+    <a href="{$safeUrl}" class="btn">Reset Password</a>
+    <p class="note">This link expires in <strong>1 hour</strong>. If you did not request this, you can safely ignore this email.</p>
+    <p class="url">{$safeUrl}</p>
+  </div>
+</body>
+</html>
+HTML;
     }
 }

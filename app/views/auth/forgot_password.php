@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In – Nexo</title>
+    <title>Forgot Password – Nexo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -17,10 +17,9 @@
     <!-- Left: Branding -->
     <div class="auth-hero">
         <div class="auth-hero-content">
-            <h1 class="auth-hero-title">WELCOME<br>BACK</h1>
+            <h1 class="auth-hero-title">FORGOT<br>PASSWORD?</h1>
             <p class="auth-hero-sub">
-                Connect with classmates, share your thoughts, and discover
-                what your community is talking about.
+                No worries! Enter your email and we'll send you a reset link right away.
             </p>
         </div>
     </div>
@@ -28,7 +27,8 @@
     <!-- Right: Form -->
     <div class="auth-form-panel">
         <div class="auth-form-inner">
-            <h2 class="auth-form-title">Welcome to Nexo</h2>
+            <h2 class="auth-form-title">Reset your password</h2>
+            <p class="auth-form-sub">Enter the email address linked to your Nexo account.</p>
 
             <?php if (!empty($_SESSION['error'])): ?>
                 <div class="alert alert-error">
@@ -46,39 +46,21 @@
                 <?php unset($_SESSION['success']); ?>
             <?php endif; ?>
 
-            <form action="index.php?url=login" method="POST" class="auth-form">
+            <form action="index.php?url=forgot-password" method="POST" class="auth-form">
 
                 <div class="underline-field">
-                    <label>Email or Username</label>
+                    <label>Email Address</label>
                     <div class="underline-input-wrap">
-                        <input type="text" name="email" placeholder="" required autocomplete="username">
-                        <i class="fa fa-user field-icon"></i>
+                        <input type="email" name="email" placeholder="Enter your email" required autocomplete="email">
+                        <i class="fa fa-envelope field-icon"></i>
                     </div>
                 </div>
 
-                <div class="underline-field">
-                    <label>Password</label>
-                    <div class="underline-input-wrap">
-                        <input type="password" name="password" id="loginPass" placeholder="" required autocomplete="current-password">
-                        <button type="button" class="field-eye" onclick="togglePass('loginPass', this)">
-                            <i class="fa fa-eye-slash"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="auth-row">
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="remember">
-                        <span>Remember me</span>
-                    </label>
-                    <a href="index.php?url=forgot-password" class="forgot-link">Forgot password?</a>
-                </div>
-
-                <button type="submit" class="btn-auth">Sign in</button>
+                <button type="submit" class="btn-auth">Send Reset Link</button>
 
                 <p class="auth-switch">
-                    Don't have an account?
-                    <a href="index.php?url=register">Sign up</a>
+                    Remembered your password?
+                    <a href="index.php?url=login">Sign in</a>
                 </p>
             </form>
         </div>

@@ -15,7 +15,9 @@ Copy/clone it into your server root:
 ### 2. Import the database
 1. Open phpMyAdmin → http://localhost/phpmyadmin
 2. Create a new database named `nexo`
-3. Import `sql/nexo_app.sql`
+3. Import `sql/nexo_app.sql` **(first)**
+4. Import `sql/navbar_features.sql` **(second)**
+5. Import `sql/forgot_password.sql` **(third – adds password reset table)**
 
 ### 3. Configure database (if needed)
 Open `config/database.php` and update:
@@ -27,11 +29,20 @@ define('DB_USER', 'root');   // CHANGE if your MySQL user is different
 define('DB_PASS', '');       // CHANGE if you have a MySQL password
 ```
 
-### 4. Make uploads folder writable
+### 4. Configure Gmail for Forgot Password emails
+1. Go to https://myaccount.google.com/security → enable **2-Step Verification**.
+2. Go to https://myaccount.google.com/apppasswords → create a new App Password.
+3. Open `config/mail.php` and fill in:
+```php
+define('MAIL_ADDRESS',  'your_gmail@gmail.com');  // Your Gmail address
+define('MAIL_PASSWORD', 'xxxx xxxx xxxx xxxx');   // Your 16-char App Password
+```
+
+### 5. Make uploads folder writable
 The folder `public/assets/uploads/` must exist and be writable.
 On Linux/Mac: `chmod 775 public/assets/uploads/`
 
-### 5. Set your Apache document root to `public/`
+### 6. Set your Apache document root to `public/`
 In XAMPP's httpd-vhosts.conf, add:
 ```apache
 <VirtualHost *:80>
@@ -47,10 +58,17 @@ Then add `127.0.0.1 nexo.local` to your hosts file.
 
 **OR** (simpler): just access via http://localhost/NEXO%20APP/public/
 
-### 6. Demo accounts (password: `password`)
+### 7. Demo accounts (password: `password`)
 - marcos_reyes / marcos@nexo.app
 - claire_santos / claire@nexo.app
 - javier_dc     / javier@nexo.app
+
+## Features
+- **Register** – Create a new account (saves to database)
+- **Login** – Sign in with your **email or username**
+- **Forgot Password** – Enter your email, receive a Gmail reset link
+- **Settings** – Click the avatar (top-right) → Settings & privacy
+  - Opens a tabbed frame: Account · Preferences · Privacy · Danger Zone
 
 ## Folder Structure
 ```
@@ -59,7 +77,11 @@ NEXO APP/               ← GitHub Desktop repo folder
 │   ├── controllers/
 │   │   ├── AuthController.php
 │   │   ├── PostController.php
-│   │   └── ProfileController.php
+│   │   ├── ProfileController.php
+│   │   ├── FriendController.php
+│   │   ├── MessageController.php
+│   │   ├── NotificationController.php
+│   │   └── SettingsController.php
 │   ├── models/
 │   │   ├── UserModel.php
 │   │   ├── PostModel.php
@@ -68,18 +90,29 @@ NEXO APP/               ← GitHub Desktop repo folder
 │   └── views/
 │       ├── auth/
 │       │   ├── login.php
-│       │   └── register.php
+│       │   ├── register.php
+│       │   ├── forgot_password.php   ← NEW
+│       │   └── reset_password.php    ← NEW
 │       ├── posts/
 │       │   ├── feed.php
-│       │   └── search.php
+│       │   ├── search.php
+│       │   └── saved.php
 │       ├── profile/
-│       │   ├── profile.php
-│       │   └── edit.php
+│       │   └── profile.php
+│       ├── friends/
+│       │   └── index.php
+│       ├── messages/
+│       │   └── index.php
+│       ├── settings/
+│       │   └── index.php
 │       └── partials/
 │           ├── header.php
 │           └── footer.php
 ├── config/
-│   └── database.php
+│   ├── database.php
+│   └── mail.php          ← NEW (Gmail SMTP config)
+├── lib/
+│   └── Mailer.php        ← NEW (lightweight SMTP mailer)
 ├── public/
 │   ├── index.php         ← Router
 │   ├── .htaccess
@@ -90,5 +123,7 @@ NEXO APP/               ← GitHub Desktop repo folder
 │       └── images/
 │           └── default.png
 └── sql/
-    └── nexo_app.sql
+    ├── nexo_app.sql
+    ├── navbar_features.sql
+    └── forgot_password.sql  ← NEW
 ```

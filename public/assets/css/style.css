@@ -1771,14 +1771,8 @@ input, textarea, select { font-family: inherit; }
 .notif-empty i { font-size: 2rem; margin-bottom: 10px; display: block; opacity: 0.3; }
 
 /* ============================================================
-   SETTINGS PAGE
+   SETTINGS PAGE (legacy stubs – replaced by frame layout below)
    ============================================================ */
-.settings-page {
-    max-width: 700px;
-    margin: 0 auto;
-    padding: 20px 16px;
-}
-
 .settings-header {
     margin-bottom: 24px;
 }
@@ -1972,4 +1966,142 @@ input, textarea, select { font-family: inherit; }
 
 @media (min-width: 769px) {
     .hide-desktop { display: none !important; }
+}
+
+/* ============================================================
+   AUTH FORM SUBTITLE
+   ============================================================ */
+.auth-form-sub {
+    font-size: 13.5px;
+    color: var(--muted-fg);
+    margin-bottom: 20px;
+    margin-top: -14px;
+    line-height: 1.5;
+}
+
+/* Make forgot-link work as <a> as well */
+a.forgot-link { text-decoration: none; display: inline; }
+
+/* ============================================================
+   SETTINGS PAGE – NEW FRAME LAYOUT
+   ============================================================ */
+.settings-page {
+    max-width: 900px;
+    padding: 20px 16px;
+    margin: 0 auto;
+}
+
+/* Two-column layout: nav sidebar + content frame */
+.settings-layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    margin-top: 8px;
+}
+
+/* Left sidebar navigation */
+.settings-nav {
+    width: 200px;
+    flex-shrink: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 12px;
+    position: sticky;
+    top: 64px;
+}
+
+.settings-nav-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--fg2);
+    padding: 4px 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+}
+
+.settings-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: rgba(242,242,242,0.7);
+    text-align: left;
+    transition: background 0.15s, color 0.15s;
+    cursor: pointer;
+}
+
+.settings-nav-item:hover  { background: var(--card2); color: var(--fg); }
+.settings-nav-item.active { background: var(--primary); color: #fff; }
+.settings-nav-item i      { width: 16px; text-align: center; }
+
+/* Right content frame */
+.settings-frame {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Individual panels (hidden by default) */
+.settings-panel {
+    display: none;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    animation: panelIn 0.18s ease;
+}
+
+.settings-panel.active { display: block; }
+
+@keyframes panelIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Panel header (icon + title + subtitle) */
+.settings-panel-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.settings-panel-header > i {
+    font-size: 20px;
+    color: var(--primary);
+    margin-top: 3px;
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.settings-panel-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.settings-panel-header p {
+    font-size: 13px;
+    color: var(--muted-fg);
+}
+
+.danger-header > i { color: var(--danger); }
+.danger-header h3  { color: var(--danger); }
+
+/* Responsive: stack on small screens */
+@media (max-width: 640px) {
+    .settings-layout { flex-direction: column; }
+    .settings-nav    { width: 100%; position: static; }
+    .settings-nav-item { font-size: 13px; }
+}
 }

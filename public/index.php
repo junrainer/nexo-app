@@ -25,7 +25,7 @@ $url    = trim($_GET['url'] ?? 'login', '/');
 $method = $_SERVER['REQUEST_METHOD'];
 
 // ── Auth guard ───────────────────────────────────────
-$guestRoutes = ['login', 'register'];
+$guestRoutes = ['login', 'register', 'forgot-password', 'reset-password'];
 $isGuest     = !isset($_SESSION['user_id']);
 
 if ($isGuest && !in_array($url, $guestRoutes)) {
@@ -51,11 +51,15 @@ $settings = new SettingsController();
 switch (true) {
 
     // Auth
-    case $url === 'login'    && $method === 'GET':  $auth->showLogin();    break;
-    case $url === 'login'    && $method === 'POST': $auth->login();        break;
-    case $url === 'register' && $method === 'GET':  $auth->showRegister(); break;
-    case $url === 'register' && $method === 'POST': $auth->register();     break;
-    case $url === 'logout':                          $auth->logout();       break;
+    case $url === 'login'          && $method === 'GET':  $auth->showLogin();          break;
+    case $url === 'login'          && $method === 'POST': $auth->login();              break;
+    case $url === 'register'       && $method === 'GET':  $auth->showRegister();       break;
+    case $url === 'register'       && $method === 'POST': $auth->register();           break;
+    case $url === 'logout':                                $auth->logout();             break;
+    case $url === 'forgot-password'&& $method === 'GET':  $auth->showForgotPassword(); break;
+    case $url === 'forgot-password'&& $method === 'POST': $auth->forgotPassword();     break;
+    case $url === 'reset-password' && $method === 'GET':  $auth->showResetPassword();  break;
+    case $url === 'reset-password' && $method === 'POST': $auth->resetPassword();      break;
 
     // Feed
     case $url === 'feed' && $method === 'GET': $posts->feed(); break;

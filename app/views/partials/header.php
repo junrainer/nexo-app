@@ -56,9 +56,6 @@ $username   = $_SESSION['username'];
             <a href="index.php?url=search" class="nav-item <?= $currentUrl === 'search' ? 'active' : '' ?>">
                 <i class="fa fa-compass"></i> Explore
             </a>
-            <a href="index.php?url=settings" class="nav-item <?= $currentUrl === 'settings' ? 'active' : '' ?>">
-                <i class="fa fa-gear"></i> Settings
-            </a>
         </nav>
 
         <div class="sidebar-bottom">
