@@ -114,11 +114,6 @@ document.addEventListener('click', e => {
     }
 });
 
-// ── Sidebar notification panel – auto-load on page init ──────────────────────
-if (document.getElementById('sidebar-notif-list')) {
-    loadNotificationsInto('sidebar-notif-list');
-}
-
 function loadNotifications() {
     loadNotificationsInto('notif-list');
 }
