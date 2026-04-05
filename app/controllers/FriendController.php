@@ -30,26 +30,26 @@ class FriendController {
             $stmt->execute([$userId]);
             $friends = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            // Get pending requests (received)
+            // Get pending requests (received) - only where someone else sent the request to me
             $stmt = $this->db->prepare("
                 SELECT u.*, f.id as request_id, f.created_at
                 FROM friendships f
                 JOIN users u ON f.user_id = u.id
-                WHERE f.friend_id = ? AND f.status = 'pending'
+                WHERE f.friend_id = ? AND f.status = 'pending' AND f.action_user_id != ?
                 ORDER BY f.created_at DESC
             ");
-            $stmt->execute([$userId]);
+            $stmt->execute([$userId, $userId]);
             $pendingReceived = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            // Get sent requests
+            // Get sent requests - only where I was the one who sent it
             $stmt = $this->db->prepare("
                 SELECT u.*, f.created_at
                 FROM friendships f
                 JOIN users u ON f.friend_id = u.id
-                WHERE f.user_id = ? AND f.status = 'pending'
+                WHERE f.user_id = ? AND f.status = 'pending' AND f.action_user_id = ?
                 ORDER BY f.created_at DESC
             ");
-            $stmt->execute([$userId]);
+            $stmt->execute([$userId, $userId]);
             $pendingSent = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             // Get friend suggestions (users not already friends)
