@@ -114,6 +114,34 @@ class NotificationController {
     }
 
     /**
+     * Render the full notifications page
+     */
+    public function getPage() {
+        $userId = $_SESSION['user_id'];
+        $notifications = [];
+
+        try {
+            $stmt = $this->db->prepare("
+                SELECT n.*,
+                       u.username as actor_username,
+                       u.full_name as actor_name,
+                       u.profile_image as actor_image
+                FROM notifications n
+                JOIN users u ON n.actor_id = u.id
+                WHERE n.user_id = ?
+                ORDER BY n.created_at DESC
+            ");
+            $stmt->execute([$userId]);
+            $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            // Table might not exist yet
+        }
+
+        $pageTitle = 'Notifications – Nexo';
+        require __DIR__ . '/../views/notifications/index.php';
+    }
+
+    /**
      * Create notification (helper method)
      */
     public static function create($userId, $type, $actorId, $relatedId, $message) {

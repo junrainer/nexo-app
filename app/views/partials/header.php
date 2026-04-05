@@ -100,15 +100,10 @@ $username   = $_SESSION['username'];
                 <i class="fa fa-comment-dots"></i> Messages
                 <span class="nav-badge message-count" style="display:none"></span>
             </a>
-            <div class="sidebar-notif-panel">
-                <div class="notif-header">
-                    <span><i class="fa fa-bell"></i> Notifications <span class="nav-badge notif-count" style="display:none"></span></span>
-                    <button onclick="markAllNotificationsRead()" class="mark-read-btn">Mark all read</button>
-                </div>
-                <div class="notif-list" id="sidebar-notif-list">
-                    <div class="notif-loading"><i class="fa fa-spinner fa-spin"></i> Loading...</div>
-                </div>
-            </div>
+            <a href="index.php?url=notifications/all" class="nav-item <?= $currentUrl === 'notifications/all' ? 'active' : '' ?>">
+                <i class="fa fa-bell"></i> Notifications
+                <span class="nav-badge notif-count" style="display:none"></span>
+            </a>
 
             <div class="nav-section-label">More</div>
 
@@ -192,6 +187,9 @@ $username   = $_SESSION['username'];
                         </div>
                         <div class="notif-list" id="notif-list">
                             <div class="notif-loading"><i class="fa fa-spinner fa-spin"></i> Loading...</div>
+                        </div>
+                        <div class="notif-footer">
+                            <a href="index.php?url=notifications/all" class="notif-see-all">See all notifications</a>
                         </div>
                     </div>
                 </div>

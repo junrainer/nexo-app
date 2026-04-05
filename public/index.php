@@ -134,6 +134,7 @@ switch (true) {
     case $url === 'friend/status'  && $method === 'GET':  $friends->getStatus();     break;
 
     // Notifications
+    case $url === 'notifications/all'   && $method === 'GET':  $notifs->getPage();        break;
     case $url === 'notifications'       && $method === 'GET':  $notifs->getAll();        break;
     case $url === 'notifications/count' && $method === 'GET':  $notifs->getUnreadCount();break;
     case $url === 'notification/read'   && $method === 'POST': $notifs->markAsRead();    break;

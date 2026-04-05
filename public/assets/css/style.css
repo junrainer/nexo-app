@@ -2155,6 +2155,7 @@ input, textarea, select { font-family: inherit; }
 }
 
 /* Sidebar notification panel – always visible, inline within the sidebar */
+/* (kept for backward compatibility; no longer rendered) */
 .sidebar-notif-panel {
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
@@ -2169,6 +2170,103 @@ input, textarea, select { font-family: inherit; }
 .sidebar-notif-panel .notif-list {
     max-height: none;
     overflow-y: visible;
+}
+
+/* Notification dropdown footer – "See all notifications" */
+.notif-footer {
+    border-top: 1px solid var(--border);
+    padding: 10px 16px;
+    text-align: center;
+}
+
+.notif-see-all {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--primary);
+    transition: opacity 0.15s;
+}
+
+.notif-see-all:hover { opacity: 0.8; }
+
+/* ── Full Notifications Page ─────────────────────────── */
+.notif-page {
+    max-width: 680px;
+    margin: 0 auto;
+}
+
+.notif-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.notif-page-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.notif-page-header h1 i {
+    color: var(--primary);
+}
+
+.btn-mark-all {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid var(--primary);
+    border-radius: 20px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.btn-mark-all:hover {
+    background: var(--primary);
+    color: #fff;
+}
+
+.notif-page-list {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.notif-page-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    text-decoration: none;
+    color: inherit;
+}
+
+.notif-page-item:last-child { border-bottom: none; }
+.notif-page-item:hover { background: var(--muted); }
+.notif-page-item.unread { background: hsla(262,80%,55%,0.08); }
+
+.notif-page-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted-fg);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.notif-page-empty i {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    display: block;
+    opacity: 0.3;
 }
 
 .notification-dropdown {
