@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle ?? 'Nexo' ?></title>
+    <?php require_once __DIR__ . '/../../../lib/Security.php'; ?>
+    <?= Security::meta() ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -20,13 +22,27 @@ $username   = $_SESSION['username'];
 
 <div class="app-shell">
 
+    <!-- MOBILE OVERLAY (closes sidebar) -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
     <!-- LEFT SIDEBAR -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="main-sidebar">
         <div class="sidebar-top">
             <a href="index.php?url=feed" class="sidebar-brand">
-                <div class="brand-icon">N</div>
-                <span>Nexo</span>
+                <img src="assets/images/logo-wordmark.svg"
+                     alt="Nexo"
+                     class="brand-wordmark"
+                     onerror="this.style.display='none'; document.getElementById('brand-fallback-sb').style.display='flex'">
+                <!-- Text fallback if image not found -->
+                <span id="brand-fallback-sb" class="brand-fallback" style="display:none">
+                    <span class="brand-icon">N</span>
+                    <span>Nexo</span>
+                </span>
             </a>
+            <!-- Close button (mobile only) -->
+            <button class="sidebar-close hide-desktop" onclick="closeSidebar()" aria-label="Close menu">
+                <i class="fa fa-xmark"></i>
+            </button>
         </div>
 
         <nav class="sidebar-nav">
@@ -56,9 +72,6 @@ $username   = $_SESSION['username'];
             <a href="index.php?url=search" class="nav-item <?= $currentUrl === 'search' ? 'active' : '' ?>">
                 <i class="fa fa-compass"></i> Explore
             </a>
-            <a href="index.php?url=settings" class="nav-item <?= $currentUrl === 'settings' ? 'active' : '' ?>">
-                <i class="fa fa-gear"></i> Settings
-            </a>
         </nav>
 
         <div class="sidebar-bottom">
@@ -78,9 +91,19 @@ $username   = $_SESSION['username'];
         <!-- TOP BAR -->
         <header class="topbar">
             <div class="topbar-left">
+                <!-- Hamburger (mobile only) -->
+                <button class="hamburger-btn hide-desktop" onclick="openSidebar()" aria-label="Open menu">
+                    <i class="fa fa-bars"></i>
+                </button>
                 <a href="index.php?url=feed" class="mobile-brand">
-                    <div class="brand-icon brand-icon-sm">N</div>
-                    <span>Nexo</span>
+                    <img src="assets/images/logo.svg"
+                         alt="Nexo"
+                         class="brand-logo-sm"
+                         onerror="this.style.display='none'; document.getElementById('brand-fallback-tb').style.display='flex'">
+                    <span id="brand-fallback-tb" class="brand-fallback" style="display:none">
+                        <span class="brand-icon brand-icon-sm">N</span>
+                        <span>Nexo</span>
+                    </span>
                 </a>
             </div>
             <div class="topbar-search">

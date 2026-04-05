@@ -2,6 +2,7 @@
 session_start();
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../lib/Security.php';
 require_once __DIR__ . '/../app/controllers/AuthController.php';
 require_once __DIR__ . '/../app/controllers/PostController.php';
 require_once __DIR__ . '/../app/controllers/ProfileController.php';
@@ -10,7 +11,16 @@ require_once __DIR__ . '/../app/controllers/FriendController.php';
 require_once __DIR__ . '/../app/controllers/NotificationController.php';
 require_once __DIR__ . '/../app/controllers/SettingsController.php';
 
-// ── Helper: time ago ─────────────────────────────────
+// ── Session hardening ─────────────────────────────────────────
+Security::hardenSession();
+
+// ── PHP-level security headers ────────────────────────────────
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: SAMEORIGIN');
+header('X-XSS-Protection: 1; mode=block');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+
+// ── Helper: time ago ──────────────────────────────────────────
 function time_ago(string $datetime): string {
     $diff = time() - strtotime($datetime);
     if ($diff < 60)     return 'just now';
@@ -20,12 +30,12 @@ function time_ago(string $datetime): string {
     return date('M j, Y', strtotime($datetime));
 }
 
-// ── Get current route ────────────────────────────────
+// ── Get current route ─────────────────────────────────────────
 $url    = trim($_GET['url'] ?? 'login', '/');
 $method = $_SERVER['REQUEST_METHOD'];
 
-// ── Auth guard ───────────────────────────────────────
-$guestRoutes = ['login', 'register'];
+// ── Auth guard ────────────────────────────────────────────────
+$guestRoutes = ['login', 'register', 'forgot-password', 'reset-password'];
 $isGuest     = !isset($_SESSION['user_id']);
 
 if ($isGuest && !in_array($url, $guestRoutes)) {
@@ -38,7 +48,29 @@ if (!$isGuest && in_array($url, $guestRoutes)) {
     exit;
 }
 
-// ── Instantiate controllers ──────────────────────────
+// ── CSRF validation for all POST requests ─────────────────────
+// AJAX routes return JSON; regular routes redirect on failure.
+$ajaxRoutes = [
+    'post/like', 'post/save', 'post/unsave',
+    'message/send', 'message/new', 'message/unread',
+    'friend/request', 'friend/accept', 'friend/decline', 'friend/unfriend', 'friend/status',
+    'notifications', 'notifications/count', 'notification/read', 'notifications/read',
+    'settings/darkmode',
+];
+
+if ($method === 'POST' && !Security::validateToken()) {
+    if (in_array($url, $ajaxRoutes)) {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'error' => 'Invalid security token. Please refresh the page.']);
+        exit;
+    }
+    $_SESSION['error'] = 'Security check failed. Please try again.';
+    $back = $isGuest ? 'login' : 'feed';
+    header('Location: index.php?url=' . $back);
+    exit;
+}
+
+// ── Instantiate controllers ───────────────────────────────────
 $auth     = new AuthController();
 $posts    = new PostController();
 $profile  = new ProfileController();
@@ -47,15 +79,19 @@ $friends  = new FriendController();
 $notifs   = new NotificationController();
 $settings = new SettingsController();
 
-// ── Route ────────────────────────────────────────────
+// ── Route ─────────────────────────────────────────────────────
 switch (true) {
 
     // Auth
-    case $url === 'login'    && $method === 'GET':  $auth->showLogin();    break;
-    case $url === 'login'    && $method === 'POST': $auth->login();        break;
-    case $url === 'register' && $method === 'GET':  $auth->showRegister(); break;
-    case $url === 'register' && $method === 'POST': $auth->register();     break;
-    case $url === 'logout':                          $auth->logout();       break;
+    case $url === 'login'          && $method === 'GET':  $auth->showLogin();          break;
+    case $url === 'login'          && $method === 'POST': $auth->login();              break;
+    case $url === 'register'       && $method === 'GET':  $auth->showRegister();       break;
+    case $url === 'register'       && $method === 'POST': $auth->register();           break;
+    case $url === 'logout':                                $auth->logout();             break;
+    case $url === 'forgot-password'&& $method === 'GET':  $auth->showForgotPassword(); break;
+    case $url === 'forgot-password'&& $method === 'POST': $auth->forgotPassword();     break;
+    case $url === 'reset-password' && $method === 'GET':  $auth->showResetPassword();  break;
+    case $url === 'reset-password' && $method === 'POST': $auth->resetPassword();      break;
 
     // Feed
     case $url === 'feed' && $method === 'GET': $posts->feed(); break;

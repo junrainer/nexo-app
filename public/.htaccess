@@ -1,5 +1,52 @@
-Options -Indexes
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.php [QSA,L]
+Options -Indexes -MultiViews
+ServerSignature Off
+
+# ── Security Headers ───────────────────────────────────────────
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+</IfModule>
+
+# ── Block access to sensitive files ───────────────────────────
+<FilesMatch "\.(sql|log|env|ini|cfg|bak|old|orig|sh|git|htpasswd)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# ── Block directory listing ───────────────────────────────────
+<IfModule mod_autoindex.c>
+    Options -Indexes
+</IfModule>
+
+# ── URL Rewriting ─────────────────────────────────────────────
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # IMPORTANT FOR INFINITYFREE:
+    # If your site is in a subdirectory (e.g. /nexo-app/public/), set:
+    #   RewriteBase /nexo-app/public/
+    # If deployed at the domain root, keep:
+    RewriteBase /
+
+    # Block PHP execution in the uploads folder
+    RewriteRule ^assets/uploads/.*\.(php|php5|phtml|php7|php8)$ - [F,L,NC]
+
+    # Route everything else through index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+# ── PHP hardening (shared hosting) ────────────────────────────
+<IfModule mod_php.c>
+    php_flag display_errors Off
+    php_flag expose_php Off
+</IfModule>
