@@ -253,12 +253,25 @@
             font-size: 14px;
             padding: 4px;
             cursor: pointer;
-            transition: color 0.15s;
+            transition: color 0.15s, opacity 0.15s;
             background: none;
             border: none;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .lf-eye.visible {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .lf-eye:hover { color: #374151; }
+
+        /* Hide browser's native password reveal button (Edge/Chrome) */
+        #loginPass::-ms-reveal,
+        #loginPass::-ms-clear { display: none; }
+        #loginPass::-webkit-credentials-auto-fill-button { display: none !important; }
+        input[type="password"]::-webkit-textfield-decoration-container { display: none; }
 
         /* Remember + forgot row */
         .lf-row {
@@ -411,9 +424,9 @@
                     <div class="lf-input-wrap">
                         <input type="password" name="password" id="loginPass" class="lf-input"
                                placeholder="••••••••" required autocomplete="current-password"
-                               style="padding-right:42px;">
-                        <button type="button" class="lf-eye" onclick="togglePassL('loginPass', this)">
-                            <i class="fa fa-eye"></i>
+                               style="padding-right:42px;" oninput="handlePassInput(this)">
+                        <button type="button" class="lf-eye" id="loginPassEye" onclick="togglePassL('loginPass', this)">
+                            <i class="fa fa-eye-slash"></i>
                         </button>
                     </div>
                 </div>
@@ -441,15 +454,27 @@
 </div>
 
 <script>
+function handlePassInput(input) {
+    var eye = document.getElementById('loginPassEye');
+    if (input.value.length > 0) {
+        eye.classList.add('visible');
+    } else {
+        eye.classList.remove('visible');
+        // Reset to hidden state when field is cleared
+        input.type = 'password';
+        eye.querySelector('i').className = 'fa fa-eye-slash';
+    }
+}
+
 function togglePassL(id, btn) {
     var input = document.getElementById(id);
     var icon  = btn.querySelector('i');
     if (input.type === 'password') {
         input.type = 'text';
-        icon.classList.replace('fa-eye', 'fa-eye-slash');
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
     } else {
         input.type = 'password';
-        icon.classList.replace('fa-eye-slash', 'fa-eye');
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
     }
 }
 </script>
