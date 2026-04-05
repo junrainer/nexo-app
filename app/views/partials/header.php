@@ -114,7 +114,7 @@ $username   = $_SESSION['username'];
                 </div>
                 <!-- Avatar dropdown -->
                 <div class="avatar-menu">
-                    <button class="avatar-trigger" onclick="toggleAvatarMenu()" id="avatar-btn">
+                    <button class="avatar-trigger" onclick="toggleAvatarMenu(event)" id="avatar-btn">
                         <img src="assets/uploads/<?= htmlspecialchars($_SESSION['profile_image'] ?? 'default.png') ?>"
                              alt="avatar" class="avatar-sm avatar-ring"
                              onerror="this.onerror=null; this.src='assets/images/default.png'">
