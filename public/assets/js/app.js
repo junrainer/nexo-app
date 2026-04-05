@@ -73,13 +73,15 @@ function timeAgo(datetime) {
 }
 
 // ── Avatar dropdown ──────────────────────────────────
+const allDropdownsSelector = '.avatar-dropdown.open, .notification-dropdown.open, .message-dropdown.open, .sidebar-notification-dropdown.open';
+
 function toggleAvatarMenu(e) {
     if (e) { e.preventDefault(); e.stopPropagation(); }
     const dd = document.getElementById('avatar-dropdown');
     if (!dd) return;
     const isOpen = dd.classList.contains('open');
     // Close all dropdowns first
-    document.querySelectorAll('.avatar-dropdown.open, .notification-dropdown.open, .message-dropdown.open').forEach(el => el.classList.remove('open'));
+    document.querySelectorAll(allDropdownsSelector).forEach(el => el.classList.remove('open'));
     if (!isOpen) dd.classList.add('open');
 }
 
@@ -97,10 +99,10 @@ function toggleNotifications(e) {
     const dd = document.getElementById('notification-dropdown');
     if (!dd) return;
     const isOpen = dd.classList.contains('open');
-    document.querySelectorAll('.avatar-dropdown.open, .notification-dropdown.open, .message-dropdown.open').forEach(el => el.classList.remove('open'));
+    document.querySelectorAll(allDropdownsSelector).forEach(el => el.classList.remove('open'));
     if (!isOpen) {
         dd.classList.add('open');
-        loadNotifications();
+        loadNotificationsInto('notif-list');
     }
 }
 
@@ -112,8 +114,47 @@ document.addEventListener('click', e => {
     }
 });
 
+// ── Sidebar notification dropdown ────────────────────
+function positionSidebarNotifDropdown() {
+    const dd  = document.getElementById('sidebar-notification-dropdown');
+    const btn = document.getElementById('sidebar-notif-btn');
+    if (!dd || !btn || !dd.classList.contains('open')) return;
+    const rect = btn.getBoundingClientRect();
+    dd.style.top  = rect.top + 'px';
+    dd.style.left = (rect.right + 8) + 'px';
+}
+
+function toggleSidebarNotifications(e) {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    const dd  = document.getElementById('sidebar-notification-dropdown');
+    const btn = document.getElementById('sidebar-notif-btn');
+    if (!dd || !btn) return;
+    const isOpen = dd.classList.contains('open');
+    document.querySelectorAll(allDropdownsSelector).forEach(el => el.classList.remove('open'));
+    if (!isOpen) {
+        dd.classList.add('open');
+        positionSidebarNotifDropdown();
+        loadNotificationsInto('sidebar-notif-list');
+    }
+}
+
+window.addEventListener('resize', positionSidebarNotifDropdown);
+window.addEventListener('scroll', positionSidebarNotifDropdown, true);
+
+document.addEventListener('click', e => {
+    const menu = document.getElementById('sidebar-notification-dropdown');
+    const btn  = document.getElementById('sidebar-notif-btn');
+    if (menu && !menu.contains(e.target) && btn && !btn.contains(e.target)) {
+        menu.classList.remove('open');
+    }
+});
+
 function loadNotifications() {
-    const list = document.getElementById('notif-list');
+    loadNotificationsInto('notif-list');
+}
+
+function loadNotificationsInto(listId) {
+    const list = document.getElementById(listId);
     if (!list) return;
 
     list.innerHTML = '<div class="notif-loading"><i class="fa fa-spinner fa-spin"></i> Loading...</div>';
@@ -182,8 +223,7 @@ function toggleMessages(e) {
     const dd = document.getElementById('message-dropdown');
     if (!dd) return;
     const isOpen = dd.classList.contains('open');
-    document.querySelectorAll('.avatar-dropdown.open, .notification-dropdown.open, .message-dropdown.open')
-        .forEach(el => el.classList.remove('open'));
+    document.querySelectorAll(allDropdownsSelector).forEach(el => el.classList.remove('open'));
     if (!isOpen) {
         dd.classList.add('open');
         loadMessages();
