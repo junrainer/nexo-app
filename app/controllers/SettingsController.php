@@ -7,180 +7,146 @@ class SettingsController {
         $this->db = Database::getInstance()->getConnection();
     }
 
-    /**
-     * Show settings page
-     */
     public function index() {
         $userId = $_SESSION['user_id'];
-        
-        // Get user data
-        $stmt = $this->db->prepare("SELECT * FROM users WHERE id = ?");
+
+        $stmt = $this->db->prepare('SELECT * FROM users WHERE id = ?');
         $stmt->execute([$userId]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        // Get preferences
-        $stmt = $this->db->prepare("SELECT * FROM user_preferences WHERE user_id = ?");
+
+        // Get or create preferences
+        $stmt = $this->db->prepare('SELECT * FROM user_preferences WHERE user_id = ?');
         $stmt->execute([$userId]);
         $preferences = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        // Create default preferences if not exist
+
         if (!$preferences) {
-            $stmt = $this->db->prepare("
-                INSERT INTO user_preferences (user_id) VALUES (?)
-            ");
-            $stmt->execute([$userId]);
-            
-            $stmt = $this->db->prepare("SELECT * FROM user_preferences WHERE user_id = ?");
+            $this->db->prepare('INSERT INTO user_preferences (user_id) VALUES (?)')
+                     ->execute([$userId]);
+            $stmt = $this->db->prepare('SELECT * FROM user_preferences WHERE user_id = ?');
             $stmt->execute([$userId]);
             $preferences = $stmt->fetch(PDO::FETCH_ASSOC);
         }
-        
-        $pageTitle = 'Settings | Nexo';
+
+        $pageTitle = 'Settings – Nexo';
         require_once __DIR__ . '/../views/settings/index.php';
     }
 
-    /**
-     * Update account settings
-     */
     public function updateAccount() {
-        $userId = $_SESSION['user_id'];
-        $email = trim($_POST['email'] ?? '');
+        $userId          = $_SESSION['user_id'];
+        $email           = trim($_POST['email'] ?? '');
         $currentPassword = $_POST['current_password'] ?? '';
-        $newPassword = $_POST['new_password'] ?? '';
+        $newPassword     = $_POST['new_password'] ?? '';
         $confirmPassword = $_POST['confirm_password'] ?? '';
-        
-        // Validate email
+
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $_SESSION['error'] = 'Invalid email address';
+            $_SESSION['error'] = 'Please enter a valid email address.';
             header('Location: index.php?url=settings');
             exit;
         }
-        
+
         try {
-            // Check if email is already taken by another user
-            $stmt = $this->db->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
+            // Check email uniqueness
+            $stmt = $this->db->prepare('SELECT id FROM users WHERE email = ? AND id != ?');
             $stmt->execute([$email, $userId]);
             if ($stmt->fetch()) {
-                $_SESSION['error'] = 'Email already in use';
+                $_SESSION['error'] = 'That email is already in use by another account.';
                 header('Location: index.php?url=settings');
                 exit;
             }
-            
-            // Update email
-            $stmt = $this->db->prepare("UPDATE users SET email = ? WHERE id = ?");
-            $stmt->execute([$email, $userId]);
-            
-            // If changing password
-            if ($newPassword) {
-                // Verify current password
-                $stmt = $this->db->prepare("SELECT password FROM users WHERE id = ?");
+
+            $this->db->prepare('UPDATE users SET email = ? WHERE id = ?')
+                     ->execute([$email, $userId]);
+
+            // Password change
+            if (!empty($newPassword)) {
+                if (empty($currentPassword)) {
+                    $_SESSION['error'] = 'Current password is required to set a new password.';
+                    header('Location: index.php?url=settings');
+                    exit;
+                }
+
+                $stmt = $this->db->prepare('SELECT password FROM users WHERE id = ?');
                 $stmt->execute([$userId]);
-                $user = $stmt->fetch(PDO::FETCH_ASSOC);
-                
-                if (!password_verify($currentPassword, $user['password'])) {
-                    $_SESSION['error'] = 'Current password is incorrect';
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!password_verify($currentPassword, $row['password'])) {
+                    $_SESSION['error'] = 'Current password is incorrect.';
                     header('Location: index.php?url=settings');
                     exit;
                 }
-                
+
                 if ($newPassword !== $confirmPassword) {
-                    $_SESSION['error'] = 'New passwords do not match';
+                    $_SESSION['error'] = 'New passwords do not match.';
                     header('Location: index.php?url=settings');
                     exit;
                 }
-                
-                if (strlen($newPassword) < 6) {
-                    $_SESSION['error'] = 'Password must be at least 6 characters';
+
+                if (strlen($newPassword) < 8) {
+                    $_SESSION['error'] = 'New password must be at least 8 characters.';
                     header('Location: index.php?url=settings');
                     exit;
                 }
-                
-                // Update password
-                $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-                $stmt = $this->db->prepare("UPDATE users SET password = ? WHERE id = ?");
-                $stmt->execute([$hashedPassword, $userId]);
+
+                $this->db->prepare('UPDATE users SET password = ? WHERE id = ?')
+                         ->execute([password_hash($newPassword, PASSWORD_DEFAULT), $userId]);
             }
-            
-            $_SESSION['success'] = 'Account settings updated successfully';
+
+            $_SESSION['toast_success'] = 'Account settings saved.';
         } catch (PDOException $e) {
-            $_SESSION['error'] = 'Failed to update settings';
+            $_SESSION['error'] = 'Failed to update settings. Please try again.';
         }
-        
+
         header('Location: index.php?url=settings');
         exit;
     }
 
-    /**
-     * Update preferences
-     */
     public function updatePreferences() {
         $userId = $_SESSION['user_id'];
-        
-        // Handles both checkbox ('on') and hidden-field ('1'/'0') submissions
-        $darkMode           = in_array($_POST['dark_mode']            ?? '0', ['on', '1', 1], true) ? 1 : 0;
-        $emailNotifications = in_array($_POST['email_notifications']  ?? '0', ['on', '1', 1], true) ? 1 : 0;
-        $pushNotifications  = in_array($_POST['push_notifications']   ?? '0', ['on', '1', 1], true) ? 1 : 0;
+
+        $darkMode              = in_array($_POST['dark_mode']           ?? '0', ['on', '1', 1], true) ? 1 : 0;
+        $emailNotifications    = in_array($_POST['email_notifications'] ?? '0', ['on', '1', 1], true) ? 1 : 0;
+        $pushNotifications     = in_array($_POST['push_notifications']  ?? '0', ['on', '1', 1], true) ? 1 : 0;
         $friendRequestsPrivacy = $_POST['friend_requests_privacy'] ?? 'everyone';
-        $postPrivacy = $_POST['post_privacy'] ?? 'public';
-        
+        $postPrivacy           = $_POST['post_privacy'] ?? 'public';
+
         try {
-            $stmt = $this->db->prepare("
-                UPDATE user_preferences 
-                SET dark_mode = ?, 
-                    email_notifications = ?,
-                    push_notifications = ?,
-                    friend_requests_privacy = ?,
-                    post_privacy = ?
+            $this->db->prepare('
+                UPDATE user_preferences
+                SET dark_mode = ?, email_notifications = ?, push_notifications = ?,
+                    friend_requests_privacy = ?, post_privacy = ?
                 WHERE user_id = ?
-            ");
-            $stmt->execute([
-                $darkMode,
-                $emailNotifications,
-                $pushNotifications,
-                $friendRequestsPrivacy,
-                $postPrivacy,
-                $userId
-            ]);
-            
-            // Update session dark mode
-            $_SESSION['dark_mode'] = $darkMode;
-            
-            $_SESSION['success'] = 'Preferences updated successfully';
+            ')->execute([$darkMode, $emailNotifications, $pushNotifications,
+                         $friendRequestsPrivacy, $postPrivacy, $userId]);
+
+            $_SESSION['dark_mode']     = $darkMode;
+            $_SESSION['toast_success'] = 'Preferences saved.';
         } catch (PDOException $e) {
-            $_SESSION['error'] = 'Failed to update preferences';
+            $_SESSION['error'] = 'Failed to save preferences.';
         }
-        
+
         header('Location: index.php?url=settings');
         exit;
     }
 
-    /**
-     * Toggle dark mode (AJAX)
-     */
     public function toggleDarkMode() {
         header('Content-Type: application/json');
-        
         $userId = $_SESSION['user_id'];
-        
-        // Get current dark mode value
-        $stmt = $this->db->prepare("SELECT dark_mode FROM user_preferences WHERE user_id = ?");
+
+        $stmt = $this->db->prepare('SELECT dark_mode FROM user_preferences WHERE user_id = ?');
         $stmt->execute([$userId]);
         $pref = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        $newValue = $pref ? !$pref['dark_mode'] : true;
-        
-        // Update
-        $stmt = $this->db->prepare("
-            INSERT INTO user_preferences (user_id, dark_mode) 
+
+        $newValue = $pref ? (int)!$pref['dark_mode'] : 1;
+
+        $this->db->prepare('
+            INSERT INTO user_preferences (user_id, dark_mode)
             VALUES (?, ?)
             ON DUPLICATE KEY UPDATE dark_mode = ?
-        ");
-        $stmt->execute([$userId, $newValue, $newValue]);
-        
-        // Update session
+        ')->execute([$userId, $newValue, $newValue]);
+
         $_SESSION['dark_mode'] = $newValue;
-        
-        echo json_encode(['success' => true, 'dark_mode' => $newValue]);
+
+        echo json_encode(['success' => true, 'dark_mode' => (bool)$newValue]);
         exit;
     }
 }

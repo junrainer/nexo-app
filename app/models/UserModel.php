@@ -45,11 +45,55 @@ class UserModel {
         return (int) $this->db->lastInsertId();
     }
 
+    /**
+     * Update basic profile: name, username, bio, image.
+     * For full update (mobile/birthday/gender) use updateFull().
+     */
     public function update(int $id, string $fullName, string $username, string $bio, string $profileImage): bool {
         $stmt = $this->db->prepare(
             'UPDATE users SET full_name = ?, username = ?, bio = ?, profile_image = ? WHERE id = ?'
         );
         return $stmt->execute([$fullName, $username, $bio, $profileImage, $id]);
+    }
+
+    /**
+     * Update all profile fields including mobile, birthday, gender.
+     */
+    public function updateFull(
+        int $id,
+        string $fullName,
+        string $username,
+        string $bio,
+        string $profileImage,
+        ?string $mobile   = null,
+        ?string $birthday = null,
+        ?string $gender   = null
+    ): bool {
+        $stmt = $this->db->prepare(
+            'UPDATE users
+             SET full_name = ?, username = ?, bio = ?, profile_image = ?,
+                 mobile = ?, birthday = ?, gender = ?
+             WHERE id = ?'
+        );
+        return $stmt->execute([$fullName, $username, $bio, $profileImage, $mobile, $birthday, $gender, $id]);
+    }
+
+    public function updateEmail(int $id, string $email): bool {
+        $stmt = $this->db->prepare('UPDATE users SET email = ? WHERE id = ?');
+        return $stmt->execute([$email, $id]);
+    }
+
+    public function updatePassword(int $id, string $newPassword): bool {
+        $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
+        $stmt = $this->db->prepare('UPDATE users SET password = ? WHERE id = ?');
+        return $stmt->execute([$hashed, $id]);
+    }
+
+    public function verifyPassword(int $id, string $password): bool {
+        $stmt = $this->db->prepare('SELECT password FROM users WHERE id = ?');
+        $stmt->execute([$id]);
+        $row = $stmt->fetch();
+        return $row && password_verify($password, $row['password']);
     }
 
     public function search(string $query): array {

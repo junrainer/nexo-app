@@ -271,4 +271,57 @@ class MessageController {
         }
         exit;
     }
+
+    /**
+     * Get recent conversations for the message dropdown (AJAX)
+     */
+    public function getRecent() {
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['success' => false]);
+            exit;
+        }
+
+        header('Content-Type: application/json');
+        $userId = $_SESSION['user_id'];
+
+        try {
+            $stmt = $this->db->prepare("
+                SELECT c.id,
+                       u.full_name  AS name,
+                       u.profile_image AS avatar,
+                       (SELECT message FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) AS last_message,
+                       (SELECT created_at FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) AS last_time,
+                       (SELECT COUNT(*) FROM messages WHERE conversation_id = c.id AND sender_id != :uid2 AND is_read = FALSE) AS unread
+                FROM conversations c
+                JOIN users u ON u.id = IF(c.user1_id = :uid3, c.user2_id, c.user1_id)
+                WHERE c.user1_id = :uid4 OR c.user2_id = :uid5
+                ORDER BY c.last_message_at DESC
+                LIMIT 8
+            ");
+            $stmt->execute([
+                ':uid2' => $userId,
+                ':uid3' => $userId,
+                ':uid4' => $userId,
+                ':uid5' => $userId,
+            ]);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $conversations = array_map(function($r) {
+                return [
+                    'id'           => $r['id'],
+                    'name'         => $r['name'],
+                    'avatar'       => $r['avatar'] ?: 'default.png',
+                    'last_message' => $r['last_message'] ?: '',
+                    'last_time'    => $r['last_time']    ?: '',
+                    'unread'       => (int)$r['unread'],
+                    'online'       => false,
+                ];
+            }, $rows);
+
+            echo json_encode(['success' => true, 'conversations' => $conversations]);
+        } catch (PDOException $e) {
+            echo json_encode(['success' => false, 'error' => 'DB error']);
+        }
+        exit;
+    }
 }

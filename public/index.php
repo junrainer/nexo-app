@@ -116,10 +116,11 @@ switch (true) {
     case $url === 'search' && $method === 'GET': $posts->search(); break;
 
     // Messages
-    case $url === 'messages'      && $method === 'GET':  $messages->index();          break;
-    case $url === 'message/send'  && $method === 'POST': $messages->send();           break;
-    case $url === 'message/new'   && $method === 'GET':  $messages->getNew();         break;
-    case $url === 'message/unread'&& $method === 'GET':  $messages->getUnreadCount(); break;
+    case $url === 'messages'         && $method === 'GET':  $messages->index();          break;
+    case $url === 'message/send'     && $method === 'POST': $messages->send();           break;
+    case $url === 'message/new'      && $method === 'GET':  $messages->getNew();         break;
+    case $url === 'message/unread'   && $method === 'GET':  $messages->getUnreadCount(); break;
+    case $url === 'message/recent'   && $method === 'GET':  $messages->getRecent();      break;
     case (bool) preg_match('#^message/start$#', $url) && isset($_GET['user']):
         $messages->startConversation($_GET['user']);
         break;

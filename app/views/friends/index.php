@@ -1,204 +1,195 @@
 <?php
 $pageTitle = 'Friends – Nexo';
+$hideRightSidebar = true;
+
+$friends = $friends ?? [];
+$pendingReceived = $pendingReceived ?? [];
+$pendingSent = $pendingSent ?? [];
+$suggestions = $suggestions ?? [];
+
 require __DIR__ . '/../partials/header.php';
 ?>
 
-<div class="friends-page">
-    
+<div class="gm-page gm-friends-page">
+
+    <div class="gm-page-header">
+        <i class="fa fa-users" style="color:var(--primary);"></i>
+        <h1>Friends</h1>
+    </div>
+
     <?php if (!empty($_SESSION['error'])): ?>
         <div class="alert alert-error"><i class="fa fa-circle-exclamation"></i> <?= htmlspecialchars($_SESSION['error']) ?></div>
         <?php unset($_SESSION['error']); ?>
     <?php endif; ?>
 
-    <?php if (!empty($_SESSION['success'])): ?>
-        <div class="alert alert-success"><i class="fa fa-circle-check"></i> <?= htmlspecialchars($_SESSION['success']) ?></div>
-        <?php unset($_SESSION['success']); ?>
-    <?php endif; ?>
-
-    <!-- Tabs -->
-    <div class="friends-tabs">
-        <button class="tab-btn active" data-tab="friends" onclick="switchFriendTab('friends')">
-            <i class="fa fa-users"></i> Friends <span class="tab-count"><?= count($friends) ?></span>
+    <!-- Tab switcher -->
+    <div class="gm-tab-switcher">
+        <button class="gm-tab-sw active" data-tab="friends" onclick="switchFriendTab('friends', this)">
+            Your Friends (<?= count($friends) ?>)
         </button>
-        <button class="tab-btn" data-tab="requests" onclick="switchFriendTab('requests')">
-            <i class="fa fa-user-plus"></i> Requests 
+        <button class="gm-tab-sw" data-tab="requests" onclick="switchFriendTab('requests', this)">
+            Requests
             <?php if (count($pendingReceived) > 0): ?>
-                <span class="tab-badge"><?= count($pendingReceived) ?></span>
+                <span class="gm-tab-badge"><?= count($pendingReceived) ?></span>
             <?php endif; ?>
         </button>
-        <button class="tab-btn" data-tab="sent" onclick="switchFriendTab('sent')">
-            <i class="fa fa-paper-plane"></i> Sent
+        <button class="gm-tab-sw" data-tab="sent" onclick="switchFriendTab('sent', this)">
+            Sent
         </button>
-        <button class="tab-btn" data-tab="suggestions" onclick="switchFriendTab('suggestions')">
-            <i class="fa fa-user-group"></i> Suggestions
+        <button class="gm-tab-sw" data-tab="suggestions" onclick="switchFriendTab('suggestions', this)">
+            Suggestions
         </button>
     </div>
 
-    <!-- Friends List -->
-    <div class="tab-content active" id="tab-friends">
-        <div class="friends-grid">
-            <?php if (empty($friends)): ?>
-                <div class="empty-state">
-                    <i class="fa fa-user-group"></i>
-                    <h3>No friends yet</h3>
-                    <p>Add friends to see them here!</p>
-                </div>
-            <?php else: ?>
+    <!-- Friends -->
+    <div class="gm-tab-panel active" id="tab-friends">
+        <?php if (empty($friends)): ?>
+            <div class="gm-empty">
+                <i class="fa fa-user-group"></i>
+                <p>No friends yet. Check suggestions!</p>
+            </div>
+        <?php else: ?>
+            <div class="gm-list">
                 <?php foreach ($friends as $friend): ?>
-                <div class="friend-card" id="friend-<?= $friend['id'] ?>">
-                    <a href="index.php?url=profile/<?= htmlspecialchars($friend['username']) ?>" class="friend-avatar">
+                <div class="gm-person-row" id="friend-<?= $friend['id'] ?>">
+                    <a href="index.php?url=profile/<?= htmlspecialchars($friend['username']) ?>" class="gm-user-avatar">
                         <img src="assets/uploads/<?= htmlspecialchars($friend['profile_image'] ?? 'default.png') ?>"
                              alt="avatar"
                              onerror="this.onerror=null; this.src='assets/images/default.png'">
                     </a>
-                    <div class="friend-info">
-                        <a href="index.php?url=profile/<?= htmlspecialchars($friend['username']) ?>" class="friend-name">
+                    <div class="gm-user-info">
+                        <a href="index.php?url=profile/<?= htmlspecialchars($friend['username']) ?>" class="gm-user-name">
                             <?= htmlspecialchars($friend['full_name']) ?>
                         </a>
-                        <span class="friend-username">@<?= htmlspecialchars($friend['username']) ?></span>
+                        <p class="gm-user-handle">@<?= htmlspecialchars($friend['username']) ?></p>
                     </div>
-                    <div class="friend-actions">
-                        <a href="index.php?url=message/start&user=<?= $friend['id'] ?>" class="btn btn-primary btn-sm">
-                            <i class="fa fa-comment"></i> Message
-                        </a>
-                        <button class="btn btn-ghost btn-sm" onclick="unfriend(<?= $friend['id'] ?>)">
-                            <i class="fa fa-user-minus"></i>
-                        </button>
-                    </div>
+                    <button class="gm-btn-ghost gm-btn-sm" onclick="unfriend(<?= $friend['id'] ?>)">
+                        <i class="fa fa-user-minus"></i> Unfriend
+                    </button>
                 </div>
                 <?php endforeach; ?>
-            <?php endif; ?>
-        </div>
+            </div>
+        <?php endif; ?>
     </div>
 
-    <!-- Friend Requests -->
-    <div class="tab-content" id="tab-requests">
-        <div class="friends-grid">
-            <?php if (empty($pendingReceived)): ?>
-                <div class="empty-state">
-                    <i class="fa fa-inbox"></i>
-                    <h3>No pending requests</h3>
-                    <p>When someone sends you a request, it will appear here.</p>
-                </div>
-            <?php else: ?>
+    <!-- Requests -->
+    <div class="gm-tab-panel" id="tab-requests">
+        <?php if (empty($pendingReceived)): ?>
+            <div class="gm-empty">
+                <i class="fa fa-inbox"></i>
+                <p>No pending requests</p>
+            </div>
+        <?php else: ?>
+            <div class="gm-list">
                 <?php foreach ($pendingReceived as $req): ?>
-                <div class="friend-card" id="request-<?= $req['id'] ?>">
-                    <a href="index.php?url=profile/<?= htmlspecialchars($req['username']) ?>" class="friend-avatar">
+                <div class="gm-person-row" id="request-<?= $req['id'] ?>">
+                    <a href="index.php?url=profile/<?= htmlspecialchars($req['username']) ?>" class="gm-user-avatar">
                         <img src="assets/uploads/<?= htmlspecialchars($req['profile_image'] ?? 'default.png') ?>"
                              alt="avatar"
                              onerror="this.onerror=null; this.src='assets/images/default.png'">
                     </a>
-                    <div class="friend-info">
-                        <a href="index.php?url=profile/<?= htmlspecialchars($req['username']) ?>" class="friend-name">
+                    <div class="gm-user-info">
+                        <a href="index.php?url=profile/<?= htmlspecialchars($req['username']) ?>" class="gm-user-name">
                             <?= htmlspecialchars($req['full_name']) ?>
                         </a>
-                        <span class="friend-username">@<?= htmlspecialchars($req['username']) ?></span>
+                        <p class="gm-user-handle">@<?= htmlspecialchars($req['username']) ?></p>
                     </div>
-                    <div class="friend-actions">
-                        <button class="btn btn-primary btn-sm" onclick="acceptRequest(<?= $req['id'] ?>)">
+                    <div class="gm-row-actions">
+                        <button class="gm-btn-primary gm-btn-sm" onclick="acceptRequest(<?= $req['id'] ?>)">
                             <i class="fa fa-check"></i> Accept
                         </button>
-                        <button class="btn btn-ghost btn-sm" onclick="declineRequest(<?= $req['id'] ?>)">
-                            <i class="fa fa-xmark"></i> Decline
+                        <button class="gm-btn-ghost gm-btn-sm" onclick="declineRequest(<?= $req['id'] ?>)">
+                            Decline
                         </button>
                     </div>
                 </div>
                 <?php endforeach; ?>
-            <?php endif; ?>
-        </div>
+            </div>
+        <?php endif; ?>
     </div>
 
-    <!-- Sent Requests -->
-    <div class="tab-content" id="tab-sent">
-        <div class="friends-grid">
-            <?php if (empty($pendingSent)): ?>
-                <div class="empty-state">
-                    <i class="fa fa-clock"></i>
-                    <h3>No sent requests</h3>
-                    <p>Requests you send will appear here.</p>
-                </div>
-            <?php else: ?>
+    <!-- Sent -->
+    <div class="gm-tab-panel" id="tab-sent">
+        <?php if (empty($pendingSent)): ?>
+            <div class="gm-empty">
+                <i class="fa fa-clock"></i>
+                <p>No sent requests</p>
+            </div>
+        <?php else: ?>
+            <div class="gm-list">
                 <?php foreach ($pendingSent as $sent): ?>
-                <div class="friend-card" id="sent-<?= $sent['id'] ?>">
-                    <a href="index.php?url=profile/<?= htmlspecialchars($sent['username']) ?>" class="friend-avatar">
+                <div class="gm-person-row" id="sent-<?= $sent['id'] ?>">
+                    <a href="index.php?url=profile/<?= htmlspecialchars($sent['username']) ?>" class="gm-user-avatar">
                         <img src="assets/uploads/<?= htmlspecialchars($sent['profile_image'] ?? 'default.png') ?>"
                              alt="avatar"
                              onerror="this.onerror=null; this.src='assets/images/default.png'">
                     </a>
-                    <div class="friend-info">
-                        <a href="index.php?url=profile/<?= htmlspecialchars($sent['username']) ?>" class="friend-name">
+                    <div class="gm-user-info">
+                        <a href="index.php?url=profile/<?= htmlspecialchars($sent['username']) ?>" class="gm-user-name">
                             <?= htmlspecialchars($sent['full_name']) ?>
                         </a>
-                        <span class="friend-username">@<?= htmlspecialchars($sent['username']) ?></span>
+                        <p class="gm-user-handle">@<?= htmlspecialchars($sent['username']) ?></p>
                     </div>
-                    <div class="friend-actions">
-                        <span class="pending-label"><i class="fa fa-clock"></i> Pending</span>
-                        <button class="btn btn-ghost btn-sm" onclick="cancelRequest(<?= $sent['id'] ?>)">
-                            Cancel
-                        </button>
+                    <div class="gm-row-actions">
+                        <span class="gm-pending-label"><i class="fa fa-clock"></i> Pending</span>
+                        <button class="gm-btn-ghost gm-btn-sm" onclick="cancelRequest(<?= $sent['id'] ?>)">Cancel</button>
                     </div>
                 </div>
                 <?php endforeach; ?>
-            <?php endif; ?>
-        </div>
+            </div>
+        <?php endif; ?>
     </div>
 
     <!-- Suggestions -->
-    <div class="tab-content" id="tab-suggestions">
-        <div class="friends-grid">
-            <?php if (empty($suggestions)): ?>
-                <div class="empty-state">
-                    <i class="fa fa-lightbulb"></i>
-                    <h3>No suggestions</h3>
-                    <p>Check back later for friend suggestions!</p>
-                </div>
-            <?php else: ?>
+    <div class="gm-tab-panel" id="tab-suggestions">
+        <?php if (empty($suggestions)): ?>
+            <div class="gm-empty">
+                <i class="fa fa-lightbulb"></i>
+                <p>No suggestions right now</p>
+            </div>
+        <?php else: ?>
+            <div class="gm-list">
                 <?php foreach ($suggestions as $sug): ?>
-                <div class="friend-card" id="suggestion-<?= $sug['id'] ?>">
-                    <a href="index.php?url=profile/<?= htmlspecialchars($sug['username']) ?>" class="friend-avatar">
+                <div class="gm-person-row" id="suggestion-<?= $sug['id'] ?>">
+                    <a href="index.php?url=profile/<?= htmlspecialchars($sug['username']) ?>" class="gm-user-avatar">
                         <img src="assets/uploads/<?= htmlspecialchars($sug['profile_image'] ?? 'default.png') ?>"
                              alt="avatar"
                              onerror="this.onerror=null; this.src='assets/images/default.png'">
                     </a>
-                    <div class="friend-info">
-                        <a href="index.php?url=profile/<?= htmlspecialchars($sug['username']) ?>" class="friend-name">
+                    <div class="gm-user-info">
+                        <a href="index.php?url=profile/<?= htmlspecialchars($sug['username']) ?>" class="gm-user-name">
                             <?= htmlspecialchars($sug['full_name']) ?>
                         </a>
-                        <span class="friend-username">@<?= htmlspecialchars($sug['username']) ?></span>
+                        <p class="gm-user-handle">@<?= htmlspecialchars($sug['username']) ?></p>
                     </div>
-                    <div class="friend-actions">
-                        <button class="btn btn-primary btn-sm" onclick="sendRequest(<?= $sug['id'] ?>)">
-                            <i class="fa fa-user-plus"></i> Add Friend
-                        </button>
-                    </div>
+                    <button class="gm-btn-primary gm-btn-sm" onclick="sendRequest(<?= $sug['id'] ?>)">
+                        <i class="fa fa-user-plus"></i> Add
+                    </button>
                 </div>
                 <?php endforeach; ?>
-            <?php endif; ?>
-        </div>
+            </div>
+        <?php endif; ?>
     </div>
 
 </div>
 
 <script>
-function switchFriendTab(tabName) {
-    document.querySelectorAll('.friends-tabs .tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    document.querySelector('[data-tab="' + tabName + '"]').classList.add('active');
+function switchFriendTab(tabName, btn) {
+    document.querySelectorAll('.gm-tab-sw').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.gm-tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
     document.getElementById('tab-' + tabName).classList.add('active');
 }
 
 function sendRequest(userId) {
     const fd = new FormData();
     fd.append('friend_id', userId);
-    
     fetch('index.php?url=friend/request', { method: 'POST', body: fd })
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                const card = document.getElementById('suggestion-' + userId);
-                if (card) {
-                    card.querySelector('.friend-actions').innerHTML = '<span class="pending-label"><i class="fa fa-check"></i> Request Sent</span>';
-                }
+                const row = document.getElementById('suggestion-' + userId);
+                if (row) row.querySelector('.gm-btn-primary').outerHTML = '<span class="gm-pending-label"><i class="fa fa-check"></i> Request Sent</span>';
             }
         });
 }
@@ -206,26 +197,20 @@ function sendRequest(userId) {
 function acceptRequest(userId) {
     const fd = new FormData();
     fd.append('friend_id', userId);
-    
     fetch('index.php?url=friend/accept', { method: 'POST', body: fd })
         .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            }
-        });
+        .then(data => { if (data.success) location.reload(); });
 }
 
 function declineRequest(userId) {
     const fd = new FormData();
     fd.append('friend_id', userId);
-    
     fetch('index.php?url=friend/decline', { method: 'POST', body: fd })
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                const card = document.getElementById('request-' + userId);
-                if (card) card.remove();
+                const row = document.getElementById('request-' + userId);
+                if (row) { row.style.opacity = '0'; setTimeout(() => row.remove(), 300); }
             }
         });
 }
@@ -233,29 +218,26 @@ function declineRequest(userId) {
 function cancelRequest(userId) {
     const fd = new FormData();
     fd.append('friend_id', userId);
-    
     fetch('index.php?url=friend/decline', { method: 'POST', body: fd })
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                const card = document.getElementById('sent-' + userId);
-                if (card) card.remove();
+                const row = document.getElementById('sent-' + userId);
+                if (row) { row.style.opacity = '0'; setTimeout(() => row.remove(), 300); }
             }
         });
 }
 
 function unfriend(userId) {
     if (!confirm('Are you sure you want to unfriend this person?')) return;
-    
     const fd = new FormData();
     fd.append('friend_id', userId);
-    
     fetch('index.php?url=friend/unfriend', { method: 'POST', body: fd })
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                const card = document.getElementById('friend-' + userId);
-                if (card) card.remove();
+                const row = document.getElementById('friend-' + userId);
+                if (row) { row.style.opacity = '0'; setTimeout(() => row.remove(), 300); }
             }
         });
 }

@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body<?php if (isset($_SESSION['dark_mode']) && !$_SESSION['dark_mode']) echo ' class="light-mode"'; ?>>
+<body<?php if (isset($_SESSION['dark_mode']) && $_SESSION['dark_mode'] == 0) echo ' class="light-mode"'; ?>>
 
 <?php if (!empty($_SESSION['toast_success'])): ?>
 <div class="toast" id="main-toast">
@@ -158,11 +158,22 @@ $username   = $_SESSION['username'];
                 </form>
             </div>
             <div class="topbar-right">
-                <!-- Messages -->
-                <a href="index.php?url=messages" class="icon-btn" title="Messages">
-                    <i class="fa fa-comment-dots"></i>
-                    <span class="icon-badge message-count" style="display:none"></span>
-                </a>
+                <!-- Messages dropdown -->
+                <div class="message-menu">
+                    <button class="icon-btn" title="Messages" onclick="toggleMessages(event)" id="msg-btn">
+                        <i class="fa fa-comment-dots"></i>
+                        <span class="icon-badge message-count" style="display:none"></span>
+                    </button>
+                    <div class="message-dropdown" id="message-dropdown">
+                        <div class="msg-header">
+                            <span>Messages</span>
+                            <a href="index.php?url=messages" class="msg-see-all">See all</a>
+                        </div>
+                        <div class="msg-list" id="msg-list">
+                            <div class="msg-loading"><i class="fa fa-spinner fa-spin"></i> Loading...</div>
+                        </div>
+                    </div>
+                </div>
                 <!-- Notifications -->
                 <div class="notification-menu">
                     <button class="icon-btn" title="Notifications" onclick="toggleNotifications(event)" id="notif-btn">

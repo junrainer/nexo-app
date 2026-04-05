@@ -275,6 +275,29 @@ require __DIR__ . '/../partials/header.php';
                     <textarea name="bio" rows="3" class="modal-textarea"><?= htmlspecialchars($user['bio'] ?? '') ?></textarea>
                 </div>
 
+                <div class="modal-field">
+                    <label>Mobile</label>
+                    <input type="tel" name="mobile" class="modal-input"
+                           value="<?= htmlspecialchars($user['mobile'] ?? '') ?>" placeholder="+63 900 000 0000">
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div class="modal-field">
+                        <label>Birthday</label>
+                        <input type="date" name="birthday" class="modal-input"
+                               value="<?= htmlspecialchars($user['birthday'] ?? '') ?>">
+                    </div>
+                    <div class="modal-field">
+                        <label>Gender</label>
+                        <select name="gender" class="modal-input">
+                            <option value="">Prefer not to say</option>
+                            <option value="Male"   <?= ($user['gender'] ?? '') === 'Male'   ? 'selected' : '' ?>>Male</option>
+                            <option value="Female" <?= ($user['gender'] ?? '') === 'Female' ? 'selected' : '' ?>>Female</option>
+                            <option value="Other"  <?= ($user['gender'] ?? '') === 'Other'  ? 'selected' : '' ?>>Other</option>
+                        </select>
+                    </div>
+                </div>
+
             </div>
             <div class="modal-footer">
                 <button type="submit" class="btn btn-primary btn-full">Save changes</button>
