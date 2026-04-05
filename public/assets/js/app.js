@@ -357,6 +357,11 @@ document.querySelectorAll('.alert').forEach(alert => {
                 if (!opts.body.has('_token')) {
                     opts.body.append('_token', csrf);
                 }
+            } else if (!opts.body) {
+                // No body at all — create a FormData with just the token
+                const fd = new FormData();
+                fd.append('_token', csrf);
+                opts.body = fd;
             }
         }
         return _fetch(url, opts);

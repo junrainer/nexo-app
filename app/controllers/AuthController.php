@@ -102,8 +102,26 @@ class AuthController {
             exit;
         }
 
+        // Optional profile fields
+        $mobile = trim($_POST['mobile'] ?? '');
+        $mobile = $mobile !== '' ? $mobile : null;
+
+        $birthMonth = trim($_POST['birth_month'] ?? '');
+        $birthDay   = (int) ($_POST['birth_day']   ?? 0);
+        $birthYear  = (int) ($_POST['birth_year']  ?? 0);
+        $birthday   = null;
+        if ($birthMonth !== '' && $birthDay > 0 && $birthYear > 0) {
+            $monthNum = (int) date('n', strtotime("1 {$birthMonth} 2000"));
+            if ($monthNum > 0 && checkdate($monthNum, $birthDay, $birthYear)) {
+                $birthday = sprintf('%04d-%02d-%02d', $birthYear, $monthNum, $birthDay);
+            }
+        }
+
+        $gender = trim($_POST['gender'] ?? '');
+        $gender = $gender !== '' ? $gender : null;
+
         $fullName = $firstName . ' ' . $lastName;
-        $id = $this->userModel->create($username, $email, $password, $fullName);
+        $id = $this->userModel->create($username, $email, $password, $fullName, $mobile, $birthday, $gender);
 
         $_SESSION['user_id']       = $id;
         $_SESSION['username']      = $username;

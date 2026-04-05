@@ -13,6 +13,9 @@ CREATE TABLE users (
     full_name VARCHAR(100) NOT NULL,
     bio TEXT,
     profile_image VARCHAR(255) DEFAULT 'default.png',
+    mobile VARCHAR(20) DEFAULT NULL,
+    birthday DATE DEFAULT NULL,
+    gender VARCHAR(20) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -26,12 +26,21 @@ class UserModel {
         return $stmt->fetch();
     }
 
-    public function create(string $username, string $email, string $password, string $fullName): int {
+    public function create(
+        string $username,
+        string $email,
+        string $password,
+        string $fullName,
+        ?string $mobile   = null,
+        ?string $birthday = null,
+        ?string $gender   = null
+    ): int {
         $hashed = password_hash($password, PASSWORD_DEFAULT);
         $stmt = $this->db->prepare(
-            'INSERT INTO users (username, email, password, full_name) VALUES (?, ?, ?, ?)'
+            'INSERT INTO users (username, email, password, full_name, mobile, birthday, gender)
+             VALUES (?, ?, ?, ?, ?, ?, ?)'
         );
-        $stmt->execute([$username, $email, $hashed, $fullName]);
+        $stmt->execute([$username, $email, $hashed, $fullName, $mobile, $birthday, $gender]);
         return (int) $this->db->lastInsertId();
     }
 
