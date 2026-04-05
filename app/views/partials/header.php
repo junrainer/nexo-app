@@ -29,7 +29,7 @@
         requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('toast-show')));
         setTimeout(() => {
             t.classList.remove('toast-show');
-            setTimeout(() => t.remove(), 400);
+            setTimeout(() => t.remove(), 380);
         }, 4500);
     })();
 </script>
