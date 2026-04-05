@@ -23,8 +23,8 @@
  *    http://yourdomain.infinityfreeapp.com
  */
 
-define('MAIL_ADDRESS',   'your_gmail@gmail.com');  // ← Your email address
-define('MAIL_PASSWORD',  'xxxx xxxx xxxx xxxx');   // ← Gmail App Password (SMTP only)
+define('MAIL_ADDRESS',   'junrainer4@gmail.com');  // ← Your email address
+define('MAIL_PASSWORD',  '09930469967JUN');   // ← Gmail App Password (SMTP only)
 define('MAIL_FROM_NAME', 'Nexo');
 
 // Base URL for password-reset links. Leave empty to auto-detect.
