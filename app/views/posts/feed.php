@@ -24,7 +24,7 @@ require __DIR__ . '/../partials/header.php';
                      alt="you" class="avatar-md"
                      onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                 <input type="text" name="content" class="compose-input"
-                       placeholder="What's on your mind?" required>
+                       placeholder="What's on your mind?">
             </div>
 
             <div id="media-previews" class="image-previews"></div>
@@ -34,13 +34,13 @@ require __DIR__ . '/../partials/header.php';
 
             <div class="compose-footer">
                 <div class="compose-media-btns">
-                    <label class="compose-add-btn" title="Add photos (max 5)">
+                    <label class="compose-add-btn compose-add-btn--photo" title="Add photos (max 5)">
                         <i class="fa fa-image"></i> Photos
                         <input type="file" name="images[]"
                                accept="image/jpeg,image/png,image/gif,image/webp"
                                multiple hidden onchange="previewPostMedia('image', this)">
                     </label>
-                    <label class="compose-add-btn" title="Add video — MP4 or MOV, max 10 GB / 240 min">
+                    <label class="compose-add-btn compose-add-btn--video" title="Add video — MP4 or MOV, max 10 GB / 240 min">
                         <i class="fa fa-video"></i> Video
                         <input type="file" name="video"
                                accept="video/mp4,video/quicktime,.mp4,.mov"
