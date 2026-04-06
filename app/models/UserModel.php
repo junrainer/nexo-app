@@ -109,9 +109,14 @@ class UserModel {
     public function getSuggestions(int $currentUserId): array {
         $stmt = $this->db->prepare(
             'SELECT id, username, full_name, profile_image FROM users
-             WHERE id != ? ORDER BY created_at DESC LIMIT 5'
+             WHERE id != ?
+               AND id NOT IN (
+                   SELECT friend_id FROM friendships
+                   WHERE user_id = ? AND status = \'accepted\'
+               )
+             ORDER BY created_at DESC LIMIT 5'
         );
-        $stmt->execute([$currentUserId]);
+        $stmt->execute([$currentUserId, $currentUserId]);
         return $stmt->fetchAll();
     }
 }

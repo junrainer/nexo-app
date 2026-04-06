@@ -21,6 +21,12 @@
             ?>
             <aside class="right-sidebar">
                 <div class="sidebar-half">
+                    <form class="sidebar-search-form" action="index.php" method="GET">
+                        <input type="hidden" name="url" value="search">
+                        <i class="fa fa-search sidebar-search-icon"></i>
+                        <input type="text" name="q" class="sidebar-search-input"
+                               placeholder="Search..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
+                    </form>
                     <h3 class="right-sidebar-title">Suggested for you</h3>
                     <?php if (!empty($suggestions)): ?>
                         <?php foreach ($suggestions as $s): ?>

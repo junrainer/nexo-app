@@ -52,7 +52,7 @@ function notifTimeAgo($datetime) {
                 <a href="<?= htmlspecialchars(notifLink($n)) ?>"
                    class="notif-page-item <?= $n['is_read'] ? '' : 'unread' ?>"
                    onclick="markNotificationRead(<?= (int)$n['id'] ?>)">
-                    <img src="assets/uploads/<?= htmlspecialchars($n['actor_image'] ?? 'default.png') ?>"
+                    <img src="<?= ($n['actor_image'] ?? 'default.png') !== 'default.png' ? 'assets/uploads/' . htmlspecialchars($n['actor_image']) : 'assets/images/default-profile.webp' ?>"
                          alt="avatar"
                          class="notif-avatar"
                          onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">

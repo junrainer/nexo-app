@@ -477,6 +477,36 @@ input, textarea, select { font-family: inherit; }
     border-top: 1px solid var(--border);
 }
 
+.sidebar-search-form {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.sidebar-search-icon {
+    position: absolute;
+    left: 10px;
+    color: var(--muted-fg);
+    font-size: 12px;
+    pointer-events: none;
+}
+
+.sidebar-search-input {
+    width: 100%;
+    background: var(--muted);
+    border: none;
+    border-radius: 99px;
+    padding: 7px 14px 7px 30px;
+    font-size: 13px;
+    color: var(--fg);
+    outline: none;
+    transition: box-shadow 0.2s;
+}
+
+.sidebar-search-input:focus { box-shadow: 0 0 0 2px var(--primary); }
+.sidebar-search-input::placeholder { color: var(--muted-fg); }
+
 .sidebar-empty {
     font-size: 12px;
     color: var(--muted-fg);

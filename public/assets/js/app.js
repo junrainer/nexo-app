@@ -132,9 +132,9 @@ function loadNotificationsInto(listId) {
                     <a href="${escapeHtml(getNotificationLink(n))}"
                        class="notif-item ${n.is_read ? '' : 'unread'}"
                        onclick="markNotificationRead(${n.id})">
-                        <img src="assets/uploads/${escapeHtml(n.actor_image || 'default.png')}"
+                        <img src="${n.actor_image && n.actor_image !== 'default.png' ? 'assets/uploads/' + escapeHtml(n.actor_image) : 'assets/images/default-profile.webp'}"
                              alt="avatar" class="notif-avatar"
-                             onerror="this.onerror=null; this.src='assets/images/default.png'">
+                             onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                         <div class="notif-content">
                             <p>${escapeHtml(n.message)}</p>
                             <span class="notif-time">${timeAgo(n.created_at)}</span>
