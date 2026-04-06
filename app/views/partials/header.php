@@ -141,7 +141,7 @@ $username   = $_SESSION['username'];
                 <button class="hamburger-btn hide-desktop" onclick="openSidebar()" aria-label="Open menu">
                     <i class="fa fa-bars"></i>
                 </button>
-                <a href="index.php?url=feed" class="mobile-brand">
+                <a href="index.php?url=feed" class="mobile-brand hide-desktop">
                     <img src="assets/images/app-logo.png"
                          alt="Nexo"
                          class="brand-logo-sm"
@@ -153,16 +153,15 @@ $username   = $_SESSION['username'];
                     </span>
                 </a>
             </div>
-            <div class="topbar-fill"></div>
-            <div class="topbar-right">
-                <!-- Search -->
-                <form class="topbar-search-form" action="index.php" method="GET">
+            <!-- Search — direct child of topbar so flex:1 works -->
+            <form class="topbar-search-form" action="index.php" method="GET">
                     <input type="hidden" name="url" value="search">
                     <i class="fa fa-magnifying-glass"></i>
                     <input type="text" name="q" placeholder="Search..."
                            autocomplete="off"
                            value="<?= isset($_GET['q']) ? htmlspecialchars($_GET['q']) : '' ?>">
                 </form>
+            <div class="topbar-right">
                 <!-- Messages dropdown -->
                 <div class="message-menu">
                     <button class="icon-btn" title="Messages" onclick="toggleMessages(event)" id="msg-btn">
