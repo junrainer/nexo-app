@@ -160,7 +160,7 @@ class NotificationController {
                 $checkStmt = $this->db->prepare("
                     SELECT COUNT(*) as unread_count
                     FROM notifications
-                    WHERE user_id = ? AND id IN ($placeholders) AND is_read = FALSE
+                    WHERE user_id = ? AND id IN ($placeholders) AND is_read = 0
                 ");
                 $checkStmt->execute($params);
                 $row = $checkStmt->fetch(PDO::FETCH_ASSOC);

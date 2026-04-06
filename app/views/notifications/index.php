@@ -73,8 +73,8 @@ function notifLink($n) {
                             >
                         </label>
                         <a href="<?= htmlspecialchars(notifLink($n)) ?>"
-                           class="notif-page-link"
-                           onclick="markNotificationRead(<?= (int)$n['id'] ?>)">
+                           class="notif-page-link js-notif-page-link"
+                           data-notif-id="<?= (int)$n['id'] ?>">
                             <img src="<?= ($n['actor_image'] ?? 'default.png') !== 'default.png' ? 'assets/uploads/' . htmlspecialchars($n['actor_image']) : 'assets/images/default-profile.webp' ?>"
                                  alt="avatar"
                                  class="notif-avatar"
@@ -117,6 +117,16 @@ function notifLink($n) {
                 updateState();
             });
             items.forEach(i => i.addEventListener('change', updateState));
+
+            document.querySelectorAll('.js-notif-page-link').forEach(function (link) {
+                link.addEventListener('click', function () {
+                    const notifId = parseInt(link.dataset.notifId || '0', 10);
+                    if (notifId > 0 && typeof markNotificationRead === 'function') {
+                        markNotificationRead(notifId);
+                    }
+                });
+            });
+
             updateState();
         });
         </script>
