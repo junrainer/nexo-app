@@ -55,7 +55,6 @@ class AuthController {
         // Regenerate session ID to bind a fresh session to this authenticated user
         // (prevents session fixation and ensures the browser cookie matches)
         session_regenerate_id(true);
-        $_SESSION = [];
 
         // Load dark_mode from user_preferences into session
         $darkMode = 1; // default dark
@@ -194,7 +193,7 @@ class AuthController {
         if (ini_get('session.use_cookies')) {
             $params = session_get_cookie_params();
             setcookie(
-                session_name(), '', time() - 42000,
+                session_name(), '', time() - 3600, // expire the cookie in the past
                 $params['path'], $params['domain'],
                 $params['secure'], $params['httponly']
             );
