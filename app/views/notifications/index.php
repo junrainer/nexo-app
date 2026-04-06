@@ -124,7 +124,7 @@ function notifLink($n) {
                     const notifId = parseInt(link.dataset.notifId || '0', 10);
                     const row = link.closest('.notif-page-item');
                     const checkbox = row ? row.querySelector('.notif-select-item') : null;
-                    if (checkbox && checkbox.checked) {
+                    if (selectAll.checked && checkbox && checkbox.checked) {
                         checkbox.checked = false;
                         updateState();
                     }
