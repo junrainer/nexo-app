@@ -6,6 +6,7 @@ class AuthController {
     private UserModel $userModel;
     private const RESET_VERIFY_TTL_SECONDS = 3600;
     private const FORGOT_PASSWORD_COOLDOWN_SECONDS = 60;
+    private const FORGOT_PASSWORD_COOLDOWN_KEY = '_forgot_password_cooldown';
 
     public function __construct() {
         $this->userModel = new UserModel();
@@ -217,15 +218,15 @@ class AuthController {
             exit;
         }
 
-        if (!Security::checkRateLimit($email, 1, self::FORGOT_PASSWORD_COOLDOWN_SECONDS, 'forgot_password')) {
-            $_SESSION['error'] = 'Please wait 60 seconds before requesting another reset email.';
+        if ($this->isForgotPasswordCooldownActive($email)) {
+            $_SESSION['error'] = 'Please wait ' . self::FORGOT_PASSWORD_COOLDOWN_SECONDS . ' seconds before requesting another reset email.';
             header('Location: index.php?url=forgot-password');
             exit;
         }
 
         $user = $this->userModel->findByEmail($email);
         if (!$user) {
-            Security::incrementAttempts($email, 'forgot_password');
+            $this->setForgotPasswordCooldown($email);
             $_SESSION['error'] = 'Email not found. Please enter your registered email.';
             header('Location: index.php?url=forgot-password');
             exit;
@@ -270,20 +271,20 @@ class AuthController {
                     . '<p>– The Nexo Team</p>';
 
             if (!$mailer->send($email, 'Verify your Nexo password reset', $body)) {
-                Security::incrementAttempts($email, 'forgot_password');
+                $this->setForgotPasswordCooldown($email);
                 $_SESSION['error'] = 'Unable to send verification email. Please check your email address and try again.';
                 header('Location: index.php?url=forgot-password');
                 exit;
             }
         } catch (\Throwable $e) {
             error_log('forgotPassword error: ' . $e->getMessage());
-            Security::incrementAttempts($email, 'forgot_password');
+            $this->setForgotPasswordCooldown($email);
             $_SESSION['error'] = 'Something went wrong. Please try again.';
             header('Location: index.php?url=forgot-password');
             exit;
         }
 
-        Security::incrementAttempts($email, 'forgot_password');
+        $this->setForgotPasswordCooldown($email);
         $_SESSION['success'] = 'Email confirmed. Check your inbox and click the link to verify it’s you.';
         header('Location: index.php?url=forgot-password');
         exit;
@@ -334,7 +335,7 @@ class AuthController {
 
         $this->cleanupExpiredVerifications();
         $verifiedAt = $_SESSION['password_reset_verified'][$token] ?? null;
-        if (!is_int($verifiedAt) || (time() - $verifiedAt > self::RESET_VERIFY_TTL_SECONDS)) {
+        if ($this->isVerificationExpired($verifiedAt)) {
             $_SESSION['error'] = 'Please verify it’s you before resetting your password.';
             header('Location: index.php?url=verify-reset&token=' . urlencode($token));
             exit;
@@ -378,7 +379,7 @@ class AuthController {
 
             $this->cleanupExpiredVerifications();
             $verifiedAt = $_SESSION['password_reset_verified'][$token] ?? null;
-            if (!is_int($verifiedAt) || (time() - $verifiedAt > self::RESET_VERIFY_TTL_SECONDS)) {
+            if ($this->isVerificationExpired($verifiedAt)) {
                 $_SESSION['error'] = 'Please verify it’s you before creating a new password.';
                 header('Location: index.php?url=verify-reset&token=' . urlencode($token));
                 exit;
@@ -427,9 +428,24 @@ class AuthController {
             return;
         }
         foreach ($_SESSION['password_reset_verified'] as $k => $ts) {
-            if (!is_int($ts) || (time() - $ts > self::RESET_VERIFY_TTL_SECONDS)) {
+            if ($this->isVerificationExpired($ts)) {
                 unset($_SESSION['password_reset_verified'][$k]);
             }
         }
+    }
+
+    private function isVerificationExpired($verifiedAt): bool {
+        return !is_int($verifiedAt) || (time() - $verifiedAt > self::RESET_VERIFY_TTL_SECONDS);
+    }
+
+    private function isForgotPasswordCooldownActive(string $email): bool {
+        $key = self::FORGOT_PASSWORD_COOLDOWN_KEY . ':' . md5(strtolower($email));
+        $last = $_SESSION[$key] ?? null;
+        return is_int($last) && (time() - $last < self::FORGOT_PASSWORD_COOLDOWN_SECONDS);
+    }
+
+    private function setForgotPasswordCooldown(string $email): void {
+        $key = self::FORGOT_PASSWORD_COOLDOWN_KEY . ':' . md5(strtolower($email));
+        $_SESSION[$key] = time();
     }
 }
