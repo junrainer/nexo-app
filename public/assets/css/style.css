@@ -120,19 +120,27 @@ input, textarea, select { font-family: inherit; }
 
 /* Logo image (sidebar wordmark) */
 .brand-wordmark {
-    height: 36px;
+    height: 44px;
     width: auto;
     object-fit: contain;
     flex-shrink: 0;
     display: block;
 }
 
+/* "NEXO" text beside logo */
+.brand-name {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--fg);
+    letter-spacing: 0.04em;
+}
+
 /* Logo image (topbar small square icon) */
 .brand-logo-sm {
-    height: 28px;
-    width: 28px;
+    height: 36px;
+    width: 36px;
     object-fit: contain;
-    border-radius: 7px;
+    border-radius: 8px;
     flex-shrink: 0;
     display: block;
 }

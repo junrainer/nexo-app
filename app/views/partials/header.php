@@ -78,10 +78,11 @@ $username   = $_SESSION['username'];
                      alt="Nexo"
                      class="brand-wordmark"
                      onerror="this.style.display='none'; document.getElementById('brand-fallback-sb').style.display='flex'">
+                <span class="brand-name">NEXO</span>
                 <!-- Text fallback if image not found -->
                 <span id="brand-fallback-sb" class="brand-fallback" style="display:none">
                     <span class="brand-icon">N</span>
-                    <span>Nexo</span>
+                    <span>NEXO</span>
                 </span>
             </a>
             <!-- Close button (mobile only) -->
@@ -123,7 +124,7 @@ $username   = $_SESSION['username'];
             <a href="index.php?url=logout" class="sidebar-logout">
                 <img src="assets/uploads/<?= htmlspecialchars($_SESSION['profile_image'] ?? 'default.png') ?>"
                      alt="avatar" class="avatar-sm"
-                     onerror="this.onerror=null; this.src='assets/images/default.webp'">
+                     onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                 <span><?= htmlspecialchars($_SESSION['full_name']) ?></span>
                 <i class="fa fa-right-from-bracket logout-icon"></i>
             </a>
@@ -145,9 +146,10 @@ $username   = $_SESSION['username'];
                          alt="Nexo"
                          class="brand-logo-sm"
                          onerror="this.style.display='none'; document.getElementById('brand-fallback-tb').style.display='flex'">
+                    <span class="brand-name">NEXO</span>
                     <span id="brand-fallback-tb" class="brand-fallback" style="display:none">
                         <span class="brand-icon brand-icon-sm">N</span>
-                        <span>Nexo</span>
+                        <span>NEXO</span>
                     </span>
                 </a>
             </div>
@@ -199,13 +201,13 @@ $username   = $_SESSION['username'];
                     <button class="avatar-trigger" onclick="toggleAvatarMenu(event)" id="avatar-btn">
                         <img src="assets/uploads/<?= htmlspecialchars($_SESSION['profile_image'] ?? 'default.png') ?>"
                              alt="avatar" class="avatar-sm avatar-ring"
-                             onerror="this.onerror=null; this.src='assets/images/default.webp'">
+                             onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                     </button>
                     <div class="avatar-dropdown" id="avatar-dropdown">
                         <div class="dropdown-user">
                             <img src="assets/uploads/<?= htmlspecialchars($_SESSION['profile_image'] ?? 'default.png') ?>"
                                  alt="avatar" class="avatar-md"
-                                 onerror="this.onerror=null; this.src='assets/images/default.webp'">
+                                 onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                             <div>
                                 <p class="dropdown-name"><?= htmlspecialchars($_SESSION['full_name']) ?></p>
                                 <p class="dropdown-username">@<?= htmlspecialchars($username) ?></p>
