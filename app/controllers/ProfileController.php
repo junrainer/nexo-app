@@ -161,17 +161,11 @@ class ProfileController {
             exit;
         }
 
-        $this->userModel->updateFull(
-            $userId,
-            $user['full_name'],
-            $user['username'],
-            $user['bio'] ?? '',
-            $user['profile_image'],
-            $user['mobile'] ?? null,
-            $user['birthday'] ?? null,
-            $user['gender'] ?? null,
-            $newCover
-        );
+        if (!$this->userModel->updateCoverImage($userId, $newCover)) {
+            $_SESSION['error'] = 'Unable to update cover photo right now. Please try again.';
+            header('Location: index.php?url=profile/' . rawurlencode($user['username']));
+            exit;
+        }
 
         $_SESSION['toast_success'] = 'Cover photo updated successfully.';
         header('Location: index.php?url=profile/' . rawurlencode($user['username']));
