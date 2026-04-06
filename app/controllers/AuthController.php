@@ -262,7 +262,7 @@ class AuthController {
                     . '<p>– The Nexo Team</p>';
 
             if (!$mailer->send($email, 'Verify your Nexo password reset', $body)) {
-                $_SESSION['error'] = 'We could not send the email right now. Please try again.';
+                $_SESSION['error'] = 'Unable to send verification email. Please check your email address and try again.';
                 header('Location: index.php?url=forgot-password');
                 exit;
             }
@@ -300,11 +300,7 @@ class AuthController {
         if (!isset($_SESSION['password_reset_verified']) || !is_array($_SESSION['password_reset_verified'])) {
             $_SESSION['password_reset_verified'] = [];
         }
-        foreach ($_SESSION['password_reset_verified'] as $k => $ts) {
-            if (!is_int($ts) || (time() - $ts > self::RESET_VERIFY_TTL_SECONDS)) {
-                unset($_SESSION['password_reset_verified'][$k]);
-            }
-        }
+        $this->cleanupExpiredVerifications();
         $_SESSION['password_reset_verified'][$token] = time();
         header('Location: index.php?url=reset-password&token=' . urlencode($token));
         exit;
@@ -317,13 +313,7 @@ class AuthController {
         if ($token !== '') {
             $tokenValid = $this->findValidResetToken($token) !== null;
             if ($tokenValid) {
-                if (isset($_SESSION['password_reset_verified']) && is_array($_SESSION['password_reset_verified'])) {
-                    foreach ($_SESSION['password_reset_verified'] as $k => $ts) {
-                        if (!is_int($ts) || (time() - $ts > self::RESET_VERIFY_TTL_SECONDS)) {
-                            unset($_SESSION['password_reset_verified'][$k]);
-                        }
-                    }
-                }
+                $this->cleanupExpiredVerifications();
                 $verifiedAt = $_SESSION['password_reset_verified'][$token] ?? null;
                 $tokenValid = is_int($verifiedAt) && (time() - $verifiedAt <= self::RESET_VERIFY_TTL_SECONDS);
             }
@@ -399,6 +389,17 @@ class AuthController {
         } catch (\Throwable $e) {
             error_log('findValidResetToken error: ' . $e->getMessage());
             return null;
+        }
+    }
+
+    private function cleanupExpiredVerifications(): void {
+        if (!isset($_SESSION['password_reset_verified']) || !is_array($_SESSION['password_reset_verified'])) {
+            return;
+        }
+        foreach ($_SESSION['password_reset_verified'] as $k => $ts) {
+            if (!is_int($ts) || (time() - $ts > self::RESET_VERIFY_TTL_SECONDS)) {
+                unset($_SESSION['password_reset_verified'][$k]);
+            }
         }
     }
 }
