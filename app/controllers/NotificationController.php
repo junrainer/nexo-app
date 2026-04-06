@@ -140,8 +140,8 @@ class NotificationController {
             exit;
         }
 
-        $placeholders = implode(',', array_fill(0, count($ids), '?'));
-        $params       = array_merge([$userId], $ids);
+        $idPlaceholders = implode(',', array_fill(0, count($ids), '?'));
+        $params         = array_merge([$userId], $ids);
 
         try {
             if ($action === 'mark_read' || $action === 'mark_unread') {
@@ -149,7 +149,7 @@ class NotificationController {
                 $stmt = $this->db->prepare("
                     UPDATE notifications
                     SET is_read = ?
-                    WHERE user_id = ? AND id IN ($placeholders)
+                    WHERE user_id = ? AND id IN ($idPlaceholders)
                 ");
                 $stmt->execute(array_merge([$isRead, $userId], $ids));
                 $_SESSION['success'] = $action === 'mark_read'
@@ -160,27 +160,30 @@ class NotificationController {
             }
 
             if ($action === 'delete') {
-                $checkStmt = $this->db->prepare("
-                    SELECT COUNT(*) as unread_count
+                $totalStmt = $this->db->prepare("
+                    SELECT COUNT(*) as total_count
                     FROM notifications
-                    WHERE user_id = ? AND id IN ($placeholders) AND is_read = 0
+                    WHERE user_id = ? AND id IN ($idPlaceholders)
                 ");
-                $checkStmt->execute($params);
-                $row = $checkStmt->fetch(PDO::FETCH_ASSOC);
-                $unreadCount = (int) ($row['unread_count'] ?? 0);
+                $totalStmt->execute($params);
+                $row = $totalStmt->fetch(PDO::FETCH_ASSOC);
+                $requestedCount = (int) ($row['total_count'] ?? 0);
 
-                if ($unreadCount > 0) {
+                $deleteStmt = $this->db->prepare("
+                    DELETE FROM notifications
+                    WHERE user_id = ? AND id IN ($idPlaceholders) AND is_read = 1
+                ");
+                $deleteStmt->execute($params);
+
+                if ($deleteStmt->rowCount() < $requestedCount) {
                     $_SESSION['error'] = 'Delete is only allowed for notifications that are already read.';
                     header('Location: ' . $backUrl);
                     exit;
                 }
 
-                $deleteStmt = $this->db->prepare("
-                    DELETE FROM notifications
-                    WHERE user_id = ? AND id IN ($placeholders)
-                ");
-                $deleteStmt->execute($params);
-                $_SESSION['success'] = 'Selected notifications deleted.';
+                $_SESSION['success'] = $deleteStmt->rowCount() > 0
+                    ? 'Selected notifications deleted.'
+                    : 'No notifications were deleted.';
                 header('Location: ' . $backUrl);
                 exit;
             }
