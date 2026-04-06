@@ -569,18 +569,31 @@ function previewAvatar(input) {
 }
 
 window.triggerCoverUpload = function () {
-    if (typeof openEditProfile === 'function') {
-        openEditProfile();
-    }
-    requestAnimationFrame(() => {
-        const input = document.getElementById('cover-input');
-        if (input) input.click();
-    });
+    if (typeof openEditProfile !== 'function') return;
+    openEditProfile();
+
+    const modal = document.getElementById('edit-profile-modal');
+    const input = document.getElementById('cover-input');
+    if (!modal || !input) return;
+
+    let tries = 0;
+    const maxTries = 20;
+    const poll = setInterval(() => {
+        tries++;
+        if (modal.style.display === 'flex') {
+            clearInterval(poll);
+            input.click();
+            return;
+        }
+        if (tries >= maxTries) clearInterval(poll);
+    }, 25);
 };
 
 document.addEventListener('DOMContentLoaded', function () {
     const btn = document.querySelector('.js-cover-upload-btn');
     if (!btn) return;
+    if (btn.dataset.coverBound === '1') return;
+    btn.dataset.coverBound = '1';
     btn.addEventListener('click', function () {
         window.triggerCoverUpload();
     });
