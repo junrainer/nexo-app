@@ -870,10 +870,18 @@ function appendMessage(msg, isSent) {
                       alt="avatar" class="message-avatar"
                       onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">`;
     }
-    html += `<div class="message-content">
-                <p>${escapeHtml(msg.message)}</p>
-                <span class="message-time">just now</span>
-             </div>`;
+    const sentTime = msg.created_at ? escapeHtml(msg.created_at) : '';
+    const sentTimeText = msg.created_at ? timeAgo(msg.created_at) : 'just now';
+    const sentTimeAttrs = msg.created_at
+        ? ` class="live-time message-time" data-time="${sentTime}" datetime="${sentTime}"`
+        : ' class="message-time"';
+    html += `
+            <div class="message-body">
+                <div class="message-content">
+                    <p>${escapeHtml(msg.message)}</p>
+                </div>
+                <time${sentTimeAttrs}>${sentTimeText}</time>
+            </div>`;
     div.innerHTML = html;
     container.appendChild(div);
 }
@@ -1079,7 +1087,13 @@ function _appendFloatingMsg(text, isMine, profileImage, createdAt, msgId) {
     }
     const timeStr = createdAt ? timeAgo(createdAt) : 'just now';
     const timeAttr = createdAt ? ` class="live-time message-time" data-time="${escapeHtml(createdAt)}"` : ' class="message-time"';
-    html += `<div class="message-content"><p>${escapeHtml(text)}</p><time${timeAttr}>${timeStr}</time></div>`;
+    html += `
+            <div class="message-body">
+                <div class="message-content">
+                    <p>${escapeHtml(text)}</p>
+                </div>
+                <time${timeAttr}>${timeStr}</time>
+            </div>`;
     div.innerHTML = html;
     container.appendChild(div);
 }

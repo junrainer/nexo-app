@@ -188,7 +188,6 @@ $username   = $_SESSION['username'];
                     <div class="notification-dropdown" id="notification-dropdown">
                         <div class="notif-header">
                             <span>Notifications</span>
-                            <button onclick="markAllNotificationsRead()" class="mark-read-btn">Mark all read</button>
                         </div>
                         <div class="notif-list" id="notif-list">
                             <div class="notif-loading"><i class="fa fa-spinner fa-spin"></i> Loading...</div>

@@ -399,6 +399,7 @@ input, textarea, select { font-family: inherit; }
     gap: 6px;
     padding: 0 16px;
     flex-shrink: 0;
+    min-width: 0;
 }
 
 @media (min-width: 1280px) {
@@ -429,8 +430,7 @@ input, textarea, select { font-family: inherit; }
     font-size: 14px;
     position: relative;
     transition: color 0.15s;
-    margin-right: 30px;
-    margin-left: 20px;
+    margin: 0;
 }
 
 .icon-btn:hover { color: var(--fg); }
@@ -3183,7 +3183,10 @@ input, textarea, select { font-family: inherit; }
     .chat-area.hide-mobile { display: none; }
 
     /* ── Notification dropdown ── */
-    .notification-dropdown { width: 300px; right: -80px; }
+    .notification-dropdown {
+        width: min(300px, calc(100vw - 20px));
+        right: 0;
+    }
 
     /* ── Friends tabs ── */
     .friends-tabs { flex-wrap: nowrap; overflow-x: auto; }
