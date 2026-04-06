@@ -1684,7 +1684,7 @@ input, textarea, select { font-family: inherit; }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
-.tab-posts { display: flex; flex-direction: column; gap: 16px; }
+.tab-content.active.tab-posts { display: flex; flex-direction: column; gap: 16px; }
 
 .photos-grid {
     display: grid;
