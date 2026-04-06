@@ -101,10 +101,18 @@ require __DIR__ . '/../partials/header.php';
             <?php else: ?>
                 <?php
                 require_once __DIR__ . '/../../models/CommentModel.php';
-                $cm = new CommentModel();
+                require_once __DIR__ . '/../../models/PostMediaModel.php';
+                $cm         = new CommentModel();
+                $mediaModel = new PostMediaModel();
                 ?>
                 <?php foreach ($posts as $post): ?>
-                <?php $comments = $cm->getByPost($post['id']); ?>
+                <?php
+                    $comments   = $cm->getByPost($post['id']);
+                    $mediaItems = $mediaModel->getByPost($post['id']);
+                    if (empty($mediaItems) && !empty($post['image'])) {
+                        $mediaItems = [['filename' => $post['image'], 'media_type' => 'image']];
+                    }
+                ?>
 
                 <div class="post-card" id="post-<?= $post['id'] ?>">
                     <div class="post-header">
@@ -138,9 +146,35 @@ require __DIR__ . '/../partials/header.php';
 
                     <div class="post-body">
                         <p class="post-content"><?= nl2br(htmlspecialchars($post['content'])) ?></p>
-                        <?php if ($post['image']): ?>
-                            <img src="assets/uploads/<?= htmlspecialchars($post['image']) ?>"
-                                 alt="post image" class="post-image">
+
+                        <?php if (!empty($mediaItems)): ?>
+                            <?php
+                            $images   = array_filter($mediaItems, fn($m) => $m['media_type'] === 'image');
+                            $videos   = array_filter($mediaItems, fn($m) => $m['media_type'] === 'video');
+                            $imgCount = count($images);
+                            ?>
+
+                            <?php if ($imgCount > 0): ?>
+                            <div class="post-media-grid count-<?= $imgCount ?>">
+                                <?php foreach ($images as $img): ?>
+                                <div class="media-item">
+                                    <img src="assets/uploads/<?= htmlspecialchars($img['filename']) ?>"
+                                         alt="post image" loading="lazy"
+                                         onerror="this.onerror=null; this.style.display='none'">
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <?php endif; ?>
+
+                            <?php foreach ($videos as $vid): ?>
+                            <div class="post-media-video">
+                                <video controls preload="metadata">
+                                    <source src="assets/uploads/<?= htmlspecialchars($vid['filename']) ?>"
+                                            type="<?= strtolower(pathinfo($vid['filename'], PATHINFO_EXTENSION)) === 'mov' ? 'video/quicktime' : 'video/mp4' ?>">
+                                    Your browser does not support video playback.
+                                </video>
+                            </div>
+                            <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
 

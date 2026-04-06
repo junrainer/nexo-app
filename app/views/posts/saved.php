@@ -16,14 +16,31 @@ require __DIR__ . '/../partials/header.php';
             <p>No saved posts yet</p>
         </div>
     <?php else: ?>
+        <?php
+        require_once __DIR__ . '/../../models/PostMediaModel.php';
+        $mediaModel = new PostMediaModel();
+        ?>
         <div class="gm-saved-grid">
             <?php foreach ($savedPosts as $post): ?>
+            <?php
+                $mediaItems  = $mediaModel->getByPost($post['id']);
+                $firstMedia  = $mediaItems[0] ?? null;
+                // Fallback to legacy image column
+                if (!$firstMedia && !empty($post['image'])) {
+                    $firstMedia = ['filename' => $post['image'], 'media_type' => 'image'];
+                }
+            ?>
             <div class="gm-saved-card" id="saved-<?= $post['id'] ?>">
-                <?php if ($post['image']): ?>
+                <?php if ($firstMedia): ?>
                 <div class="gm-saved-img">
-                    <img src="assets/uploads/<?= htmlspecialchars($post['image']) ?>"
-                         alt="post image"
-                         onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
+                    <?php if ($firstMedia['media_type'] === 'video'): ?>
+                        <video src="assets/uploads/<?= htmlspecialchars($firstMedia['filename']) ?>"
+                               preload="metadata" muted style="width:100%;height:100%;object-fit:cover;"></video>
+                    <?php else: ?>
+                        <img src="assets/uploads/<?= htmlspecialchars($firstMedia['filename']) ?>"
+                             alt="post image"
+                             onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
+                    <?php endif; ?>
                 </div>
                 <?php else: ?>
                 <div class="gm-saved-img gm-saved-no-img">

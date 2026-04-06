@@ -47,4 +47,17 @@ class CommentModel {
         $stmt->execute([$id]);
         return $stmt->fetch();
     }
+
+    /**
+     * Returns the most-recent comment row for the given user, or null if none exist.
+     * Used to enforce a posting cooldown.
+     */
+    public function getLastByUser(int $userId): ?array {
+        $stmt = $this->db->prepare(
+            'SELECT created_at FROM comments WHERE user_id = ? ORDER BY created_at DESC LIMIT 1'
+        );
+        $stmt->execute([$userId]);
+        $result = $stmt->fetch();
+        return $result ?: null;
+    }
 }

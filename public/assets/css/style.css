@@ -1218,28 +1218,35 @@ input, textarea, select { font-family: inherit; }
 .compose-input::placeholder { color: var(--muted-fg); }
 
 .compose-add-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: 1px solid var(--border);
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 99px;
+    border: 1px solid var(--border);
     color: var(--muted-fg);
-    font-size: 16px;
-    transition: color 0.15s, border-color 0.15s;
+    font-size: 13px;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
     flex-shrink: 0;
+    cursor: pointer;
+    user-select: none;
 }
 
-.compose-add-btn:hover { color: var(--fg); border-color: var(--fg); }
+.compose-add-btn:hover { color: var(--fg); border-color: var(--fg); background: var(--muted); }
 
 .compose-footer {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
     margin-top: 12px;
     padding-top: 12px;
     border-top: 1px solid var(--border);
+}
+
+.compose-media-btns {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .compose-actions { display: flex; align-items: center; gap: 4px; }
@@ -1325,7 +1332,86 @@ input, textarea, select { font-family: inherit; }
 
 .compose-hint { font-size: 10px; color: var(--muted-fg); text-align: right; margin-top: 4px; }
 
-/* POST CARD */
+/* ── Video preview in compose ─────────────────────── */
+.preview-thumb.preview-video-thumb {
+    width: 160px;
+    height: 90px;
+}
+
+.preview-thumb .preview-video-el {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.preview-video-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.35);
+    color: #fff;
+    font-size: 22px;
+    pointer-events: none;
+}
+
+/* ── Post media grid (images) ─────────────────────── */
+.post-media-grid {
+    display: grid;
+    gap: 4px;
+    margin-top: 10px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.post-media-grid.count-1 { grid-template-columns: 1fr; }
+.post-media-grid.count-2 { grid-template-columns: 1fr 1fr; }
+.post-media-grid.count-3 { grid-template-columns: 1fr 1fr; }
+.post-media-grid.count-4 { grid-template-columns: 1fr 1fr; }
+.post-media-grid.count-5 { grid-template-columns: 1fr 1fr; }
+
+/* First image spans full width in a 3-image post */
+.post-media-grid.count-3 .media-item:first-child { grid-column: 1 / -1; }
+/* 5th image spans full width */
+.post-media-grid.count-5 .media-item:last-child  { grid-column: 1 / -1; }
+
+.post-media-grid .media-item { overflow: hidden; }
+.post-media-grid .media-item:first-child:last-child { border-radius: 10px; }
+
+.post-media-grid .media-item img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+.post-media-grid .media-item img:hover { opacity: 0.92; }
+
+/* Single image: taller, natural aspect ratio */
+.post-media-grid.count-1 .media-item img {
+    height: auto;
+    max-height: 500px;
+    object-fit: contain;
+    background: var(--muted);
+}
+
+/* ── Post video player ─────────────────────────────── */
+.post-media-video {
+    margin-top: 10px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #000;
+}
+
+.post-media-video video {
+    width: 100%;
+    max-height: 480px;
+    display: block;
+}
+
+
 .post-card {
     background: var(--card);
     border: 1px solid var(--border);
