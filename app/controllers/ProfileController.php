@@ -135,7 +135,7 @@ class ProfileController {
         exit;
     }
 
-    private function handleImageUpload(array $file, string $prefix = 'avatar_'): string|false {
+    private function handleImageUpload(array $file, string $filenamePrefix = 'avatar_'): string|false {
         $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         $maxSize = 2 * 1024 * 1024;
 
@@ -143,7 +143,7 @@ class ProfileController {
         if (!in_array($file['type'], $allowed) || $file['size'] > $maxSize) return false;
 
         $ext      = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        $filename = uniqid($prefix, true) . '.' . $ext;
+        $filename = uniqid($filenamePrefix, true) . '.' . $ext;
         $dest     = __DIR__ . '/../../public/assets/uploads/' . $filename;
 
         if (!move_uploaded_file($file['tmp_name'], $dest)) return false;
