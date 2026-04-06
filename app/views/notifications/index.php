@@ -17,15 +17,6 @@ function notifLink($n) {
             return 'index.php?url=feed';
     }
 }
-
-function notifTimeAgo($datetime) {
-    $diff = time() - strtotime($datetime);
-    if ($diff < 60)           return 'Just now';
-    if ($diff < 3600)         return floor($diff / 60) . 'm ago';
-    if ($diff < 86400)        return floor($diff / 3600) . 'h ago';
-    if ($diff < 604800)       return floor($diff / 86400) . 'd ago';
-    return date('M j, Y', strtotime($datetime));
-}
 ?>
 
 <div class="notif-page">
@@ -58,7 +49,7 @@ function notifTimeAgo($datetime) {
                          onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                     <div class="notif-content">
                         <p><?= htmlspecialchars($n['message']) ?></p>
-                        <span class="notif-time"><?= notifTimeAgo($n['created_at']) ?></span>
+                        <span class="notif-time"><time class="live-time" data-time="<?= htmlspecialchars($n['created_at']) ?>"><?= time_ago($n['created_at']) ?></time></span>
                     </div>
                     <?php if (!$n['is_read']): ?>
                         <span class="notif-dot"></span>

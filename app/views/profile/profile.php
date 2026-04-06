@@ -114,7 +114,7 @@ require __DIR__ . '/../partials/header.php';
                         <div class="post-author-info">
                             <span class="post-author-name"><?= htmlspecialchars($user['username']) ?></span>
                             <span class="post-author-meta">
-                                <?= htmlspecialchars($user['full_name']) ?> · <?= time_ago($post['created_at']) ?>
+                                <?= htmlspecialchars($user['full_name']) ?> · <time class="live-time" data-time="<?= htmlspecialchars($post['created_at']) ?>"><?= time_ago($post['created_at']) ?></time>
                             </span>
                         </div>
                         <?php if ($isOwner): ?>
@@ -173,7 +173,7 @@ require __DIR__ . '/../partials/header.php';
                                     <p class="comment-text"><?= nl2br(htmlspecialchars($c['content'])) ?></p>
                                 </div>
                                 <div class="comment-meta-row">
-                                    <span class="comment-time"><?= time_ago($c['created_at']) ?></span>
+                                    <span class="comment-time"><time class="live-time" data-time="<?= htmlspecialchars($c['created_at']) ?>"><?= time_ago($c['created_at']) ?></time></span>
                                     <?php if ($c['user_id'] == $_SESSION['user_id']): ?>
                                         <button class="comment-action-btn"
                                                 onclick="openEditComment(<?= $c['id'] ?>, <?= htmlspecialchars(json_encode($c['content'])) ?>)">Edit</button>

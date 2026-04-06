@@ -72,6 +72,14 @@ function timeAgo(datetime) {
     return new Date(datetime).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+// ── Live timestamp refresh ───────────────────────────
+function refreshLiveTimes() {
+    document.querySelectorAll('time.live-time[data-time]').forEach(el => {
+        el.textContent = timeAgo(el.dataset.time);
+    });
+}
+setInterval(refreshLiveTimes, 30000);
+
 // ── Avatar dropdown ──────────────────────────────────
 const allDropdownsSelector = '.avatar-dropdown.open, .notification-dropdown.open, .message-dropdown.open';
 
@@ -137,7 +145,7 @@ function loadNotificationsInto(listId) {
                              onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                         <div class="notif-content">
                             <p>${escapeHtml(n.message)}</p>
-                            <span class="notif-time">${timeAgo(n.created_at)}</span>
+                            <span class="notif-time"><time class="live-time" data-time="${escapeHtml(n.created_at)}">${timeAgo(n.created_at)}</time></span>
                         </div>
                         ${n.is_read ? '' : '<span class="notif-dot"></span>'}
                     </a>
@@ -226,7 +234,7 @@ function loadMessages() {
                         <div class="msg-content">
                             <div class="msg-top">
                                 <span class="msg-name ${c.unread > 0 ? 'bold' : ''}">${escapeHtml(c.name)}</span>
-                                <span class="msg-time">${timeAgo(c.last_time)}</span>
+                                <span class="msg-time"><time class="live-time" data-time="${escapeHtml(c.last_time)}">${timeAgo(c.last_time)}</time></span>
                             </div>
                             <p class="msg-preview ${c.unread > 0 ? 'bold' : ''}">${escapeHtml(c.last_message)}</p>
                         </div>
@@ -911,7 +919,8 @@ function _appendFloatingMsg(text, isMine, profileImage, createdAt, msgId) {
                       onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">`;
     }
     const timeStr = createdAt ? timeAgo(createdAt) : 'just now';
-    html += `<div class="message-content"><p>${escapeHtml(text)}</p><span class="message-time">${timeStr}</span></div>`;
+    const timeAttr = createdAt ? ` class="live-time message-time" data-time="${escapeHtml(createdAt)}"` : ' class="message-time"';
+    html += `<div class="message-content"><p>${escapeHtml(text)}</p><time${timeAttr}>${timeStr}</time></div>`;
     div.innerHTML = html;
     container.appendChild(div);
 }

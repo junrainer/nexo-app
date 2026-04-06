@@ -83,7 +83,7 @@ require __DIR__ . '/../partials/header.php';
                         <?= htmlspecialchars($post['username']) ?>
                     </a>
                     <span class="post-author-meta">
-                        <?= htmlspecialchars($post['full_name']) ?> · <?= time_ago($post['created_at']) ?>
+                        <?= htmlspecialchars($post['full_name']) ?> · <time class="live-time" data-time="<?= htmlspecialchars($post['created_at']) ?>"><?= time_ago($post['created_at']) ?></time>
                     </span>
                 </div>
 
@@ -147,7 +147,7 @@ require __DIR__ . '/../partials/header.php';
                             <p class="comment-text"><?= nl2br(htmlspecialchars($c['content'])) ?></p>
                         </div>
                         <div class="comment-meta-row">
-                            <span class="comment-time"><?= time_ago($c['created_at']) ?></span>
+                            <span class="comment-time"><time class="live-time" data-time="<?= htmlspecialchars($c['created_at']) ?>"><?= time_ago($c['created_at']) ?></time></span>
                             <button class="comment-action-btn">Like</button>
                             <button class="comment-action-btn">Reply</button>
                             <?php if ($c['user_id'] == $_SESSION['user_id']): ?>
