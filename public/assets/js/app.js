@@ -568,11 +568,13 @@ function previewAvatar(input) {
     reader.readAsDataURL(input.files[0]);
 }
 
-function triggerCoverUpload() {
+window.triggerCoverUpload = function () {
     openEditProfile();
-    const input = document.getElementById('cover-input');
-    if (input) input.click();
-}
+    requestAnimationFrame(() => {
+        const input = document.getElementById('cover-input');
+        if (input) input.click();
+    });
+};
 
 // ── Tab switching (profile / search page) ─────────────
 function switchTab(tabName) {

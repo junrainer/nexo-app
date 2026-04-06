@@ -292,7 +292,7 @@ require __DIR__ . '/../partials/header.php';
             <div class="modal-body">
 
                 <!-- Avatar upload -->
-                 <div class="avatar-upload-row">
+                <div class="avatar-upload-row">
                     <img src="assets/uploads/<?= htmlspecialchars($user['profile_image']) ?>"
                          alt="avatar" class="avatar-lg" id="avatar-preview"
                          onerror="this.onerror=null; this.src='assets/images/default-profile.webp'"
@@ -304,11 +304,11 @@ require __DIR__ . '/../partials/header.php';
                             <input type="file" name="profile_image" accept="image/*" hidden
                                    onchange="previewAvatar(this)">
                         </label>
-                 </div>
+                </div>
 
                 <div class="modal-field">
                     <label>Cover photo</label>
-                    <label class="btn btn-ghost btn-sm" style="cursor:pointer;display:inline-flex;width:max-content;">
+                    <label class="btn btn-ghost btn-sm">
                         <i class="fa fa-image" style="font-size:12px;"></i> Upload cover photo
                         <input id="cover-input" type="file" name="cover_image" accept="image/*" hidden>
                     </label>
