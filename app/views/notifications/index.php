@@ -95,11 +95,12 @@ function notifLink($n) {
         <script>
         document.addEventListener('DOMContentLoaded', function () {
             const selectAll = document.getElementById('notif-select-all');
+            const bulkForm = document.getElementById('notif-bulk-form');
             const items = Array.from(document.querySelectorAll('.notif-select-item'));
             const countEl = document.getElementById('notif-selected-count');
             const deleteBtn = document.getElementById('notif-delete-selected-btn');
 
-            if (!selectAll || !countEl || !deleteBtn || items.length === 0) return;
+            if (!selectAll || !bulkForm || !countEl || !deleteBtn || items.length === 0) return;
 
             const updateState = function () {
                 const checked = items.filter(i => i.checked);
@@ -121,10 +122,24 @@ function notifLink($n) {
             document.querySelectorAll('.js-notif-page-link').forEach(function (link) {
                 link.addEventListener('click', function () {
                     const notifId = parseInt(link.dataset.notifId || '0', 10);
+                    const row = link.closest('.notif-page-item');
+                    const checkbox = row ? row.querySelector('.notif-select-item') : null;
+                    if (checkbox && checkbox.checked) {
+                        checkbox.checked = false;
+                        updateState();
+                    }
                     if (notifId > 0 && typeof markNotificationRead === 'function') {
                         markNotificationRead(notifId);
                     }
                 });
+            });
+
+            bulkForm.addEventListener('submit', function (event) {
+                const submitter = event.submitter;
+                if (!submitter || submitter.value !== 'delete') return;
+                if (!window.confirm('Are you sure you want to delete the selected notifications?')) {
+                    event.preventDefault();
+                }
             });
 
             updateState();
