@@ -4,6 +4,7 @@ require_once __DIR__ . '/../models/UserModel.php';
 
 class AuthController {
     private UserModel $userModel;
+    private const RESET_VERIFY_TTL_SECONDS = 3600;
 
     public function __construct() {
         $this->userModel = new UserModel();
@@ -300,7 +301,7 @@ class AuthController {
             $_SESSION['password_reset_verified'] = [];
         }
         foreach ($_SESSION['password_reset_verified'] as $k => $ts) {
-            if (!is_int($ts) || (time() - $ts > 3600)) {
+            if (!is_int($ts) || (time() - $ts > self::RESET_VERIFY_TTL_SECONDS)) {
                 unset($_SESSION['password_reset_verified'][$k]);
             }
         }
@@ -318,13 +319,13 @@ class AuthController {
             if ($tokenValid) {
                 if (isset($_SESSION['password_reset_verified']) && is_array($_SESSION['password_reset_verified'])) {
                     foreach ($_SESSION['password_reset_verified'] as $k => $ts) {
-                        if (!is_int($ts) || (time() - $ts > 3600)) {
+                        if (!is_int($ts) || (time() - $ts > self::RESET_VERIFY_TTL_SECONDS)) {
                             unset($_SESSION['password_reset_verified'][$k]);
                         }
                     }
                 }
                 $verifiedAt = $_SESSION['password_reset_verified'][$token] ?? null;
-                $tokenValid = is_int($verifiedAt) && (time() - $verifiedAt <= 3600);
+                $tokenValid = is_int($verifiedAt) && (time() - $verifiedAt <= self::RESET_VERIFY_TTL_SECONDS);
             }
         }
 
