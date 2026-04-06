@@ -148,7 +148,7 @@ class NotificationController {
                     SET is_read = ?
                     WHERE user_id = ? AND id IN ($placeholders)
                 ");
-                $stmt->execute(array_merge([$isRead], $params));
+                $stmt->execute(array_merge([$isRead, $userId], $ids));
                 $_SESSION['success'] = $action === 'mark_read'
                     ? 'Selected notifications marked as read.'
                     : 'Selected notifications marked as unread.';

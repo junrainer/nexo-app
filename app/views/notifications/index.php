@@ -108,8 +108,8 @@ function notifLink($n) {
                 const allChecked = selectedCount === items.length;
                 selectAll.checked = allChecked;
                 selectAll.indeterminate = selectedCount > 0 && !allChecked;
-                const allSelectedAreRead = selectedCount > 0 && checked.every(i => i.dataset.isRead === '1');
-                deleteBtn.style.display = allSelectedAreRead ? 'inline-flex' : 'none';
+                const everySelectedIsRead = selectedCount > 0 && checked.every(i => i.dataset.isRead === '1');
+                deleteBtn.style.display = everySelectedIsRead ? 'inline-flex' : 'none';
             };
 
             selectAll.addEventListener('change', function () {
