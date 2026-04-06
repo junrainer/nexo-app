@@ -115,6 +115,8 @@ require __DIR__ . '/../partials/header.php';
                             <span class="post-author-name"><?= htmlspecialchars($user['username']) ?></span>
                             <span class="post-author-meta">
                                 <?= htmlspecialchars($user['full_name']) ?> · <time class="live-time" data-time="<?= htmlspecialchars($post['created_at']) ?>"><?= time_ago($post['created_at']) ?></time>
+                                <?php [$visIcon, $visLabel] = post_visibility_meta($post['visibility'] ?? 'public'); ?>
+                                · <span class="post-visibility" title="<?= $visLabel ?>"><i class="fa <?= $visIcon ?>"></i> <?= $visLabel ?></span>
                             </span>
                         </div>
                         <?php if ($isOwner): ?>
@@ -123,7 +125,7 @@ require __DIR__ . '/../partials/header.php';
                                 <i class="fa fa-ellipsis-h"></i>
                             </button>
                             <div class="post-dropdown" id="post-menu-<?= $post['id'] ?>">
-                                <button onclick="openEditPost(<?= $post['id'] ?>, <?= htmlspecialchars(json_encode($post['content'])) ?>)">
+                                <button onclick="openEditPost(<?= $post['id'] ?>, <?= htmlspecialchars(json_encode($post['content'])) ?>, <?= htmlspecialchars(json_encode($post['visibility'] ?? 'public')) ?>)">
                                     <i class="fa fa-pen"></i> Edit post
                                 </button>
                                 <button class="danger-item" onclick="confirmDeletePost(<?= $post['id'] ?>)">
@@ -321,6 +323,13 @@ require __DIR__ . '/../partials/header.php';
             <div class="modal-body">
                 <textarea name="content" id="edit-post-content" rows="4"
                           class="modal-textarea" required></textarea>
+                <div style="margin-top:10px;">
+                    <select name="visibility" id="edit-post-visibility" class="modal-select">
+                        <option value="public">🌐 Public</option>
+                        <option value="friends">👥 Friends</option>
+                        <option value="only_me">🔒 Only me</option>
+                    </select>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-ghost btn-sm"

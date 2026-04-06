@@ -383,10 +383,30 @@ function toggleComments(postId) {
 }
 
 // ── Edit post modal ───────────────────────────────────
-function openEditPost(postId, content) {
+function openEditPost(postId, content, visibility) {
     document.getElementById('edit-post-id').value      = postId;
     document.getElementById('edit-post-content').value = content;
+    const visSelect = document.getElementById('edit-post-visibility');
+    if (visSelect) visSelect.value = visibility || 'public';
     document.getElementById('edit-post-modal').style.display = 'flex';
+}
+
+// ── Audience cycle for compose form ─────────────────
+const audienceOptions = [
+    { value: 'public',  icon: 'fa-globe',      label: 'Public'   },
+    { value: 'friends', icon: 'fa-user-group', label: 'Friends'  },
+    { value: 'only_me', icon: 'fa-lock',       label: 'Only me'  },
+];
+function cycleAudience(btn) {
+    const hidden = document.getElementById('compose-visibility');
+    const icon   = document.getElementById('compose-audience-icon');
+    const label  = document.getElementById('compose-audience-label');
+    if (!hidden || !icon || !label) return;
+    const current = audienceOptions.findIndex(o => o.value === hidden.value);
+    const next    = audienceOptions[(current + 1) % audienceOptions.length];
+    hidden.value   = next.value;
+    icon.className = 'fa ' + next.icon;
+    label.textContent = next.label;
 }
 
 // ── Edit comment modal ────────────────────────────────

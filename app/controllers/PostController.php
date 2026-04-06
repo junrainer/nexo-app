@@ -29,9 +29,10 @@ class PostController {
     }
 
     public function create(): void {
-        $content = trim($_POST['content'] ?? '');
-        $userId  = $_SESSION['user_id'];
-        $image   = null;
+        $content    = trim($_POST['content'] ?? '');
+        $userId     = $_SESSION['user_id'];
+        $image      = null;
+        $visibility = $_POST['visibility'] ?? 'public';
 
         if (empty($content)) {
             $_SESSION['error'] = 'Post cannot be empty.';
@@ -48,18 +49,19 @@ class PostController {
             }
         }
 
-        $postId = $this->postModel->create($userId, htmlspecialchars($content, ENT_QUOTES, 'UTF-8'), $image);
+        $postId = $this->postModel->create($userId, htmlspecialchars($content, ENT_QUOTES, 'UTF-8'), $image, $visibility);
         header('Location: index.php?url=feed#post-' . $postId);
         exit;
     }
 
     public function update(): void {
-        $postId  = (int) ($_POST['post_id'] ?? 0);
-        $content = trim($_POST['content'] ?? '');
-        $userId  = $_SESSION['user_id'];
+        $postId     = (int) ($_POST['post_id'] ?? 0);
+        $content    = trim($_POST['content'] ?? '');
+        $userId     = $_SESSION['user_id'];
+        $visibility = $_POST['visibility'] ?? 'public';
 
         if ($postId && !empty($content)) {
-            $this->postModel->update($postId, $userId, htmlspecialchars($content, ENT_QUOTES, 'UTF-8'));
+            $this->postModel->update($postId, $userId, htmlspecialchars($content, ENT_QUOTES, 'UTF-8'), $visibility);
             $_SESSION['toast_success'] = 'Post updated.';
         }
 
@@ -175,20 +177,7 @@ class PostController {
         $userId = $_SESSION['user_id'];
 
         try {
-            $stmt = $this->db->prepare("
-                SELECT p.*, u.username, u.full_name, u.profile_image,
-                       (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
-                       (SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count,
-                       (SELECT COUNT(*) FROM likes WHERE post_id = p.id AND user_id = ?) AS user_liked,
-                       1 AS user_saved
-                FROM saved_posts sp
-                JOIN posts p ON sp.post_id = p.id
-                JOIN users u ON p.user_id = u.id
-                WHERE sp.user_id = ?
-                ORDER BY sp.created_at DESC
-            ");
-            $stmt->execute([$userId, $userId]);
-            $savedPosts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $savedPosts = $this->postModel->getSaved($userId);
         } catch (PDOException $e) {
             $savedPosts = [];
         }

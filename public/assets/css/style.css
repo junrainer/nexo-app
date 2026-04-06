@@ -1261,6 +1261,35 @@ input, textarea, select { font-family: inherit; }
 .compose-action-btn .red    { color: #f87171; }
 .compose-action-btn .yellow { color: #facc15; }
 
+/* ── Audience / visibility picker ─────────────────── */
+.compose-audience {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+    background: var(--muted);
+    color: var(--fg);
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+.compose-audience:hover { background: var(--border); }
+.compose-audience i { font-size: 13px; }
+
+/* ── Post visibility badge ─────────────────────────── */
+.post-visibility {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    color: var(--muted-fg);
+    margin-left: 4px;
+}
+.post-visibility i { font-size: 10px; }
+
 .image-previews {
     display: flex;
     flex-wrap: wrap;
@@ -1760,6 +1789,19 @@ input, textarea, select { font-family: inherit; }
     outline: none;
     transition: border-color 0.2s;
 }
+
+.modal-select {
+    background: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 13px;
+    color: var(--fg);
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+.modal-select:focus { border-color: var(--primary); }
 
 .modal-input:focus,
 .modal-textarea:focus { border-color: var(--primary); }
