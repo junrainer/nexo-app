@@ -55,7 +55,7 @@ function notifTimeAgo($datetime) {
                     <img src="assets/uploads/<?= htmlspecialchars($n['actor_image'] ?? 'default.png') ?>"
                          alt="avatar"
                          class="notif-avatar"
-                         onerror="this.onerror=null; this.src='assets/images/default.png'">
+                         onerror="this.onerror=null; this.src='assets/images/default.webp'">
                     <div class="notif-content">
                         <p><?= htmlspecialchars($n['message']) ?></p>
                         <span class="notif-time"><?= notifTimeAgo($n['created_at']) ?></span>

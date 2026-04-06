@@ -23,7 +23,7 @@ require __DIR__ . '/../partials/header.php';
                 <div class="gm-saved-img">
                     <img src="assets/uploads/<?= htmlspecialchars($post['image']) ?>"
                          alt="post image"
-                         onerror="this.onerror=null; this.src='assets/images/default.png'">
+                         onerror="this.onerror=null; this.src='assets/images/default.webp'">
                 </div>
                 <?php else: ?>
                 <div class="gm-saved-img gm-saved-no-img">

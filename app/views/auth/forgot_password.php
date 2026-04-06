@@ -22,7 +22,7 @@
 
         <!-- Logo -->
         <div class="auth-logo">
-            <img src="assets/images/logo.svg" alt="Nexo" class="auth-logo-img"
+            <img src="assets/images/app-logo.png" alt="Nexo" class="auth-logo-img"
                  onerror="this.style.display='none'; document.getElementById('auth-logo-fb-fp').style.display='flex'">
             <div id="auth-logo-fb-fp" class="auth-logo-icon" style="display:none"><i class="fa fa-lock"></i></div>
             <div class="auth-logo-name">Forgot Password?</div>

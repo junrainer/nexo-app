@@ -55,7 +55,7 @@ require __DIR__ . '/../partials/header.php';
                     <a href="index.php?url=profile/<?= htmlspecialchars($friend['username']) ?>" class="gm-user-avatar">
                         <img src="assets/uploads/<?= htmlspecialchars($friend['profile_image'] ?? 'default.png') ?>"
                              alt="avatar"
-                             onerror="this.onerror=null; this.src='assets/images/default.png'">
+                             onerror="this.onerror=null; this.src='assets/images/default.webp'">
                     </a>
                     <div class="gm-user-info">
                         <a href="index.php?url=profile/<?= htmlspecialchars($friend['username']) ?>" class="gm-user-name">
@@ -86,7 +86,7 @@ require __DIR__ . '/../partials/header.php';
                     <a href="index.php?url=profile/<?= htmlspecialchars($req['username']) ?>" class="gm-user-avatar">
                         <img src="assets/uploads/<?= htmlspecialchars($req['profile_image'] ?? 'default.png') ?>"
                              alt="avatar"
-                             onerror="this.onerror=null; this.src='assets/images/default.png'">
+                             onerror="this.onerror=null; this.src='assets/images/default.webp'">
                     </a>
                     <div class="gm-user-info">
                         <a href="index.php?url=profile/<?= htmlspecialchars($req['username']) ?>" class="gm-user-name">
@@ -122,7 +122,7 @@ require __DIR__ . '/../partials/header.php';
                     <a href="index.php?url=profile/<?= htmlspecialchars($sent['username']) ?>" class="gm-user-avatar">
                         <img src="assets/uploads/<?= htmlspecialchars($sent['profile_image'] ?? 'default.png') ?>"
                              alt="avatar"
-                             onerror="this.onerror=null; this.src='assets/images/default.png'">
+                             onerror="this.onerror=null; this.src='assets/images/default.webp'">
                     </a>
                     <div class="gm-user-info">
                         <a href="index.php?url=profile/<?= htmlspecialchars($sent['username']) ?>" class="gm-user-name">
@@ -154,7 +154,7 @@ require __DIR__ . '/../partials/header.php';
                     <a href="index.php?url=profile/<?= htmlspecialchars($sug['username']) ?>" class="gm-user-avatar">
                         <img src="assets/uploads/<?= htmlspecialchars($sug['profile_image'] ?? 'default.png') ?>"
                              alt="avatar"
-                             onerror="this.onerror=null; this.src='assets/images/default.png'">
+                             onerror="this.onerror=null; this.src='assets/images/default.webp'">
                     </a>
                     <div class="gm-user-info">
                         <a href="index.php?url=profile/<?= htmlspecialchars($sug['username']) ?>" class="gm-user-name">

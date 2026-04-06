@@ -27,7 +27,7 @@ require __DIR__ . '/../partials/header.php';
                    class="conversation-item <?= ($activeConversationId == $conv['id']) ? 'active' : '' ?>">
                     <img src="assets/uploads/<?= htmlspecialchars($conv['other_image'] ?? 'default.png') ?>"
                          alt="avatar" class="avatar-md"
-                         onerror="this.onerror=null; this.src='assets/images/default.png'">
+                         onerror="this.onerror=null; this.src='assets/images/default.webp'">
                     <div class="conversation-info">
                         <div class="conversation-top">
                             <span class="conversation-name"><?= htmlspecialchars($conv['other_name']) ?></span>
@@ -55,7 +55,7 @@ require __DIR__ . '/../partials/header.php';
                     <a href="index.php?url=profile/<?= htmlspecialchars($activeUser['username']) ?>" class="chat-user-info">
                         <img src="assets/uploads/<?= htmlspecialchars($activeUser['profile_image'] ?? 'default.png') ?>"
                              alt="avatar" class="avatar-md"
-                             onerror="this.onerror=null; this.src='assets/images/default.png'">
+                             onerror="this.onerror=null; this.src='assets/images/default.webp'">
                         <div>
                             <span class="chat-user-name"><?= htmlspecialchars($activeUser['full_name']) ?></span>
                             <span class="chat-user-status">@<?= htmlspecialchars($activeUser['username']) ?></span>
@@ -71,7 +71,7 @@ require __DIR__ . '/../partials/header.php';
                         <?php if ($msg['sender_id'] != $_SESSION['user_id']): ?>
                         <img src="assets/uploads/<?= htmlspecialchars($msg['profile_image'] ?? 'default.png') ?>"
                              alt="avatar" class="message-avatar"
-                             onerror="this.onerror=null; this.src='assets/images/default.png'">
+                             onerror="this.onerror=null; this.src='assets/images/default.webp'">
                         <?php endif; ?>
                         <div class="message-content">
                             <p><?= nl2br(htmlspecialchars($msg['message'])) ?></p>
@@ -155,7 +155,7 @@ function appendMessage(msg, isSent) {
     if (!isSent) {
         html += `<img src="assets/uploads/${msg.profile_image || 'default.png'}" 
                       alt="avatar" class="message-avatar"
-                      onerror="this.onerror=null; this.src='assets/images/default.png'">`;
+                      onerror="this.onerror=null; this.src='assets/images/default.webp'">`;
     }
     html += `<div class="message-content">
                 <p>${escapeHtml(msg.message)}</p>
@@ -205,7 +205,7 @@ function searchUsers(query) {
                             <a href="index.php?url=message/start&user=${user.id}" class="user-result">
                                 <img src="assets/uploads/${user.profile_image || 'default.png'}" 
                                      alt="avatar" class="avatar-sm"
-                                     onerror="this.onerror=null; this.src='assets/images/default.png'">
+                                     onerror="this.onerror=null; this.src='assets/images/default.webp'">
                                 <div>
                                     <span class="user-name">${escapeHtml(user.full_name)}</span>
                                     <span class="user-username">@${escapeHtml(user.username)}</span>
