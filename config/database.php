@@ -18,7 +18,7 @@
 
 define('DB_HOST', 'localhost');           // ← InfinityFree: sql200.infinityfree.com (check cPanel)
 define('DB_NAME', 'nexo');               // ← InfinityFree: epiz_XXXXXXXX_nexo
-define('DB_PORT', '3306');               // ← InfinityFree: always 3306 | XAMPP default: 3306 (use 3307 only if changed)
+define('DB_PORT', '3307');               // ← InfinityFree: always 3306 | XAMPP default: 3306 (use 3307 only if changed)
 define('DB_USER', 'root');               // ← InfinityFree: epiz_XXXXXXXX
 define('DB_PASS', '');                   // ← InfinityFree: your cPanel password
 
