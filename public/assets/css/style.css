@@ -312,7 +312,6 @@ input, textarea, select { font-family: inherit; }
     display: flex;
     align-items: center;
     max-width: 680px;
-    margin-left: 3200px;
 }
 
 .topbar-search-form i {
