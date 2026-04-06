@@ -73,8 +73,10 @@ require __DIR__ . '/../partials/header.php';
                              alt="avatar" class="message-avatar"
                              onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                         <?php endif; ?>
-                        <div class="message-content">
-                            <p><?= nl2br(htmlspecialchars($msg['message'])) ?></p>
+                        <div class="message-body">
+                            <div class="message-content">
+                                <p><?= nl2br(htmlspecialchars($msg['message'])) ?></p>
+                            </div>
                             <span class="message-time"><time class="live-time" data-time="<?= htmlspecialchars($msg['created_at']) ?>"><?= time_ago($msg['created_at']) ?></time></span>
                         </div>
                     </div>
@@ -157,8 +159,10 @@ function appendMessage(msg, isSent) {
                       alt="avatar" class="message-avatar"
                       onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">`;
     }
-    html += `<div class="message-content">
-                <p>${escapeHtml(msg.message)}</p>
+    html += `<div class="message-body">
+                <div class="message-content">
+                    <p>${escapeHtml(msg.message)}</p>
+                </div>
                 <span class="message-time">just now</span>
             </div>`;
     
