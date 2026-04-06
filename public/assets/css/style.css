@@ -175,7 +175,7 @@ input, textarea, select { font-family: inherit; }
 }
 
 .nav-item:hover { background: var(--card2); color: var(--fg); }
-.nav-item.active { background: var(--hover); color: var(--primary); font-weight: 600; }
+.nav-item.active { background: var(--card2); color: var(--primary); font-weight: 600; }
 
 .nav-badge {
     margin-left: auto;
