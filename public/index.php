@@ -118,6 +118,7 @@ switch (true) {
     // Messages
     case $url === 'messages'         && $method === 'GET':  $messages->index();          break;
     case $url === 'message/send'     && $method === 'POST': $messages->send();           break;
+    case $url === 'message/load'     && $method === 'GET':  $messages->load();           break;
     case $url === 'message/new'      && $method === 'GET':  $messages->getNew();         break;
     case $url === 'message/unread'   && $method === 'GET':  $messages->getUnreadCount(); break;
     case $url === 'message/recent'   && $method === 'GET':  $messages->getRecent();      break;

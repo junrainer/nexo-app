@@ -273,7 +273,55 @@ class MessageController {
     }
 
     /**
-     * Get recent conversations for the message dropdown (AJAX)
+     * Load all messages for a conversation (AJAX – used by floating chat)
+     */
+    public function load() {
+        header('Content-Type: application/json');
+        $convId = $_GET['conversation_id'] ?? null;
+        $userId = $_SESSION['user_id'];
+
+        if (!$convId || !is_numeric($convId)) {
+            echo json_encode(['success' => false, 'messages' => []]);
+            exit;
+        }
+
+        try {
+            // Verify the user belongs to this conversation and fetch the other user
+            $stmt = $this->db->prepare("
+                SELECT u.id AS recipient_id, u.username, u.full_name, u.profile_image
+                FROM conversations c
+                JOIN users u ON u.id = IF(c.user1_id = ?, c.user2_id, c.user1_id)
+                WHERE c.id = ? AND (c.user1_id = ? OR c.user2_id = ?)
+            ");
+            $stmt->execute([$userId, $convId, $userId, $userId]);
+            $other = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$other) {
+                echo json_encode(['success' => false, 'messages' => []]);
+                exit;
+            }
+
+            $rows = $this->getMessagesForConversation($convId, $userId);
+            $messages = array_map(function ($m) use ($userId) {
+                $m['is_mine'] = ($m['sender_id'] == $userId);
+                return $m;
+            }, $rows);
+
+            $this->markConversationAsRead($convId, $userId);
+
+            echo json_encode([
+                'success'      => true,
+                'messages'     => $messages,
+                'recipient_id' => $other['recipient_id'],
+                'other_user'   => $other,
+            ]);
+        } catch (PDOException $e) {
+            echo json_encode(['success' => false, 'messages' => []]);
+        }
+        exit;
+    }
+
+    /**
      */
     public function getRecent() {
         if (!isset($_SESSION['user_id'])) {
