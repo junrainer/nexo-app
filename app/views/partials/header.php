@@ -64,6 +64,7 @@
 $currentUrl = $_GET['url'] ?? 'feed';
 $username   = $_SESSION['username'];
 ?>
+<script>window.currentUserId = <?= (int)$_SESSION['user_id'] ?>;</script>
 
 <div class="app-shell">
 
@@ -153,14 +154,13 @@ $username   = $_SESSION['username'];
                     </span>
                 </a>
             </div>
-            <div class="topbar-search">
-                <form action="index.php" method="GET">
+            <div class="topbar-fill"></div>
+            <div class="topbar-right">
+                <form class="topbar-search-form" action="index.php" method="GET">
                     <input type="hidden" name="url" value="search">
                     <i class="fa fa-search"></i>
                     <input type="text" name="q" placeholder="Search..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
                 </form>
-            </div>
-            <div class="topbar-right">
                 <!-- Messages dropdown -->
                 <div class="message-menu">
                     <button class="icon-btn" title="Messages" onclick="toggleMessages(event)" id="msg-btn">
@@ -234,6 +234,34 @@ $username   = $_SESSION['username'];
                 </div>
             </div>
         </header>
+
+        <!-- FLOATING CHAT WINDOW -->
+        <div class="floating-chat-overlay" id="floating-chat-overlay" style="display:none;" onclick="if(event.target===this)closeFloatingChat()">
+            <div class="floating-chat" id="floating-chat">
+                <div class="floating-chat-header">
+                    <div class="floating-chat-user">
+                        <img id="floating-chat-avatar" src="assets/images/default-profile.webp" alt="avatar" class="avatar-sm"
+                             onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
+                        <span id="floating-chat-name"></span>
+                    </div>
+                    <div class="floating-chat-actions">
+                        <a id="floating-chat-open-full" href="index.php?url=messages" title="Open full chat">
+                            <i class="fa fa-expand"></i>
+                        </a>
+                        <button type="button" onclick="closeFloatingChat()" title="Close">
+                            <i class="fa fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="floating-chat-messages" id="floating-chat-messages"></div>
+                <form class="floating-chat-input-form" id="floating-chat-form" onsubmit="sendFloatingMessage(event)">
+                    <input type="hidden" id="floating-chat-recipient" name="recipient_id" value="">
+                    <input type="text" id="floating-chat-input" name="message"
+                           placeholder="Type a message..." autocomplete="off" required>
+                    <button type="submit"><i class="fa fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </div>
 
         <!-- PAGE CONTENT -->
         <div class="content-area">

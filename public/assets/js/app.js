@@ -212,11 +212,15 @@ function loadMessages() {
         .then(data => {
             if (data.success && data.conversations && data.conversations.length > 0) {
                 list.innerHTML = data.conversations.map(c => `
-                    <a href="index.php?url=messages&conv=${encodeURIComponent(c.id)}" class="msg-item ${c.unread > 0 ? 'unread' : ''}">
+                    <a href="#" class="msg-item ${c.unread > 0 ? 'unread' : ''}"
+                       data-conv-id="${c.id}"
+                       data-name="${escapeHtml(c.name)}"
+                       data-avatar="${escapeHtml(c.avatar || '')}"
+                       onclick="openFloatingChat(this.dataset.convId, this.dataset.name, this.dataset.avatar); return false;">
                         <div class="msg-avatar-wrap">
-                            <img src="assets/uploads/${escapeHtml(c.avatar || 'default.png')}"
+                            <img src="${c.avatar ? 'assets/uploads/' + escapeHtml(c.avatar) : 'assets/images/default-profile.webp'}"
                                  alt="avatar" class="msg-avatar"
-                                 onerror="this.onerror=null; this.src='assets/images/default.png'">
+                                 onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                             ${c.online ? '<div class="msg-online-dot"></div>' : ''}
                         </div>
                         <div class="msg-content">
@@ -695,9 +699,9 @@ function appendMessage(msg, isSent) {
 
     let html = '';
     if (!isSent) {
-        html += `<img src="assets/uploads/${escapeHtml(msg.profile_image || 'default.png')}"
+        html += `<img src="${msg.profile_image ? 'assets/uploads/' + escapeHtml(msg.profile_image) : 'assets/images/default-profile.webp'}"
                       alt="avatar" class="message-avatar"
-                      onerror="this.onerror=null; this.src='assets/images/default.png'">`;
+                      onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">`;
     }
     html += `<div class="message-content">
                 <p>${escapeHtml(msg.message)}</p>
@@ -794,3 +798,145 @@ document.querySelectorAll('textarea').forEach(ta => {
         }, 6000);
     }
 })();
+
+// ── Floating Chat Window ──────────────────────────────
+let _floatingChatConvId   = null;
+let _floatingChatLastMsgId = 0;
+let _floatingChatPollTimer = null;
+
+function openFloatingChat(convId, name, avatar) {
+    _floatingChatConvId    = convId;
+    _floatingChatLastMsgId = 0;
+
+    // Close message dropdown
+    const dd = document.getElementById('message-dropdown');
+    if (dd) dd.classList.remove('open');
+
+    // Set header info
+    const nameEl   = document.getElementById('floating-chat-name');
+    const avatarEl = document.getElementById('floating-chat-avatar');
+    const linkEl   = document.getElementById('floating-chat-open-full');
+
+    if (nameEl)   nameEl.textContent = name;
+    if (avatarEl) avatarEl.src = avatar ? 'assets/uploads/' + avatar : 'assets/images/default-profile.webp';
+    if (linkEl)   linkEl.href = 'index.php?url=messages&c=' + encodeURIComponent(convId);
+
+    // Clear messages
+    const msgs = document.getElementById('floating-chat-messages');
+    if (msgs) msgs.innerHTML = '<div class="fc-loading"><i class="fa fa-spinner fa-spin"></i></div>';
+
+    // Show window
+    const overlay = document.getElementById('floating-chat-overlay');
+    if (overlay) overlay.style.display = 'flex';
+
+    // Load messages
+    _loadFloatingChatMessages(convId);
+
+    // Start polling
+    clearInterval(_floatingChatPollTimer);
+    _floatingChatPollTimer = setInterval(() => {
+        if (_floatingChatConvId) _pollFloatingChat(_floatingChatConvId);
+    }, 3000);
+}
+
+function closeFloatingChat() {
+    const overlay = document.getElementById('floating-chat-overlay');
+    if (overlay) overlay.style.display = 'none';
+    clearInterval(_floatingChatPollTimer);
+    _floatingChatConvId    = null;
+    _floatingChatLastMsgId = 0;
+    const recip = document.getElementById('floating-chat-recipient');
+    if (recip) recip.value = '';
+}
+
+function _loadFloatingChatMessages(convId) {
+    fetch('index.php?url=message/load&conversation_id=' + encodeURIComponent(convId))
+        .then(r => r.json())
+        .then(data => {
+            const msgs = document.getElementById('floating-chat-messages');
+            if (!msgs) return;
+            msgs.innerHTML = '';
+
+            if (data.success) {
+                if (data.recipient_id) {
+                    const recip = document.getElementById('floating-chat-recipient');
+                    if (recip) recip.value = data.recipient_id;
+                }
+                (data.messages || []).forEach(msg => {
+                    _appendFloatingMsg(msg.message, !!msg.is_mine, msg.profile_image, msg.created_at, msg.id);
+                    _floatingChatLastMsgId = Math.max(_floatingChatLastMsgId, msg.id);
+                });
+                _scrollFloatingChatToBottom();
+                const inp = document.getElementById('floating-chat-input');
+                if (inp) inp.focus();
+            }
+        })
+        .catch(() => {
+            const msgs = document.getElementById('floating-chat-messages');
+            if (msgs) msgs.innerHTML = '<div class="fc-loading">Failed to load</div>';
+        });
+}
+
+function _pollFloatingChat(convId) {
+    fetch(`index.php?url=message/new&conversation_id=${encodeURIComponent(convId)}&last_message_id=${_floatingChatLastMsgId}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success && data.messages && data.messages.length > 0) {
+                const myId = typeof window.currentUserId !== 'undefined' ? window.currentUserId : -1;
+                data.messages.forEach(msg => {
+                    if (parseInt(msg.sender_id) !== parseInt(myId)) {
+                        _appendFloatingMsg(msg.message, false, msg.profile_image, msg.created_at, msg.id);
+                    }
+                    _floatingChatLastMsgId = Math.max(_floatingChatLastMsgId, msg.id);
+                });
+                _scrollFloatingChatToBottom();
+            }
+        })
+        .catch(() => {});
+}
+
+function _appendFloatingMsg(text, isMine, profileImage, createdAt, msgId) {
+    const container = document.getElementById('floating-chat-messages');
+    if (!container) return;
+
+    const div = document.createElement('div');
+    div.className = 'message ' + (isMine ? 'sent' : 'received');
+    if (msgId) div.dataset.messageId = msgId;
+
+    let html = '';
+    if (!isMine) {
+        const src = profileImage ? 'assets/uploads/' + escapeHtml(profileImage) : 'assets/images/default-profile.webp';
+        html += `<img src="${src}" alt="avatar" class="message-avatar"
+                      onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">`;
+    }
+    const timeStr = createdAt ? timeAgo(createdAt) : 'just now';
+    html += `<div class="message-content"><p>${escapeHtml(text)}</p><span class="message-time">${timeStr}</span></div>`;
+    div.innerHTML = html;
+    container.appendChild(div);
+}
+
+function sendFloatingMessage(e) {
+    e.preventDefault();
+    const form     = e.target;
+    const input    = document.getElementById('floating-chat-input');
+    const message  = input ? input.value.trim() : '';
+    if (!message) return;
+
+    const fd = new FormData(form);
+    fetch('index.php?url=message/send', { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success && data.message) {
+                _appendFloatingMsg(data.message.message, true, null, data.message.created_at, data.message.id);
+                _floatingChatLastMsgId = Math.max(_floatingChatLastMsgId, data.message.id);
+                _scrollFloatingChatToBottom();
+                if (input) input.value = '';
+            }
+        })
+        .catch(() => {});
+}
+
+function _scrollFloatingChatToBottom() {
+    const c = document.getElementById('floating-chat-messages');
+    if (c) c.scrollTop = c.scrollHeight;
+}

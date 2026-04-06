@@ -44,9 +44,7 @@ require __DIR__ . '/../partials/header.php';
                         <i class="fa fa-video red"></i> Video
                         <input type="file" name="image" accept="image/*" hidden onchange="previewPostImage(this)">
                     </label>
-                    <button type="button" class="compose-action-btn">
-                        <i class="fa fa-face-smile yellow"></i> Feeling
-                    </button>
+
                 </div>
                 <button type="submit" class="btn btn-primary btn-rounded btn-sm">Post</button>
             </div>

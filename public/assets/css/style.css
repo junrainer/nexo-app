@@ -300,22 +300,20 @@ input, textarea, select { font-family: inherit; }
     color: var(--fg);
 }
 
-.topbar-search {
+.topbar-fill {
     flex: 1;
-    display: flex;
-    justify-content: flex-end;
-    padding: 0 16px;
 }
 
-.topbar-search form {
+.topbar-search-form {
     position: relative;
-    width: 50%;
-    max-width: 280px;
+    flex: 1;
+    max-width: 200px;
+    min-width: 100px;
     display: flex;
     align-items: center;
 }
 
-.topbar-search i {
+.topbar-search-form i {
     position: absolute;
     left: 12px;
     color: var(--muted-fg);
@@ -323,7 +321,7 @@ input, textarea, select { font-family: inherit; }
     pointer-events: none;
 }
 
-.topbar-search input {
+.topbar-search-form input {
     width: 100%;
     background: var(--muted);
     border: none;
@@ -335,8 +333,8 @@ input, textarea, select { font-family: inherit; }
     transition: box-shadow 0.2s;
 }
 
-.topbar-search input:focus { box-shadow: 0 0 0 2px var(--primary); }
-.topbar-search input::placeholder { color: var(--muted-fg); }
+.topbar-search-form input:focus { box-shadow: 0 0 0 2px var(--primary); }
+.topbar-search-form input::placeholder { color: var(--muted-fg); }
 
 .topbar-right {
     display: flex;
@@ -345,6 +343,21 @@ input, textarea, select { font-family: inherit; }
     padding: 0 16px;
     flex-shrink: 0;
 }
+
+@media (min-width: 1280px) {
+    .topbar-right {
+        width: 256px;
+        border-left: 1px solid var(--border);
+    }
+    .topbar-search-form {
+        max-width: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .topbar-search-form { display: none; }
+}
+
 
 .icon-btn {
     width: 32px;
@@ -2490,8 +2503,143 @@ input, textarea, select { font-family: inherit; }
 .msg-loading { text-align: center; padding: 30px 20px; color: var(--muted-fg); }
 
 /* ============================================================
-   SETTINGS PAGE (legacy stubs – replaced by frame layout below)
+   FLOATING CHAT WINDOW
    ============================================================ */
+.floating-chat-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+    backdrop-filter: blur(2px);
+}
+
+.floating-chat {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    width: 400px;
+    max-width: 95vw;
+    height: 520px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.floating-chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.floating-chat-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.floating-chat-user span {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.floating-chat-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.floating-chat-actions a,
+.floating-chat-actions button {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted-fg);
+    font-size: 13px;
+    transition: background 0.15s, color 0.15s;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.floating-chat-actions a:hover,
+.floating-chat-actions button:hover {
+    background: var(--muted);
+    color: var(--fg);
+}
+
+.floating-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.floating-chat-input-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.floating-chat-input-form input[type="text"] {
+    flex: 1;
+    background: var(--muted);
+    border: none;
+    border-radius: 99px;
+    padding: 8px 14px;
+    font-size: 13.5px;
+    color: var(--fg);
+    outline: none;
+    transition: box-shadow 0.2s;
+}
+
+.floating-chat-input-form input[type="text"]:focus {
+    box-shadow: 0 0 0 1px hsla(262,80%,55%,0.5);
+}
+
+.floating-chat-input-form input[type="text"]::placeholder { color: var(--muted-fg); }
+
+.floating-chat-input-form button[type="submit"] {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.floating-chat-input-form button[type="submit"]:hover { opacity: 0.85; }
+
+.fc-loading {
+    text-align: center;
+    padding: 20px;
+    color: var(--muted-fg);
+    font-size: 13px;
+}
+
+
 .settings-header {
     margin-bottom: 24px;
 }
@@ -2695,7 +2843,7 @@ input, textarea, select { font-family: inherit; }
     .topbar-left { display: flex; align-items: center; gap: 8px; }
 
     /* Search is still visible but smaller */
-    .topbar-search form { width: 100%; max-width: none; }
+    .topbar-search-form { display: none; }
 
     /* ── Hide right sidebar ── */
     .right-sidebar { display: none; }
