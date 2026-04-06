@@ -576,6 +576,12 @@ window.triggerCoverUpload = function () {
     });
 };
 
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.js-cover-upload-btn');
+    if (!btn) return;
+    window.triggerCoverUpload();
+});
+
 // ── Tab switching (profile / search page) ─────────────
 function switchTab(tabName) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));

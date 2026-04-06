@@ -27,7 +27,7 @@ require __DIR__ . '/../partials/header.php';
                  onerror="this.onerror=null; this.style.display='none'">
         <?php endif; ?>
         <?php if ($isOwner): ?>
-            <button type="button" class="cover-btn" onclick="triggerCoverUpload()">
+            <button type="button" class="cover-btn js-cover-upload-btn">
                 <i class="fa fa-camera"></i>
                 <?= !empty($user['cover_image']) ? 'Change cover photo' : 'Add cover photo' ?>
             </button>
