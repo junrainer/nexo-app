@@ -571,18 +571,14 @@ function previewAvatar(input) {
 // ── Post anti-spam cooldown ────────────────────────────
 // Disables the Post button for POST_COOLDOWN_SECS after submission
 // to prevent users from flooding the feed with rapid-fire posts.
-const POST_COOLDOWN_SECS = 30;
-document.addEventListener('submit', function (e) {
-    const form = e.target;
-    if (!form.closest('.compose-card')) return;
+// The last-submit timestamp is stored in localStorage so the cooldown
+// survives the page redirect that happens after a successful post.
+const POST_COOLDOWN_SECS    = 30;
+const POST_LAST_SUBMIT_KEY  = 'nexo_last_post_submit';
 
-    const btn = form.querySelector('[type="submit"]');
-    if (!btn) return;
-
-    btn.disabled = true;
-    let remaining = POST_COOLDOWN_SECS;
-    const origText = btn.textContent;
-
+function startPostCooldown(btn, origText, remaining) {
+    btn.disabled    = true;
+    btn.textContent = `Wait ${remaining}s`;
     const timer = setInterval(() => {
         remaining--;
         btn.textContent = `Wait ${remaining}s`;
@@ -592,6 +588,29 @@ document.addEventListener('submit', function (e) {
             btn.disabled    = false;
         }
     }, 1000);
+}
+
+// On page load, restore any in-progress cooldown from a previous submission.
+document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.querySelector('.compose-card [type="submit"]');
+    if (!btn) return;
+    const lastSubmit = parseInt(localStorage.getItem(POST_LAST_SUBMIT_KEY) || '0', 10);
+    const elapsed    = Math.floor((Date.now() - lastSubmit) / 1000);
+    const remaining  = POST_COOLDOWN_SECS - elapsed;
+    if (remaining > 0) {
+        startPostCooldown(btn, btn.textContent, remaining);
+    }
+});
+
+document.addEventListener('submit', function (e) {
+    const form = e.target;
+    if (!form.closest('.compose-card')) return;
+
+    const btn = form.querySelector('[type="submit"]');
+    if (!btn) return;
+
+    localStorage.setItem(POST_LAST_SUBMIT_KEY, Date.now().toString());
+    startPostCooldown(btn, btn.textContent, POST_COOLDOWN_SECS);
 });
 
 // ── Comment anti-spam cooldown ─────────────────────────

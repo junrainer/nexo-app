@@ -155,11 +155,6 @@ $username   = $_SESSION['username'];
             </div>
             <div class="topbar-fill"></div>
             <div class="topbar-right">
-                <form class="topbar-search-form" action="index.php" method="GET">
-                    <input type="hidden" name="url" value="search">
-                    <i class="fa fa-search"></i>
-                    <input type="text" name="q" placeholder="Search..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
-                </form>
                 <!-- Messages dropdown -->
                 <div class="message-menu">
                     <button class="icon-btn" title="Messages" onclick="toggleMessages(event)" id="msg-btn">
