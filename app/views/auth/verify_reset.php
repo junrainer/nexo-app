@@ -45,7 +45,7 @@
                 <i class="fa fa-triangle-exclamation"></i>
                 <span>This verification link is invalid or has expired.</span>
             </div>
-            <a href="index.php?url=forgot-password" class="auth-btn" style="display:block; text-align:center; text-decoration:none; line-height:44px; margin-top:0;">
+            <a href="index.php?url=forgot-password" class="auth-btn auth-btn-linklike">
                 Request a new link
             </a>
         <?php endif; ?>

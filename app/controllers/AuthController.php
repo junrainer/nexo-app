@@ -299,18 +299,30 @@ class AuthController {
         if (!isset($_SESSION['password_reset_verified']) || !is_array($_SESSION['password_reset_verified'])) {
             $_SESSION['password_reset_verified'] = [];
         }
+        foreach ($_SESSION['password_reset_verified'] as $k => $ts) {
+            if (!is_int($ts) || (time() - $ts > 3600)) {
+                unset($_SESSION['password_reset_verified'][$k]);
+            }
+        }
         $_SESSION['password_reset_verified'][$token] = time();
         header('Location: index.php?url=reset-password&token=' . urlencode($token));
         exit;
     }
 
     public function showResetPassword(): void {
-        $token      = trim($_GET['token'] ?? '');
+        $token = trim($_GET['token'] ?? '');
         $tokenValid = false;
 
         if ($token !== '') {
             $tokenValid = $this->findValidResetToken($token) !== null;
             if ($tokenValid) {
+                if (isset($_SESSION['password_reset_verified']) && is_array($_SESSION['password_reset_verified'])) {
+                    foreach ($_SESSION['password_reset_verified'] as $k => $ts) {
+                        if (!is_int($ts) || (time() - $ts > 3600)) {
+                            unset($_SESSION['password_reset_verified'][$k]);
+                        }
+                    }
+                }
                 $verifiedAt = $_SESSION['password_reset_verified'][$token] ?? null;
                 $tokenValid = is_int($verifiedAt) && (time() - $verifiedAt <= 3600);
             }

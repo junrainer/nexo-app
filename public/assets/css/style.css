@@ -878,6 +878,13 @@ input, textarea, select { font-family: inherit; }
 
 .auth-btn:hover  { background: var(--primary-h); }
 .auth-btn:active { transform: scale(0.98); }
+.auth-btn-linklike {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    line-height: 44px;
+    margin-top: 0;
+}
 
 /* Two-column row (first / last name) */
 .auth-row-two {
