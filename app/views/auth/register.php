@@ -337,10 +337,6 @@
                 <div class="hero-pill">🔵 Discover peers</div>
             </div>
         </div>
-
-        <div class="hero-footer">
-            Web Systems and Technologies — Final Project
-        </div>
     </div>
 
     <!-- ── RIGHT: Form ── -->
@@ -378,7 +374,7 @@
                     <input type="file" name="profile_image" id="profileImageInput"
                            accept="image/jpeg,image/png,image/gif,image/webp"
                            style="display:none;" onchange="previewRegPhoto(this)">
-                    <p class="reg-photo-hint">Click to upload profile photo (optional)</p>
+                    <p class="reg-photo-hint">Click to upload profile photo</p>
                 </div>
 
                 <!-- Full Name -->
@@ -386,7 +382,7 @@
                     <label class="rf-label">Full Name</label>
                     <div class="rf-input-wrap">
                         <input type="text" name="full_name" class="rf-input"
-                               placeholder="Juan dela Cruz" required>
+                               placeholder="Enter full name" required>
                     </div>
                 </div>
 
@@ -396,7 +392,7 @@
                     <div class="rf-input-wrap">
                         <span class="rf-prefix">@</span>
                         <input type="text" name="username" class="rf-input rf-input-padded"
-                               placeholder="juandelacruz" required>
+                               placeholder="Enter username" required>
                     </div>
                 </div>
 
@@ -405,7 +401,7 @@
                     <label class="rf-label">Email address</label>
                     <div class="rf-input-wrap">
                         <input type="email" name="email" class="rf-input"
-                               placeholder="you@smcc.edu.ph" required>
+                               placeholder="you@gmail.com" required>
                     </div>
                 </div>
 

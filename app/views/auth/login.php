@@ -374,10 +374,6 @@
                 <div class="hero-pill">🔵 Discover peers</div>
             </div>
         </div>
-
-        <div class="hero-footer">
-            Web Systems and Technologies — Final Project
-        </div>
     </div>
 
     <!-- ── RIGHT: Form ── -->
@@ -415,7 +411,7 @@
                     <label class="lf-label">Username or Email</label>
                     <div class="lf-input-wrap">
                         <input type="text" name="email" class="lf-input"
-                               placeholder="juandelacruz or you@smcc.edu.ph" required autocomplete="username">
+                               placeholder="Enter username or email" required autocomplete="username">
                     </div>
                 </div>
 
@@ -423,7 +419,7 @@
                     <label class="lf-label">Password</label>
                     <div class="lf-input-wrap">
                         <input type="password" name="password" id="loginPass" class="lf-input"
-                               placeholder="••••••••" required autocomplete="current-password"
+                               placeholder="Enter password" required autocomplete="current-password"
                                style="padding-right:42px;" oninput="handlePassInput(this)">
                         <button type="button" class="lf-eye" id="loginPassEye" onclick="togglePassL('loginPass', this)">
                             <i class="fa fa-eye-slash"></i>
