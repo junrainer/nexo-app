@@ -355,6 +355,7 @@ input, textarea, select { font-family: inherit; }
 }
 
 @media (max-width: 768px) {
+    .topbar-right { justify-content: flex-end; }
     .topbar-search-form { display: none; }
 }
 
