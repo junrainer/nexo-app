@@ -31,7 +31,7 @@ require __DIR__ . '/../partials/header.php';
         <div class="profile-avatar-wrap">
             <img src="assets/uploads/<?= htmlspecialchars($user['profile_image']) ?>"
                  alt="avatar" class="profile-avatar-img"
-                 onerror="this.onerror=null; this.src='assets/images/default.webp'">
+                 onerror="this.onerror=null; this.src='default-profile'">
         </div>
     </div>
 
