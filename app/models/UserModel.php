@@ -10,7 +10,7 @@ class UserModel {
 
     public function findByEmail(string $email): array|false {
         $stmt = $this->db->prepare('SELECT * FROM users WHERE email = ? LIMIT 1');
-        $stmt->execute([$email]);
+        $stmt->execute([strtolower(trim($email))]);
         return $stmt->fetch();
     }
 

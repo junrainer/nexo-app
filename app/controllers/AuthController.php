@@ -32,6 +32,9 @@ class AuthController {
 
         // Strip leading @ if user typed it
         $identifier = ltrim($identifier, '@');
+        if (str_contains($identifier, '@')) {
+            $identifier = strtolower($identifier);
+        }
 
         // Rate limit check
         if (!Security::checkRateLimit($identifier)) {
@@ -90,7 +93,7 @@ class AuthController {
     public function register(): void {
         $fullName = trim($_POST['full_name'] ?? '');
         $username = ltrim(trim($_POST['username'] ?? ''), '@');
-        $email    = trim($_POST['email'] ?? '');
+        $email    = strtolower(trim($_POST['email'] ?? ''));
         $password = $_POST['password'] ?? '';
         $confirm  = $_POST['confirm_password'] ?? '';
         $bio      = trim($_POST['bio'] ?? '');
