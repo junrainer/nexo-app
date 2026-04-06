@@ -281,13 +281,15 @@ input, textarea, select { font-family: inherit; }
     z-index: 50;
     background: var(--card);
     border-bottom: 1px solid var(--border);
-    height: 48px;
+    height: 56px;
     display: flex;
     align-items: center;
+    padding: 0 20px;
+    gap: 12px;
 }
 
 .topbar-left {
-    padding: 0 16px;
+    padding: 0;
     display: none;
 }
 
@@ -301,17 +303,16 @@ input, textarea, select { font-family: inherit; }
 }
 
 .topbar-fill {
-    flex: 1;
+    display: none;
 }
 
 .topbar-search-form {
     position: relative;
     flex: 1;
-    max-width: 260px;
-    min-width: 100px;
     display: flex;
     align-items: center;
-    margin-right: 8px;
+    max-width: 680px;
+    margin-left: 320px;
 }
 
 .topbar-search-form i {
@@ -332,6 +333,7 @@ input, textarea, select { font-family: inherit; }
     color: var(--fg);
     outline: none;
     transition: box-shadow 0.2s;
+    min-width: 0;
 }
 
 .topbar-search-form input:focus { box-shadow: 0 0 0 2px var(--primary); }
@@ -341,26 +343,22 @@ input, textarea, select { font-family: inherit; }
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 0 16px;
+    padding: 0;
     flex-shrink: 0;
+    margin-left: auto;
 }
 
 @media (min-width: 1280px) {
-    .topbar-right {
-        width: 256px;
-        border-left: 1px solid var(--border);
-    }
     .topbar-search-form {
-        max-width: none;
+        max-width: 680px;
     }
 }
 
 @media (max-width: 768px) {
+    .topbar-left { display: flex; align-items: center; gap: 8px; }
     .topbar-right { justify-content: flex-end; }
     .topbar-search-form { display: none; }
 }
-
-
 .icon-btn {
     width: 32px;
     height: 32px;
@@ -377,20 +375,19 @@ input, textarea, select { font-family: inherit; }
 
 .icon-btn:hover { color: var(--fg); }
 
-.icon-badge {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 16px;
-    height: 16px;
-    background: var(--danger);
-    color: #fff;
+.icon-btn {
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    font-size: 9px;
-    font-weight: 700;
+    background: var(--muted);
+    color: var(--muted-fg);
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 18px;
+    position: relative;
+    transition: color 0.15s;
+    margin-right: 10px;
 }
 
 /* Avatar dropdown */
@@ -579,7 +576,7 @@ input, textarea, select { font-family: inherit; }
 /* ============================================================
    AVATARS
    ============================================================ */
-.avatar-sm  { width: 32px;  height: 32px;  border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.avatar-sm  { width: 40px;  height: 40px;  border-radius: 50%; object-fit: cover; flex-shrink: 0; }
 .avatar-md  { width: 40px;  height: 40px;  border-radius: 50%; object-fit: cover; flex-shrink: 0; }
 .avatar-lg  { width: 96px;  height: 96px;  border-radius: 50%; object-fit: cover; flex-shrink: 0; }
 .avatar-initials {
