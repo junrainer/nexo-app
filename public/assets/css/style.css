@@ -1236,7 +1236,7 @@ input, textarea, select { font-family: inherit; }
 .compose-footer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     margin-top: 12px;
     padding-top: 12px;
     border-top: 1px solid var(--border);
@@ -2583,9 +2583,23 @@ input, textarea, select { font-family: inherit; }
     background: rgba(0,0,0,0.45);
     display: flex;
     align-items: center;
-    justify-content: center;
     z-index: 1100;
     backdrop-filter: blur(2px);
+    padding: 16px; /* mobile: 16px gap on all sides */
+}
+
+/* Offset overlay padding for left sidebar when visible */
+@media (min-width: 900px) {
+    .floating-chat-overlay {
+        padding: 16px 16px 16px calc(var(--sidebar-w) + 16px);
+    }
+}
+
+/* Offset overlay padding for both sidebars when both are visible */
+@media (min-width: 1280px) {
+    .floating-chat-overlay {
+        padding: 16px calc(256px + 16px) 16px calc(var(--sidebar-w) + 16px);
+    }
 }
 
 .floating-chat {
@@ -2593,9 +2607,8 @@ input, textarea, select { font-family: inherit; }
     border: 1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    width: 400px;
-    max-width: 95vw;
-    height: 520px;
+    width: 100%;
+    height: 85vh;
     max-height: 90vh;
     display: flex;
     flex-direction: column;

@@ -107,16 +107,27 @@ class UserModel {
     }
 
     public function getSuggestions(int $currentUserId): array {
-        $stmt = $this->db->prepare(
-            'SELECT id, username, full_name, profile_image FROM users
-             WHERE id != ?
-               AND id NOT IN (
-                   SELECT friend_id FROM friendships
-                   WHERE user_id = ? AND status = \'accepted\'
-               )
-             ORDER BY created_at DESC LIMIT 5'
-        );
-        $stmt->execute([$currentUserId, $currentUserId]);
-        return $stmt->fetchAll();
+        try {
+            $stmt = $this->db->prepare(
+                'SELECT id, username, full_name, profile_image FROM users
+                 WHERE id != ?
+                   AND id NOT IN (
+                       SELECT friend_id FROM friendships
+                       WHERE user_id = ? AND status = \'accepted\'
+                   )
+                 ORDER BY created_at DESC LIMIT 5'
+            );
+            $stmt->execute([$currentUserId, $currentUserId]);
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            // friendships table may not exist yet — return users without friend filter
+            error_log('UserModel::getSuggestions error: ' . $e->getMessage());
+            $stmt = $this->db->prepare(
+                'SELECT id, username, full_name, profile_image FROM users
+                 WHERE id != ? ORDER BY created_at DESC LIMIT 5'
+            );
+            $stmt->execute([$currentUserId]);
+            return $stmt->fetchAll();
+        }
     }
 }

@@ -22,9 +22,22 @@ class PostController {
 
     public function feed(): void {
         $currentUserId = $_SESSION['user_id'];
-        $posts         = $this->postModel->getAllForFeed($currentUserId);
-        $suggestions   = $this->userModel->getSuggestions($currentUserId);
-        $pageTitle     = 'Feed – Nexo';
+
+        try {
+            $posts = $this->postModel->getAllForFeed($currentUserId);
+        } catch (PDOException $e) {
+            error_log('PostController::feed getAllForFeed error: ' . $e->getMessage());
+            $posts = [];
+        }
+
+        try {
+            $suggestions = $this->userModel->getSuggestions($currentUserId);
+        } catch (PDOException $e) {
+            error_log('PostController::feed getSuggestions error: ' . $e->getMessage());
+            $suggestions = [];
+        }
+
+        $pageTitle = 'Feed – Nexo';
         require __DIR__ . '/../views/posts/feed.php';
     }
 

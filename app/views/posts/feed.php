@@ -34,23 +34,9 @@ require __DIR__ . '/../partials/header.php';
 
             <div id="image-previews" class="image-previews"></div>
 
+            <input type="hidden" name="visibility" id="compose-visibility" value="public">
+
             <div class="compose-footer">
-                <div class="compose-actions">
-                    <label class="compose-action-btn">
-                        <i class="fa fa-image green"></i> Photo
-                        <input type="file" name="image" accept="image/*" hidden onchange="previewPostImage(this)">
-                    </label>
-                    <label class="compose-action-btn">
-                        <i class="fa fa-video red"></i> Video
-                        <input type="file" name="image" accept="image/*" hidden onchange="previewPostImage(this)">
-                    </label>
-                    <button type="button" class="compose-audience" id="compose-audience-btn"
-                            onclick="cycleAudience(this)">
-                        <i class="fa fa-globe" id="compose-audience-icon"></i>
-                        <span id="compose-audience-label">Public</span>
-                    </button>
-                    <input type="hidden" name="visibility" id="compose-visibility" value="public">
-                </div>
                 <button type="submit" class="btn btn-primary btn-rounded btn-sm">Post</button>
             </div>
 
