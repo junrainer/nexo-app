@@ -308,11 +308,10 @@ input, textarea, select { font-family: inherit; }
 .topbar-search-form {
     position: relative;
     flex: 1;
-    max-width: 360px;
     min-width: 100px;
+    max-width: 480px;
     display: flex;
     align-items: center;
-    max-width: 680px;
 }
 
 .topbar-search-form i {
@@ -344,12 +343,6 @@ input, textarea, select { font-family: inherit; }
     gap: 6px;
     padding: 0 16px;
     flex-shrink: 0;
-}
-
-@media (width >= 1280px) {
-    .topbar-search-form {
-        max-width: none;
-    }
 }
 
 @media (width <= 768px) {
