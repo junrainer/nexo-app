@@ -372,6 +372,8 @@ input, textarea, select { font-family: inherit; }
     font-size: 14px;
     position: relative;
     transition: color 0.15s;
+    margin-right: 30px;
+    margin-left: 20px;
 }
 
 .icon-btn:hover { color: var(--fg); }
