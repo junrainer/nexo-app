@@ -216,52 +216,91 @@ class AuthController {
         }
 
         $user = $this->userModel->findByEmail($email);
-        if ($user) {
-            try {
-                $db = Database::getInstance()->getConnection();
-
-                // Remove any previous tokens for this email
-                $db->prepare('DELETE FROM password_resets WHERE email = ?')->execute([$email]);
-
-                // Generate a secure random token
-                $token = bin2hex(random_bytes(32));
-                $db->prepare('INSERT INTO password_resets (email, token) VALUES (?, ?)')->execute([$email, $token]);
-
-                // Build the reset URL
-                if (defined('APP_BASE_URL') && APP_BASE_URL !== '') {
-                    $baseUrl = APP_BASE_URL;
-                } else {
-                    $scheme  = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-                    $basePath = dirname($_SERVER['SCRIPT_NAME']);
-                    if ($basePath === '/' || $basePath === '\\' || $basePath === '.') {
-                        $basePath = '';
-                    } else {
-                        $basePath = rtrim($basePath, '/\\');
-                    }
-                    $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . $basePath;
-                }
-                $resetUrl = $baseUrl . '/index.php?url=reset-password&token=' . urlencode($token);
-
-                // Send the reset email
-                require_once __DIR__ . '/../../config/mail.php';
-                require_once __DIR__ . '/../../lib/Mailer.php';
-                $mailer = new Mailer(MAIL_ADDRESS, MAIL_PASSWORD, MAIL_FROM_NAME);
-                $body   = '<p>Hello,</p>'
-                        . '<p>We received a request to reset the password for your Nexo account. '
-                        . 'Click the link below to set a new password. This link is valid for <strong>1 hour</strong>.</p>'
-                        . '<p><a href="' . htmlspecialchars($resetUrl, ENT_QUOTES, 'UTF-8') . '">'
-                        . htmlspecialchars($resetUrl, ENT_QUOTES, 'UTF-8') . '</a></p>'
-                        . '<p>If you did not request a password reset, you can safely ignore this email.</p>'
-                        . '<p>– The Nexo Team</p>';
-                $mailer->send($email, 'Reset your Nexo password', $body);
-            } catch (\Throwable $e) {
-                error_log('forgotPassword error: ' . $e->getMessage());
-            }
+        if (!$user) {
+            $_SESSION['error'] = 'Email not found. Please enter your registered email.';
+            header('Location: index.php?url=forgot-password');
+            exit;
         }
 
-        // Always show the same message to prevent email enumeration
-        $_SESSION['toast_success'] = 'If that email exists, a reset link has been sent.';
-        header('Location: index.php?url=login');
+        try {
+            $db = Database::getInstance()->getConnection();
+
+            // Remove any previous tokens for this email
+            $db->prepare('DELETE FROM password_resets WHERE email = ?')->execute([$email]);
+
+            // Generate a secure random token
+            $token = bin2hex(random_bytes(32));
+            $db->prepare('INSERT INTO password_resets (email, token) VALUES (?, ?)')->execute([$email, $token]);
+
+            // Build the verify URL (step 1 before reset form)
+            if (defined('APP_BASE_URL') && APP_BASE_URL !== '') {
+                $baseUrl = APP_BASE_URL;
+            } else {
+                $scheme  = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                $basePath = dirname($_SERVER['SCRIPT_NAME']);
+                if ($basePath === '/' || $basePath === '\\' || $basePath === '.') {
+                    $basePath = '';
+                } else {
+                    $basePath = rtrim($basePath, '/\\');
+                }
+                $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . $basePath;
+            }
+            $verifyUrl = $baseUrl . '/index.php?url=verify-reset&token=' . urlencode($token);
+
+            // Send the reset email
+            require_once __DIR__ . '/../../config/mail.php';
+            require_once __DIR__ . '/../../lib/Mailer.php';
+            $mailer = new Mailer(MAIL_ADDRESS, MAIL_PASSWORD, MAIL_FROM_NAME);
+            $body   = '<p>Hello,</p>'
+                    . '<p>We received a request to reset the password for your Nexo account.</p>'
+                    . '<p>Click this link to verify it\'s you, then continue to create a new password. '
+                    . 'This link is valid for <strong>1 hour</strong>.</p>'
+                    . '<p><a href="' . htmlspecialchars($verifyUrl, ENT_QUOTES, 'UTF-8') . '">'
+                    . htmlspecialchars($verifyUrl, ENT_QUOTES, 'UTF-8') . '</a></p>'
+                    . '<p>If you did not request a password reset, you can safely ignore this email.</p>'
+                    . '<p>– The Nexo Team</p>';
+
+            if (!$mailer->send($email, 'Verify your Nexo password reset', $body)) {
+                $_SESSION['error'] = 'We could not send the email right now. Please try again.';
+                header('Location: index.php?url=forgot-password');
+                exit;
+            }
+        } catch (\Throwable $e) {
+            error_log('forgotPassword error: ' . $e->getMessage());
+            $_SESSION['error'] = 'Something went wrong. Please try again.';
+            header('Location: index.php?url=forgot-password');
+            exit;
+        }
+
+        $_SESSION['success'] = 'Email confirmed. Check your inbox and click the link to verify it’s you.';
+        header('Location: index.php?url=forgot-password');
+        exit;
+    }
+
+    public function showVerifyReset(): void {
+        $token      = trim($_GET['token'] ?? '');
+        $tokenValid = false;
+
+        if ($token !== '') {
+            $tokenValid = $this->findValidResetToken($token) !== null;
+        }
+
+        require __DIR__ . '/../views/auth/verify_reset.php';
+    }
+
+    public function verifyReset(): void {
+        $token = trim($_POST['token'] ?? '');
+        if ($token === '' || $this->findValidResetToken($token) === null) {
+            $_SESSION['error'] = 'This verification link is invalid or has expired.';
+            header('Location: index.php?url=forgot-password');
+            exit;
+        }
+
+        if (!isset($_SESSION['password_reset_verified']) || !is_array($_SESSION['password_reset_verified'])) {
+            $_SESSION['password_reset_verified'] = [];
+        }
+        $_SESSION['password_reset_verified'][$token] = time();
+        header('Location: index.php?url=reset-password&token=' . urlencode($token));
         exit;
     }
 
@@ -271,6 +310,10 @@ class AuthController {
 
         if ($token !== '') {
             $tokenValid = $this->findValidResetToken($token) !== null;
+            if ($tokenValid) {
+                $verifiedAt = $_SESSION['password_reset_verified'][$token] ?? null;
+                $tokenValid = is_int($verifiedAt) && (time() - $verifiedAt <= 3600);
+            }
         }
 
         require __DIR__ . '/../views/auth/reset_password.php';
@@ -316,6 +359,9 @@ class AuthController {
 
             // Delete the consumed token
             $db->prepare('DELETE FROM password_resets WHERE token = ?')->execute([$token]);
+            if (isset($_SESSION['password_reset_verified'][$token])) {
+                unset($_SESSION['password_reset_verified'][$token]);
+            }
 
             $_SESSION['toast_success'] = 'Password updated! You can now sign in with your new password.';
             header('Location: index.php?url=login');
