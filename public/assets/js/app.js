@@ -1079,7 +1079,10 @@ function _appendFloatingMsg(text, isMine, profileImage, createdAt, msgId) {
     }
     const timeStr = createdAt ? timeAgo(createdAt) : 'just now';
     const timeAttr = createdAt ? ` class="live-time message-time" data-time="${escapeHtml(createdAt)}"` : ' class="message-time"';
-    html += `<div class="message-content"><p>${escapeHtml(text)}</p><time${timeAttr}>${timeStr}</time></div>`;
+    html += `<div class="message-body">
+                <div class="message-content"><p>${escapeHtml(text)}</p></div>
+                <time${timeAttr}>${timeStr}</time>
+            </div>`;
     div.innerHTML = html;
     container.appendChild(div);
 }
