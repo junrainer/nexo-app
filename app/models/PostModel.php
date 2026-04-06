@@ -133,6 +133,19 @@ class PostModel {
         return $stmt->fetchAll();
     }
 
+    /**
+     * Returns the most-recent post row for the given user, or null if none exist.
+     * Used to enforce a posting cooldown.
+     */
+    public function getLastByUser(int $userId): ?array {
+        $stmt = $this->db->prepare(
+            'SELECT created_at FROM posts WHERE user_id = ? ORDER BY created_at DESC LIMIT 1'
+        );
+        $stmt->execute([$userId]);
+        $result = $stmt->fetch();
+        return $result ?: null;
+    }
+
     public function getById(int $id): ?array {
         $stmt = $this->db->prepare('SELECT * FROM posts WHERE id = ?');
         $stmt->execute([$id]);

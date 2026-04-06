@@ -14,6 +14,9 @@ class PostController {
     private UserModel      $userModel;
     private $db;
 
+    /** Seconds a user must wait between creating posts (anti-spam). */
+    private const POST_COOLDOWN = 30;
+
     /** Seconds a user must wait between posting comments (anti-spam). */
     private const COMMENT_COOLDOWN = 15;
 
@@ -55,10 +58,26 @@ class PostController {
         $userId     = $_SESSION['user_id'];
         $visibility = $_POST['visibility'] ?? 'public';
 
-        if (empty($content)) {
+        $hasImages = !empty($_FILES['images']['name'][0]) && $_FILES['images']['error'][0] === UPLOAD_ERR_OK;
+        $hasVideo  = !empty($_FILES['video']['name']) && $_FILES['video']['error'] === UPLOAD_ERR_OK;
+
+        if (empty($content) && !$hasImages && !$hasVideo) {
             $_SESSION['error'] = 'Post cannot be empty.';
             header('Location: index.php?url=feed');
             exit;
+        }
+
+        // Anti-spam: enforce cooldown between posts
+        $lastPost = $this->postModel->getLastByUser($userId);
+        if ($lastPost) {
+            $elapsed = time() - strtotime($lastPost['created_at']);
+            if ($elapsed < self::POST_COOLDOWN) {
+                $wait = self::POST_COOLDOWN - $elapsed;
+                $unit = $wait === 1 ? 'second' : 'seconds';
+                $_SESSION['error'] = "Please wait {$wait} {$unit} before creating another post.";
+                header('Location: index.php?url=feed');
+                exit;
+            }
         }
 
         $postId = $this->postModel->create($userId, htmlspecialchars($content, ENT_QUOTES, 'UTF-8'), null, $visibility);

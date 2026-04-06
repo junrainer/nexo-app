@@ -568,6 +568,32 @@ function previewAvatar(input) {
     reader.readAsDataURL(input.files[0]);
 }
 
+// ── Post anti-spam cooldown ────────────────────────────
+// Disables the Post button for POST_COOLDOWN_SECS after submission
+// to prevent users from flooding the feed with rapid-fire posts.
+const POST_COOLDOWN_SECS = 30;
+document.addEventListener('submit', function (e) {
+    const form = e.target;
+    if (!form.closest('.compose-card')) return;
+
+    const btn = form.querySelector('[type="submit"]');
+    if (!btn) return;
+
+    btn.disabled = true;
+    let remaining = POST_COOLDOWN_SECS;
+    const origText = btn.textContent;
+
+    const timer = setInterval(() => {
+        remaining--;
+        btn.textContent = `Wait ${remaining}s`;
+        if (remaining <= 0) {
+            clearInterval(timer);
+            btn.textContent = origText;
+            btn.disabled    = false;
+        }
+    }, 1000);
+});
+
 // ── Comment anti-spam cooldown ─────────────────────────
 // Disables the send button for COMMENT_COOLDOWN seconds after each submission
 // so users cannot flood a post with rapid-fire comments.
