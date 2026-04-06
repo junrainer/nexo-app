@@ -153,6 +153,7 @@ switch (true) {
     case $url === 'notifications/count' && $method === 'GET':  $notifs->getUnreadCount();break;
     case $url === 'notification/read'   && $method === 'POST': $notifs->markAsRead();    break;
     case $url === 'notifications/read'  && $method === 'POST': $notifs->markAllAsRead(); break;
+    case $url === 'notifications/bulk'  && $method === 'POST': $notifs->bulkUpdate();    break;
 
     // Settings
     case $url === 'settings'             && $method === 'GET':  $settings->index();            break;
