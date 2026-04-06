@@ -882,9 +882,10 @@ function _pollFloatingChat(convId) {
         .then(r => r.json())
         .then(data => {
             if (data.success && data.messages && data.messages.length > 0) {
-                const myId = typeof window.currentUserId !== 'undefined' ? window.currentUserId : -1;
+                const shell = document.querySelector('.app-shell[data-user-id]');
+                const myId  = shell ? parseInt(shell.dataset.userId, 10) : -1;
                 data.messages.forEach(msg => {
-                    if (parseInt(msg.sender_id) !== parseInt(myId)) {
+                    if (parseInt(msg.sender_id) !== myId) {
                         _appendFloatingMsg(msg.message, false, msg.profile_image, msg.created_at, msg.id);
                     }
                     _floatingChatLastMsgId = Math.max(_floatingChatLastMsgId, msg.id);
