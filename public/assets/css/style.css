@@ -307,11 +307,11 @@ input, textarea, select { font-family: inherit; }
 .topbar-search-form {
     position: relative;
     flex: 1;
-    max-width: 260px;
+    max-width: 480px;
     min-width: 100px;
     display: flex;
     align-items: center;
-    margin-right: 8px;
+    margin: 0 16px;
 }
 
 .topbar-search-form i {
@@ -349,6 +349,7 @@ input, textarea, select { font-family: inherit; }
     .topbar-right {
         width: 256px;
         border-left: 1px solid var(--border);
+        justify-content: flex-end;
     }
     .topbar-search-form {
         max-width: none;
