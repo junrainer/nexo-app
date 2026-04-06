@@ -122,7 +122,7 @@ $username   = $_SESSION['username'];
 
         <div class="sidebar-bottom">
             <a href="index.php?url=logout" class="sidebar-logout">
-                <img src="assets/uploads/<?= htmlspecialchars($_SESSION['profile_image'] ?? 'default.png') ?>"
+                <img src="<?= ($_SESSION['profile_image'] ?? 'default.png') !== 'default.png' ? 'assets/uploads/' . htmlspecialchars($_SESSION['profile_image']) : 'assets/images/default-profile.webp' ?>"
                      alt="avatar" class="avatar-sm"
                      onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                 <span><?= htmlspecialchars($_SESSION['full_name']) ?></span>
@@ -199,13 +199,13 @@ $username   = $_SESSION['username'];
                 <!-- Avatar dropdown -->
                 <div class="avatar-menu">
                     <button class="avatar-trigger" onclick="toggleAvatarMenu(event)" id="avatar-btn">
-                        <img src="assets/uploads/<?= htmlspecialchars($_SESSION['profile_image'] ?? 'default.png') ?>"
+                        <img src="<?= ($_SESSION['profile_image'] ?? 'default.png') !== 'default.png' ? 'assets/uploads/' . htmlspecialchars($_SESSION['profile_image']) : 'assets/images/default-profile.webp' ?>"
                              alt="avatar" class="avatar-sm avatar-ring"
                              onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                     </button>
                     <div class="avatar-dropdown" id="avatar-dropdown">
                         <div class="dropdown-user">
-                            <img src="assets/uploads/<?= htmlspecialchars($_SESSION['profile_image'] ?? 'default.png') ?>"
+                            <img src="<?= ($_SESSION['profile_image'] ?? 'default.png') !== 'default.png' ? 'assets/uploads/' . htmlspecialchars($_SESSION['profile_image']) : 'assets/images/default-profile.webp' ?>"
                                  alt="avatar" class="avatar-md"
                                  onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                             <div>
