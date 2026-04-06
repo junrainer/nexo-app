@@ -4,6 +4,9 @@ require_once __DIR__ . '/../models/UserModel.php';
 
 class AuthController {
     private UserModel $userModel;
+    private const RESET_VERIFY_TTL_SECONDS = 3600;
+    private const FORGOT_PASSWORD_COOLDOWN_SECONDS = 60;
+    private const FORGOT_PASSWORD_COOLDOWN_KEY = '_forgot_password_cooldown';
 
     public function __construct() {
         $this->userModel = new UserModel();
@@ -215,57 +218,80 @@ class AuthController {
             exit;
         }
 
-        $user = $this->userModel->findByEmail($email);
-        if ($user) {
-            try {
-                $db = Database::getInstance()->getConnection();
-
-                // Remove any previous tokens for this email
-                $db->prepare('DELETE FROM password_resets WHERE email = ?')->execute([$email]);
-
-                // Generate a secure random token
-                $token = bin2hex(random_bytes(32));
-                $db->prepare('INSERT INTO password_resets (email, token) VALUES (?, ?)')->execute([$email, $token]);
-
-                // Build the reset URL
-                if (defined('APP_BASE_URL') && APP_BASE_URL !== '') {
-                    $baseUrl = APP_BASE_URL;
-                } else {
-                    $scheme  = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-                    $basePath = dirname($_SERVER['SCRIPT_NAME']);
-                    if ($basePath === '/' || $basePath === '\\' || $basePath === '.') {
-                        $basePath = '';
-                    } else {
-                        $basePath = rtrim($basePath, '/\\');
-                    }
-                    $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . $basePath;
-                }
-                $resetUrl = $baseUrl . '/index.php?url=reset-password&token=' . urlencode($token);
-
-                // Send the reset email
-                require_once __DIR__ . '/../../config/mail.php';
-                require_once __DIR__ . '/../../lib/Mailer.php';
-                $mailer = new Mailer(MAIL_ADDRESS, MAIL_PASSWORD, MAIL_FROM_NAME);
-                $body   = '<p>Hello,</p>'
-                        . '<p>We received a request to reset the password for your Nexo account. '
-                        . 'Click the link below to set a new password. This link is valid for <strong>1 hour</strong>.</p>'
-                        . '<p><a href="' . htmlspecialchars($resetUrl, ENT_QUOTES, 'UTF-8') . '">'
-                        . htmlspecialchars($resetUrl, ENT_QUOTES, 'UTF-8') . '</a></p>'
-                        . '<p>If you did not request a password reset, you can safely ignore this email.</p>'
-                        . '<p>– The Nexo Team</p>';
-                $mailer->send($email, 'Reset your Nexo password', $body);
-            } catch (\Throwable $e) {
-                error_log('forgotPassword error: ' . $e->getMessage());
-            }
+        $cooldownRemaining = $this->getForgotPasswordCooldownRemaining($email);
+        if ($cooldownRemaining > 0) {
+            $_SESSION['error'] = 'Please wait ' . $cooldownRemaining . ' seconds before requesting another reset email.';
+            header('Location: index.php?url=forgot-password');
+            exit;
         }
 
-        // Always show the same message to prevent email enumeration
-        $_SESSION['toast_success'] = 'If that email exists, a reset link has been sent.';
-        header('Location: index.php?url=login');
+        $user = $this->userModel->findByEmail($email);
+        if (!$user) {
+            $this->setForgotPasswordCooldown($email);
+            $_SESSION['error'] = 'Email not found. Please enter your registered email.';
+            header('Location: index.php?url=forgot-password');
+            exit;
+        }
+
+        try {
+            $db = Database::getInstance()->getConnection();
+
+            // Remove any previous tokens for this email
+            $db->prepare('DELETE FROM password_resets WHERE email = ?')->execute([$email]);
+
+            // Generate a secure random token
+            $token = bin2hex(random_bytes(32));
+            $db->prepare('INSERT INTO password_resets (email, token) VALUES (?, ?)')->execute([$email, $token]);
+
+            // Build the verify URL (step 1 before reset form)
+            if (defined('APP_BASE_URL') && APP_BASE_URL !== '') {
+                $baseUrl = APP_BASE_URL;
+            } else {
+                $scheme  = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                $basePath = dirname($_SERVER['SCRIPT_NAME']);
+                if ($basePath === '/' || $basePath === '\\' || $basePath === '.') {
+                    $basePath = '';
+                } else {
+                    $basePath = rtrim($basePath, '/\\');
+                }
+                $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . $basePath;
+            }
+            $verifyUrl = $baseUrl . '/index.php?url=verify-reset&token=' . urlencode($token);
+
+            // Send the reset email
+            require_once __DIR__ . '/../../config/mail.php';
+            require_once __DIR__ . '/../../lib/Mailer.php';
+            $mailer = new Mailer(MAIL_ADDRESS, MAIL_PASSWORD, MAIL_FROM_NAME);
+            $body   = '<p>Hello,</p>'
+                    . '<p>We received a request to reset the password for your Nexo account.</p>'
+                    . '<p>Click this link to verify it\'s you, then continue to create a new password. '
+                    . 'This link is valid for <strong>1 hour</strong>.</p>'
+                    . '<p><a href="' . htmlspecialchars($verifyUrl, ENT_QUOTES, 'UTF-8') . '">'
+                    . htmlspecialchars($verifyUrl, ENT_QUOTES, 'UTF-8') . '</a></p>'
+                    . '<p>If you did not request a password reset, you can safely ignore this email.</p>'
+                    . '<p>– The Nexo Team</p>';
+
+            if (!$mailer->send($email, 'Verify your Nexo password reset', $body)) {
+                $this->setForgotPasswordCooldown($email);
+                $_SESSION['error'] = 'Unable to send verification email. Please check your email address and try again.';
+                header('Location: index.php?url=forgot-password');
+                exit;
+            }
+        } catch (\Throwable $e) {
+            error_log('forgotPassword error: ' . $e->getMessage());
+            $this->setForgotPasswordCooldown($email);
+            $_SESSION['error'] = 'Something went wrong. Please try again.';
+            header('Location: index.php?url=forgot-password');
+            exit;
+        }
+
+        $this->setForgotPasswordCooldown($email);
+        $_SESSION['success'] = 'Email confirmed. Check your inbox and click the link to verify it’s you.';
+        header('Location: index.php?url=forgot-password');
         exit;
     }
 
-    public function showResetPassword(): void {
+    public function showVerifyReset(): void {
         $token      = trim($_GET['token'] ?? '');
         $tokenValid = false;
 
@@ -273,6 +299,50 @@ class AuthController {
             $tokenValid = $this->findValidResetToken($token) !== null;
         }
 
+        require __DIR__ . '/../views/auth/verify_reset.php';
+    }
+
+    public function verifyReset(): void {
+        $token = trim($_POST['token'] ?? '');
+        if ($token === '' || $this->findValidResetToken($token) === null) {
+            $_SESSION['error'] = 'This verification link is invalid or has expired.';
+            header('Location: index.php?url=forgot-password');
+            exit;
+        }
+
+        if (!isset($_SESSION['password_reset_verified']) || !is_array($_SESSION['password_reset_verified'])) {
+            $_SESSION['password_reset_verified'] = [];
+        }
+        $this->cleanupExpiredVerifications();
+        $_SESSION['password_reset_verified'][$token] = time();
+        header('Location: index.php?url=reset-password&token=' . urlencode($token));
+        exit;
+    }
+
+    public function showResetPassword(): void {
+        $token = trim($_GET['token'] ?? '');
+        if ($token === '') {
+            $_SESSION['error'] = 'Invalid reset link.';
+            header('Location: index.php?url=forgot-password');
+            exit;
+        }
+
+        $tokenRow = $this->findValidResetToken($token);
+        if (!$tokenRow) {
+            $tokenValid = false;
+            require __DIR__ . '/../views/auth/reset_password.php';
+            return;
+        }
+
+        $this->cleanupExpiredVerifications();
+        $verifiedAt = $_SESSION['password_reset_verified'][$token] ?? null;
+        if ($this->isVerificationExpired($verifiedAt)) {
+            $_SESSION['error'] = 'Please verify it’s you before resetting your password.';
+            header('Location: index.php?url=verify-reset&token=' . urlencode($token));
+            exit;
+        }
+
+        $tokenValid = true;
         require __DIR__ . '/../views/auth/reset_password.php';
     }
 
@@ -308,6 +378,14 @@ class AuthController {
                 exit;
             }
 
+            $this->cleanupExpiredVerifications();
+            $verifiedAt = $_SESSION['password_reset_verified'][$token] ?? null;
+            if ($this->isVerificationExpired($verifiedAt)) {
+                $_SESSION['error'] = 'Please verify it’s you before creating a new password.';
+                header('Location: index.php?url=verify-reset&token=' . urlencode($token));
+                exit;
+            }
+
             $db = Database::getInstance()->getConnection();
 
             // Update the user's password
@@ -316,6 +394,9 @@ class AuthController {
 
             // Delete the consumed token
             $db->prepare('DELETE FROM password_resets WHERE token = ?')->execute([$token]);
+            if (isset($_SESSION['password_reset_verified'][$token])) {
+                unset($_SESSION['password_reset_verified'][$token]);
+            }
 
             $_SESSION['toast_success'] = 'Password updated! You can now sign in with your new password.';
             header('Location: index.php?url=login');
@@ -341,5 +422,45 @@ class AuthController {
             error_log('findValidResetToken error: ' . $e->getMessage());
             return null;
         }
+    }
+
+    private function cleanupExpiredVerifications(): void {
+        if (!isset($_SESSION['password_reset_verified']) || !is_array($_SESSION['password_reset_verified'])) {
+            return;
+        }
+        foreach ($_SESSION['password_reset_verified'] as $k => $ts) {
+            if ($this->isVerificationExpired($ts)) {
+                unset($_SESSION['password_reset_verified'][$k]);
+            }
+        }
+    }
+
+    /**
+     * Returns true when verification timestamp is missing/invalid or outside TTL.
+     * Non-integer and null values are treated as expired for safety.
+     */
+    private function isVerificationExpired($verifiedAt): bool {
+        return !is_int($verifiedAt) || (time() - $verifiedAt > self::RESET_VERIFY_TTL_SECONDS);
+    }
+
+    private function isForgotPasswordCooldownActive(string $email): bool {
+        $key = self::FORGOT_PASSWORD_COOLDOWN_KEY . ':' . md5(strtolower($email));
+        $last = $_SESSION[$key] ?? null;
+        return is_int($last) && (time() - $last < self::FORGOT_PASSWORD_COOLDOWN_SECONDS);
+    }
+
+    private function getForgotPasswordCooldownRemaining(string $email): int {
+        $key = self::FORGOT_PASSWORD_COOLDOWN_KEY . ':' . md5(strtolower($email));
+        $last = $_SESSION[$key] ?? null;
+        if (!is_int($last)) {
+            return 0;
+        }
+        $remaining = self::FORGOT_PASSWORD_COOLDOWN_SECONDS - (time() - $last);
+        return max(0, $remaining);
+    }
+
+    private function setForgotPasswordCooldown(string $email): void {
+        $key = self::FORGOT_PASSWORD_COOLDOWN_KEY . ':' . md5(strtolower($email));
+        $_SESSION[$key] = time();
     }
 }

@@ -44,7 +44,7 @@ $url    = trim($_GET['url'] ?? 'login', '/');
 $method = $_SERVER['REQUEST_METHOD'];
 
 // ── Auth guard ────────────────────────────────────────────────
-$guestRoutes = ['login', 'register', 'forgot-password', 'reset-password'];
+$guestRoutes = ['login', 'register', 'forgot-password', 'verify-reset', 'reset-password'];
 $isGuest     = !isset($_SESSION['user_id']);
 
 if ($isGuest && !in_array($url, $guestRoutes)) {
@@ -100,6 +100,8 @@ switch (true) {
     case $url === 'logout':                                $auth->logout();             break;
     case $url === 'forgot-password'&& $method === 'GET':  $auth->showForgotPassword(); break;
     case $url === 'forgot-password'&& $method === 'POST': $auth->forgotPassword();     break;
+    case $url === 'verify-reset'   && $method === 'GET':  $auth->showVerifyReset();     break;
+    case $url === 'verify-reset'   && $method === 'POST': $auth->verifyReset();         break;
     case $url === 'reset-password' && $method === 'GET':  $auth->showResetPassword();  break;
     case $url === 'reset-password' && $method === 'POST': $auth->resetPassword();      break;
 

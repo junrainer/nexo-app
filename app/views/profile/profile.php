@@ -27,11 +27,10 @@ require __DIR__ . '/../partials/header.php';
                  onerror="this.onerror=null; this.style.display='none'">
         <?php endif; ?>
         <?php if ($isOwner): ?>
-            <label class="cover-btn">
+            <button type="button" class="cover-btn js-cover-upload-btn">
                 <i class="fa fa-camera"></i>
                 <?= !empty($user['cover_image']) ? 'Change cover photo' : 'Add cover photo' ?>
-                <input type="file" name="cover_image" form="profile-edit-form" accept="image/*" hidden>
-            </label>
+            </button>
         <?php endif; ?>
         <!-- Avatar -->
         <div class="profile-avatar-wrap">
@@ -305,7 +304,15 @@ require __DIR__ . '/../partials/header.php';
                             <input type="file" name="profile_image" accept="image/*" hidden
                                    onchange="previewAvatar(this)">
                         </label>
-                    </div>
+                </div>
+
+                <div class="modal-field">
+                    <label>Cover photo</label>
+                    <label class="btn btn-ghost btn-sm">
+                        <i class="fa fa-image"></i> Upload cover photo
+                        <input id="cover-input" type="file" name="cover_image" accept="image/*" hidden>
+                    </label>
+                </div>
                 </div>
 
                 <div class="modal-field">
