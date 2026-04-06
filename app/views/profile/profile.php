@@ -309,7 +309,7 @@ require __DIR__ . '/../partials/header.php';
                 <div class="modal-field">
                     <label>Cover photo</label>
                     <label class="btn btn-ghost btn-sm">
-                        <i class="fa fa-image" style="font-size:12px;"></i> Upload cover photo
+                        <i class="fa fa-image"></i> Upload cover photo
                         <input id="cover-input" type="file" name="cover_image" accept="image/*" hidden>
                     </label>
                 </div>
