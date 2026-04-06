@@ -27,11 +27,10 @@ require __DIR__ . '/../partials/header.php';
                  onerror="this.onerror=null; this.style.display='none'">
         <?php endif; ?>
         <?php if ($isOwner): ?>
-            <label class="cover-btn">
+            <button type="button" class="cover-btn" onclick="triggerCoverUpload()">
                 <i class="fa fa-camera"></i>
                 <?= !empty($user['cover_image']) ? 'Change cover photo' : 'Add cover photo' ?>
-                <input type="file" name="cover_image" form="profile-edit-form" accept="image/*" hidden>
-            </label>
+            </button>
         <?php endif; ?>
         <!-- Avatar -->
         <div class="profile-avatar-wrap">
@@ -293,7 +292,7 @@ require __DIR__ . '/../partials/header.php';
             <div class="modal-body">
 
                 <!-- Avatar upload -->
-                <div class="avatar-upload-row">
+                 <div class="avatar-upload-row">
                     <img src="assets/uploads/<?= htmlspecialchars($user['profile_image']) ?>"
                          alt="avatar" class="avatar-lg" id="avatar-preview"
                          onerror="this.onerror=null; this.src='assets/images/default-profile.webp'"
@@ -305,7 +304,15 @@ require __DIR__ . '/../partials/header.php';
                             <input type="file" name="profile_image" accept="image/*" hidden
                                    onchange="previewAvatar(this)">
                         </label>
-                    </div>
+                 </div>
+
+                <div class="modal-field">
+                    <label>Cover photo</label>
+                    <label class="btn btn-ghost btn-sm" style="cursor:pointer;display:inline-flex;width:max-content;">
+                        <i class="fa fa-image" style="font-size:12px;"></i> Upload cover photo
+                        <input id="cover-input" type="file" name="cover_image" accept="image/*" hidden>
+                    </label>
+                </div>
                 </div>
 
                 <div class="modal-field">

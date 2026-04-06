@@ -568,77 +568,11 @@ function previewAvatar(input) {
     reader.readAsDataURL(input.files[0]);
 }
 
-// ── Post anti-spam cooldown ────────────────────────────
-// Disables the Post button for POST_COOLDOWN_SECS after submission
-// to prevent users from flooding the feed with rapid-fire posts.
-// The last-submit timestamp is stored in localStorage so the cooldown
-// survives the page redirect that happens after a successful post.
-const POST_COOLDOWN_SECS    = 30;
-const POST_LAST_SUBMIT_KEY  = 'nexo_last_post_submit';
-
-function startPostCooldown(btn, origText, remaining) {
-    btn.disabled    = true;
-    btn.textContent = `Wait ${remaining}s`;
-    const timer = setInterval(() => {
-        remaining--;
-        btn.textContent = `Wait ${remaining}s`;
-        if (remaining <= 0) {
-            clearInterval(timer);
-            btn.textContent = origText;
-            btn.disabled    = false;
-        }
-    }, 1000);
+function triggerCoverUpload() {
+    openEditProfile();
+    const input = document.getElementById('cover-input');
+    if (input) input.click();
 }
-
-// On page load, restore any in-progress cooldown from a previous submission.
-document.addEventListener('DOMContentLoaded', function () {
-    const btn = document.querySelector('.compose-card [type="submit"]');
-    if (!btn) return;
-    const lastSubmit = parseInt(localStorage.getItem(POST_LAST_SUBMIT_KEY) || '0', 10);
-    const elapsed    = Math.floor((Date.now() - lastSubmit) / 1000);
-    const remaining  = POST_COOLDOWN_SECS - elapsed;
-    if (remaining > 0) {
-        startPostCooldown(btn, btn.textContent, remaining);
-    }
-});
-
-document.addEventListener('submit', function (e) {
-    const form = e.target;
-    if (!form.closest('.compose-card')) return;
-
-    const btn = form.querySelector('[type="submit"]');
-    if (!btn) return;
-
-    localStorage.setItem(POST_LAST_SUBMIT_KEY, Date.now().toString());
-    startPostCooldown(btn, btn.textContent, POST_COOLDOWN_SECS);
-});
-
-// ── Comment anti-spam cooldown ─────────────────────────
-// Disables the send button for COMMENT_COOLDOWN seconds after each submission
-// so users cannot flood a post with rapid-fire comments.
-const COMMENT_COOLDOWN_SECS = 15;
-document.addEventListener('submit', function (e) {
-    const form = e.target;
-    if (!form.classList.contains('comment-input-row')) return;
-
-    const btn = form.querySelector('.comment-send-btn');
-    if (!btn) return;
-
-    // Disable immediately on submit
-    btn.disabled = true;
-    let remaining = COMMENT_COOLDOWN_SECS;
-    const origHTML = btn.innerHTML;
-
-    const timer = setInterval(() => {
-        remaining--;
-        btn.innerHTML = `<span style="font-size:11px;">${remaining}s</span>`;
-        if (remaining <= 0) {
-            clearInterval(timer);
-            btn.innerHTML = origHTML;
-            btn.disabled  = false;
-        }
-    }, 1000);
-});
 
 // ── Tab switching (profile / search page) ─────────────
 function switchTab(tabName) {
