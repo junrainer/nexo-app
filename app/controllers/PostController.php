@@ -80,7 +80,21 @@ class PostController {
             }
         }
 
-        $postId = $this->postModel->create($userId, htmlspecialchars($content, ENT_QUOTES, 'UTF-8'), null, $visibility);
+        $legacyImage = null;
+        if ($hasImages && empty($_FILES['video']['name'])) {
+            $legacyImage = $this->handleImageUpload([
+                'name'     => $_FILES['images']['name'][0] ?? '',
+                'type'     => $_FILES['images']['type'][0] ?? '',
+                'tmp_name' => $_FILES['images']['tmp_name'][0] ?? '',
+                'error'    => $_FILES['images']['error'][0] ?? UPLOAD_ERR_NO_FILE,
+                'size'     => $_FILES['images']['size'][0] ?? 0,
+            ]);
+            if ($legacyImage === false) {
+                $legacyImage = null;
+            }
+        }
+
+        $postId = $this->postModel->create($userId, htmlspecialchars($content, ENT_QUOTES, 'UTF-8'), $legacyImage, $visibility);
 
         // Handle multiple images (max 5)
         if (!empty($_FILES['images']['name'][0])) {
@@ -96,7 +110,11 @@ class PostController {
                     'error'    => $files['error'][$i],
                     'size'     => $files['size'][$i],
                 ];
-                $filename = $this->handleImageUpload($file);
+                if ($i === 0 && $legacyImage !== null) {
+                    $filename = $legacyImage;
+                } else {
+                    $filename = $this->handleImageUpload($file);
+                }
                 if ($filename) {
                     $this->postMediaModel->create($postId, $filename, 'image', $order++);
                 }
@@ -260,6 +278,26 @@ class PostController {
 
         $ref = $_SERVER['HTTP_REFERER'] ?? 'index.php?url=feed';
         header('Location: ' . $ref . '#post-' . $postId);
+        exit;
+    }
+
+    public function commentLike(): void {
+        header('Content-Type: application/json');
+        $commentId = (int)($_POST['comment_id'] ?? 0);
+        $userId    = (int)($_SESSION['user_id'] ?? 0);
+
+        if ($commentId <= 0 || $userId <= 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid comment']);
+            exit;
+        }
+
+        try {
+            $result = $this->commentModel->toggleLike($commentId, $userId);
+            echo json_encode($result);
+        } catch (PDOException $e) {
+            error_log('PostController::commentLike error: ' . $e->getMessage());
+            echo json_encode(['success' => false, 'error' => 'Unable to react to comment']);
+        }
         exit;
     }
 
