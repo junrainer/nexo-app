@@ -35,12 +35,12 @@ class Security {
 
     // ── Login Rate Limiting ────────────────────────────────────
 
-    private static function rlKey(string $identifier): string {
-        return '_rl_' . md5($identifier . '|' . ($_SERVER['REMOTE_ADDR'] ?? ''));
+    private static function rlKey(string $identifier, string $scope = 'login'): string {
+        return '_rl_' . $scope . '_' . md5($identifier . '|' . ($_SERVER['REMOTE_ADDR'] ?? ''));
     }
 
-    public static function checkRateLimit(string $identifier, int $maxAttempts = 5, int $decaySeconds = 900): bool {
-        $key  = self::rlKey($identifier);
+    public static function checkRateLimit(string $identifier, int $maxAttempts = 5, int $decaySeconds = 900, string $scope = 'login'): bool {
+        $key  = self::rlKey($identifier, $scope);
         $data = $_SESSION[$key] ?? ['n' => 0, 't' => time()];
 
         if (time() - $data['t'] >= $decaySeconds) {
@@ -51,15 +51,15 @@ class Security {
         return $data['n'] < $maxAttempts;
     }
 
-    public static function incrementAttempts(string $identifier): void {
-        $key  = self::rlKey($identifier);
+    public static function incrementAttempts(string $identifier, string $scope = 'login'): void {
+        $key  = self::rlKey($identifier, $scope);
         $data = $_SESSION[$key] ?? ['n' => 0, 't' => time()];
         $data['n']++;
         $_SESSION[$key] = $data;
     }
 
-    public static function clearAttempts(string $identifier): void {
-        unset($_SESSION[self::rlKey($identifier)]);
+    public static function clearAttempts(string $identifier, string $scope = 'login'): void {
+        unset($_SESSION[self::rlKey($identifier, $scope)]);
     }
 
     // ── Session Hardening ──────────────────────────────────────

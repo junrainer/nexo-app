@@ -5,6 +5,7 @@ require_once __DIR__ . '/../models/UserModel.php';
 class AuthController {
     private UserModel $userModel;
     private const RESET_VERIFY_TTL_SECONDS = 3600;
+    private const FORGOT_PASSWORD_COOLDOWN_SECONDS = 60;
 
     public function __construct() {
         $this->userModel = new UserModel();
@@ -216,8 +217,15 @@ class AuthController {
             exit;
         }
 
+        if (!Security::checkRateLimit($email, 1, self::FORGOT_PASSWORD_COOLDOWN_SECONDS, 'forgot_password')) {
+            $_SESSION['error'] = 'Please wait 60 seconds before requesting another reset email.';
+            header('Location: index.php?url=forgot-password');
+            exit;
+        }
+
         $user = $this->userModel->findByEmail($email);
         if (!$user) {
+            Security::incrementAttempts($email, 'forgot_password');
             $_SESSION['error'] = 'Email not found. Please enter your registered email.';
             header('Location: index.php?url=forgot-password');
             exit;
@@ -262,17 +270,20 @@ class AuthController {
                     . '<p>– The Nexo Team</p>';
 
             if (!$mailer->send($email, 'Verify your Nexo password reset', $body)) {
+                Security::incrementAttempts($email, 'forgot_password');
                 $_SESSION['error'] = 'Unable to send verification email. Please check your email address and try again.';
                 header('Location: index.php?url=forgot-password');
                 exit;
             }
         } catch (\Throwable $e) {
             error_log('forgotPassword error: ' . $e->getMessage());
+            Security::incrementAttempts($email, 'forgot_password');
             $_SESSION['error'] = 'Something went wrong. Please try again.';
             header('Location: index.php?url=forgot-password');
             exit;
         }
 
+        Security::incrementAttempts($email, 'forgot_password');
         $_SESSION['success'] = 'Email confirmed. Check your inbox and click the link to verify it’s you.';
         header('Location: index.php?url=forgot-password');
         exit;
