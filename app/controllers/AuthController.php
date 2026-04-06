@@ -319,17 +319,28 @@ class AuthController {
 
     public function showResetPassword(): void {
         $token = trim($_GET['token'] ?? '');
-        $tokenValid = false;
-
-        if ($token !== '') {
-            $tokenValid = $this->findValidResetToken($token) !== null;
-            if ($tokenValid) {
-                $this->cleanupExpiredVerifications();
-                $verifiedAt = $_SESSION['password_reset_verified'][$token] ?? null;
-                $tokenValid = is_int($verifiedAt) && (time() - $verifiedAt <= self::RESET_VERIFY_TTL_SECONDS);
-            }
+        if ($token === '') {
+            $_SESSION['error'] = 'Invalid reset link.';
+            header('Location: index.php?url=forgot-password');
+            exit;
         }
 
+        $tokenRow = $this->findValidResetToken($token);
+        if (!$tokenRow) {
+            $tokenValid = false;
+            require __DIR__ . '/../views/auth/reset_password.php';
+            return;
+        }
+
+        $this->cleanupExpiredVerifications();
+        $verifiedAt = $_SESSION['password_reset_verified'][$token] ?? null;
+        if (!is_int($verifiedAt) || (time() - $verifiedAt > self::RESET_VERIFY_TTL_SECONDS)) {
+            $_SESSION['error'] = 'Please verify it’s you before resetting your password.';
+            header('Location: index.php?url=verify-reset&token=' . urlencode($token));
+            exit;
+        }
+
+        $tokenValid = true;
         require __DIR__ . '/../views/auth/reset_password.php';
     }
 
@@ -362,6 +373,14 @@ class AuthController {
             if (!$row) {
                 $_SESSION['error'] = 'This reset link is invalid or has expired.';
                 header('Location: index.php?url=forgot-password');
+                exit;
+            }
+
+            $this->cleanupExpiredVerifications();
+            $verifiedAt = $_SESSION['password_reset_verified'][$token] ?? null;
+            if (!is_int($verifiedAt) || (time() - $verifiedAt > self::RESET_VERIFY_TTL_SECONDS)) {
+                $_SESSION['error'] = 'Please verify it’s you before creating a new password.';
+                header('Location: index.php?url=verify-reset&token=' . urlencode($token));
                 exit;
             }
 
