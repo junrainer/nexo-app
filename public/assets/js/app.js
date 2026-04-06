@@ -569,17 +569,21 @@ function previewAvatar(input) {
 }
 
 window.triggerCoverUpload = function () {
-    openEditProfile();
+    if (typeof openEditProfile === 'function') {
+        openEditProfile();
+    }
     requestAnimationFrame(() => {
         const input = document.getElementById('cover-input');
         if (input) input.click();
     });
 };
 
-document.addEventListener('click', function (e) {
-    const btn = e.target.closest('.js-cover-upload-btn');
+document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.querySelector('.js-cover-upload-btn');
     if (!btn) return;
-    window.triggerCoverUpload();
+    btn.addEventListener('click', function () {
+        window.triggerCoverUpload();
+    });
 });
 
 // ── Tab switching (profile / search page) ─────────────
