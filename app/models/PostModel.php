@@ -33,19 +33,37 @@ class PostModel {
 
     public function getAllForFeed(int $currentUserId): array {
         $visibilitySql = $this->visibilitySql();
-        $stmt   = $this->db->prepare(
-            "SELECT p.*, u.username, u.full_name, u.profile_image,
-                    (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS like_count,
-                    (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count,
-                    (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id AND l.user_id = ?) AS user_liked,
-                    (SELECT COUNT(*) FROM saved_posts sp WHERE sp.post_id = p.id AND sp.user_id = ?) AS user_saved
-             FROM posts p
-             JOIN users u ON p.user_id = u.id
-             WHERE {$visibilitySql}
-             ORDER BY p.created_at DESC"
-        );
-        $stmt->execute([$currentUserId, $currentUserId, $currentUserId, $currentUserId, $currentUserId]);
-        return $stmt->fetchAll();
+        try {
+            $stmt = $this->db->prepare(
+                "SELECT p.*, u.username, u.full_name, u.profile_image,
+                        (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS like_count,
+                        (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count,
+                        (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id AND l.user_id = ?) AS user_liked,
+                        (SELECT COUNT(*) FROM saved_posts sp WHERE sp.post_id = p.id AND sp.user_id = ?) AS user_saved
+                 FROM posts p
+                 JOIN users u ON p.user_id = u.id
+                 WHERE {$visibilitySql}
+                 ORDER BY p.created_at DESC"
+            );
+            $stmt->execute([$currentUserId, $currentUserId, $currentUserId, $currentUserId, $currentUserId]);
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            // friendships or saved_posts table may not exist yet — fall back to public posts only
+            error_log('PostModel::getAllForFeed error: ' . $e->getMessage());
+            $stmt = $this->db->prepare(
+                "SELECT p.*, u.username, u.full_name, u.profile_image,
+                        (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS like_count,
+                        (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count,
+                        (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id AND l.user_id = ?) AS user_liked,
+                        0 AS user_saved
+                 FROM posts p
+                 JOIN users u ON p.user_id = u.id
+                 WHERE p.visibility = 'public' OR p.user_id = ?
+                 ORDER BY p.created_at DESC"
+            );
+            $stmt->execute([$currentUserId, $currentUserId]);
+            return $stmt->fetchAll();
+        }
     }
 
     public function getByUser(int $userId, int $currentUserId): array {
