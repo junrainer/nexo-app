@@ -31,6 +31,10 @@ require __DIR__ . '/../partials/header.php';
                 <i class="fa fa-camera"></i>
                 <?= !empty($user['cover_image']) ? 'Change cover photo' : 'Add cover photo' ?>
             </button>
+            <form id="cover-quick-form" action="index.php?url=profile/update-cover" method="POST" enctype="multipart/form-data" style="display:none;">
+                <?= Security::field() ?>
+                <input id="cover-quick-input" type="file" name="cover_image" accept="image/*" hidden>
+            </form>
         <?php endif; ?>
         <!-- Avatar -->
         <div class="profile-avatar-wrap">

@@ -135,6 +135,47 @@ class ProfileController {
         exit;
     }
 
+    public function updateCover(): void {
+        $userId = (int) ($_SESSION['user_id'] ?? 0);
+        if ($userId <= 0) {
+            header('Location: index.php?url=login');
+            exit;
+        }
+
+        $user = $this->userModel->findById($userId);
+        if (!$user) {
+            header('Location: index.php?url=feed');
+            exit;
+        }
+
+        if (empty($_FILES['cover_image']['name'])) {
+            $_SESSION['error'] = 'Please choose a cover image first.';
+            header('Location: index.php?url=profile/' . rawurlencode($user['username']));
+            exit;
+        }
+
+        $newCover = $this->handleImageUpload($_FILES['cover_image'], 'cover_');
+        if (!$newCover) {
+            $_SESSION['error'] = 'Invalid cover image. Use JPG, PNG, GIF, or WEBP (max 2MB).';
+            header('Location: index.php?url=profile/' . rawurlencode($user['username']));
+            exit;
+        }
+
+        if (!$this->userModel->updateCoverImage($userId, $newCover)) {
+            $uploadedPath = __DIR__ . '/../../public/assets/uploads/' . $newCover;
+            if (is_file($uploadedPath)) {
+                @unlink($uploadedPath);
+            }
+            $_SESSION['error'] = 'Unable to update cover photo right now. Please try again.';
+            header('Location: index.php?url=profile/' . rawurlencode($user['username']));
+            exit;
+        }
+
+        $_SESSION['toast_success'] = 'Cover photo updated successfully.';
+        header('Location: index.php?url=profile/' . rawurlencode($user['username']));
+        exit;
+    }
+
     private function handleImageUpload(array $file, string $filenamePrefix = 'avatar_'): string|false {
         $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         $maxSize = 2 * 1024 * 1024;

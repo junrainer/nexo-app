@@ -569,24 +569,9 @@ function previewAvatar(input) {
 }
 
 window.triggerCoverUpload = function () {
-    if (typeof openEditProfile !== 'function') return;
-    openEditProfile();
-
-    const modal = document.getElementById('edit-profile-modal');
-    const input = document.getElementById('cover-input');
-    if (!modal || !input) return;
-
-    let tries = 0;
-    const maxTries = 20;
-    const poll = setInterval(() => {
-        tries++;
-        if (modal.style.display === 'flex') {
-            clearInterval(poll);
-            input.click();
-            return;
-        }
-        if (tries >= maxTries) clearInterval(poll);
-    }, 25);
+    const input = document.getElementById('cover-quick-input');
+    if (!input) return;
+    input.click();
 };
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -596,6 +581,33 @@ document.addEventListener('DOMContentLoaded', function () {
     btn.dataset.coverBound = '1';
     btn.addEventListener('click', function () {
         window.triggerCoverUpload();
+    });
+
+    const quickInput = document.getElementById('cover-quick-input');
+    const quickForm = document.getElementById('cover-quick-form');
+    if (!quickInput || !quickForm) return;
+    if (quickInput.dataset.coverSubmitBound === '1') return;
+    quickInput.dataset.coverSubmitBound = '1';
+    quickInput.addEventListener('change', function () {
+        if (!quickInput.files || quickInput.files.length === 0) return;
+        const file = quickInput.files[0];
+        if (!file) return;
+
+        const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        const maxSize = 2 * 1024 * 1024;
+
+        if (!allowed.includes(file.type)) {
+            alert('Invalid cover image. Use JPG, PNG, GIF, or WEBP.');
+            quickInput.value = '';
+            return;
+        }
+        if (file.size > maxSize) {
+            alert('Cover image is too large. Maximum size is 2MB.');
+            quickInput.value = '';
+            return;
+        }
+
+        quickForm.submit();
     });
 });
 

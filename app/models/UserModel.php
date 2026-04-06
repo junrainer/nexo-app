@@ -98,6 +98,16 @@ class UserModel {
         return $stmt->execute([$email, $id]);
     }
 
+    public function updateCoverImage(int $id, string $coverImage): bool {
+        try {
+            $stmt = $this->db->prepare('UPDATE users SET cover_image = ? WHERE id = ?');
+            return $stmt->execute([$coverImage, $id]);
+        } catch (PDOException $e) {
+            error_log('UserModel::updateCoverImage error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
     public function updatePassword(int $id, string $newPassword): bool {
         $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
         $stmt = $this->db->prepare('UPDATE users SET password = ? WHERE id = ?');
