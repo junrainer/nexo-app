@@ -232,9 +232,11 @@ class AuthController {
                     $baseUrl = APP_BASE_URL;
                 } else {
                     $scheme  = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-                    $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
-                    if ($basePath === '/' || $basePath === '\\') {
+                    $basePath = dirname($_SERVER['SCRIPT_NAME']);
+                    if ($basePath === '/' || $basePath === '\\' || $basePath === '.') {
                         $basePath = '';
+                    } else {
+                        $basePath = rtrim($basePath, '/\\');
                     }
                     $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . $basePath;
                 }
