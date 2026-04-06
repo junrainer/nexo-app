@@ -130,7 +130,10 @@ class NotificationController {
             exit;
         }
 
-        $ids = array_values(array_unique(array_filter(array_map('intval', $selected), fn($id) => $id > 0)));
+        $sanitizedIds = array_map('intval', $selected);
+        $positiveIds  = array_filter($sanitizedIds, fn($id) => $id > 0);
+        $uniqueIds    = array_unique($positiveIds);
+        $ids          = array_values($uniqueIds);
         if (empty($ids)) {
             $_SESSION['error'] = 'Invalid selection.';
             header('Location: ' . $backUrl);

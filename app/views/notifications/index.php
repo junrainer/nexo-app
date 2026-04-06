@@ -63,7 +63,7 @@ function notifLink($n) {
             <div class="notif-page-list">
                 <?php foreach ($notifications as $n): ?>
                     <div class="notif-page-item <?= $n['is_read'] ? '' : 'unread' ?>">
-                        <label class="notif-item-check-wrap" onclick="event.stopPropagation();">
+                        <label class="notif-item-check-wrap">
                             <input
                                 type="checkbox"
                                 class="notif-select-item"
