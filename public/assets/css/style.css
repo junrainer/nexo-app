@@ -341,11 +341,12 @@ input, textarea, select { font-family: inherit; }
     align-items: center;
     gap: 6px;
     padding: 0 16px;
-    flex: 1;
+    flex-shrink: 0;
 }
 
 @media (min-width: 1280px) {
     .topbar-right {
+        width: 256px;
         border-left: 1px solid var(--border);
     }
     .topbar-search-form {

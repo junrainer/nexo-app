@@ -153,6 +153,7 @@ $username   = $_SESSION['username'];
                     </span>
                 </a>
             </div>
+            <div class="topbar-fill"></div>
             <div class="topbar-right">
                 <!-- Search -->
                 <form class="topbar-search-form" action="index.php" method="GET">
