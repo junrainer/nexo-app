@@ -449,7 +449,9 @@ function confirmDeletePost(postId) {
 }
 
 // ── Media preview for compose (photos + video) ───────
-const COMPOSE_MAX_PHOTOS = 5;
+const COMPOSE_MAX_PHOTOS    = 5;
+const COMPOSE_MAX_VIDEO_GB  = 10;
+const COMPOSE_MAX_VIDEO_BYTES = COMPOSE_MAX_VIDEO_GB * 1024 * 1024 * 1024;
 
 function previewPostMedia(type, input) {
     const wrap = document.getElementById('media-previews');
@@ -467,14 +469,14 @@ function previewPostMedia(type, input) {
         const available = COMPOSE_MAX_PHOTOS - existing;
 
         if (available <= 0) {
-            alert('You can only upload up to 5 photos per post.');
+            alert(`You can only upload up to ${COMPOSE_MAX_PHOTOS} photos per post.`);
             input.value = '';
             return;
         }
 
         const files = Array.from(input.files).slice(0, available);
         if (input.files.length > available) {
-            alert(`Only ${available} more photo(s) can be added (max 5 total). Extra files were ignored.`);
+            alert(`Only ${available} more photo(s) can be added (max ${COMPOSE_MAX_PHOTOS} total). Extra files were ignored.`);
         }
 
         files.forEach(file => {
@@ -504,12 +506,11 @@ function previewPostMedia(type, input) {
             return;
         }
 
-        const maxSize    = 10 * 1024 * 1024 * 1024; // 10 GB
         const validMime  = ['video/mp4', 'video/quicktime'];
         const validExt   = /\.(mp4|mov)$/i;
 
-        if (file.size > maxSize) {
-            alert('Video exceeds the 10 GB size limit.');
+        if (file.size > COMPOSE_MAX_VIDEO_BYTES) {
+            alert(`Video exceeds the ${COMPOSE_MAX_VIDEO_GB} GB size limit.`);
             input.value = '';
             return;
         }

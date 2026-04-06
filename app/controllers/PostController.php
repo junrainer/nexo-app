@@ -17,6 +17,9 @@ class PostController {
     /** Seconds a user must wait between posting comments (anti-spam). */
     private const COMMENT_COOLDOWN = 15;
 
+    /** Maximum video upload size in GB. */
+    private const MAX_VIDEO_SIZE_GB = 10;
+
     public function __construct() {
         $this->postModel      = new PostModel();
         $this->postMediaModel = new PostMediaModel();
@@ -85,7 +88,7 @@ class PostController {
         if (!empty($_FILES['video']['name']) && $_FILES['video']['error'] === UPLOAD_ERR_OK) {
             $filename = $this->handleVideoUpload($_FILES['video']);
             if ($filename === false) {
-                $_SESSION['error'] = 'Invalid video. Use MP4 or MOV format (max 10 GB).';
+                $_SESSION['error'] = 'Invalid video. Use MP4 or MOV format (max ' . self::MAX_VIDEO_SIZE_GB . ' GB).';
                 $this->postModel->delete($postId, $userId);
                 header('Location: index.php?url=feed');
                 exit;
@@ -184,7 +187,8 @@ class PostController {
             $elapsed = time() - strtotime($last['created_at']);
             if ($elapsed < self::COMMENT_COOLDOWN) {
                 $wait = self::COMMENT_COOLDOWN - $elapsed;
-                $_SESSION['error'] = "Please wait {$wait} second(s) before posting another comment.";
+                $unit = $wait === 1 ? 'second' : 'seconds';
+                $_SESSION['error'] = "Please wait {$wait} {$unit} before posting another comment.";
                 $ref = $_SERVER['HTTP_REFERER'] ?? '';
                 if ($ref && strpos($ref, 'profile') !== false) {
                     header('Location: ' . $ref . '#post-' . $postId);
@@ -326,7 +330,7 @@ class PostController {
         if ($file['error'] !== UPLOAD_ERR_OK) return false;
 
         $allowedMime = ['video/mp4', 'video/quicktime'];
-        $maxSize     = 10 * 1024 * 1024 * 1024; // 10 GB
+        $maxSize     = self::MAX_VIDEO_SIZE_GB * 1024 * 1024 * 1024;
 
         if (!in_array($file['type'], $allowedMime) || $file['size'] > $maxSize) return false;
 
