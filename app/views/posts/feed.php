@@ -22,7 +22,7 @@ require __DIR__ . '/../partials/header.php';
             <div class="compose-top">
                 <img src="assets/uploads/<?= htmlspecialchars($_SESSION['profile_image'] ?? 'default.png') ?>"
                      alt="you" class="avatar-md"
-                     onerror="this.onerror=null; this.src='assets/images/default.webp'">
+                     onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                 <input type="text" name="content" class="compose-input"
                        placeholder="What's on your mind?" required>
                 <label class="compose-add-btn" title="Add photo">
@@ -78,7 +78,7 @@ require __DIR__ . '/../partials/header.php';
                 <a href="index.php?url=profile/<?= htmlspecialchars($post['username']) ?>">
                     <img src="assets/uploads/<?= htmlspecialchars($post['profile_image']) ?>"
                          alt="avatar" class="avatar-md"
-                         onerror="this.onerror=null; this.src='assets/images/default.webp'">
+                         onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                 </a>
                 <div class="post-author-info">
                     <a href="index.php?url=profile/<?= htmlspecialchars($post['username']) ?>" class="post-author-name">
@@ -142,7 +142,7 @@ require __DIR__ . '/../partials/header.php';
                 <div class="comment-row" id="comment-<?= $c['id'] ?>">
                     <img src="assets/uploads/<?= htmlspecialchars($c['profile_image']) ?>"
                          alt="avatar" class="avatar-sm"
-                         onerror="this.onerror=null; this.src='assets/images/default.webp'">
+                         onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                     <div style="flex:1;">
                         <div class="comment-bubble">
                             <span class="comment-author"><?= htmlspecialchars($c['full_name']) ?></span>
@@ -174,7 +174,7 @@ require __DIR__ . '/../partials/header.php';
                     <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
                     <img src="assets/uploads/<?= htmlspecialchars($_SESSION['profile_image'] ?? 'default.png') ?>"
                          alt="you" class="avatar-sm"
-                         onerror="this.onerror=null; this.src='assets/images/default.webp'">
+                         onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                     <div class="comment-input-wrap">
                         <input type="text" name="content" class="comment-input"
                                placeholder="Write a comment..." required>

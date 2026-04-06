@@ -110,7 +110,7 @@ require __DIR__ . '/../partials/header.php';
                     <div class="post-header">
                         <img src="assets/uploads/<?= htmlspecialchars($user['profile_image']) ?>"
                              alt="avatar" class="avatar-md"
-                             onerror="this.onerror=null; this.src='assets/images/default.webp'">
+                             onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                         <div class="post-author-info">
                             <span class="post-author-name"><?= htmlspecialchars($user['username']) ?></span>
                             <span class="post-author-meta">
@@ -166,7 +166,7 @@ require __DIR__ . '/../partials/header.php';
                         <div class="comment-row">
                             <img src="assets/uploads/<?= htmlspecialchars($c['profile_image']) ?>"
                                  alt="avatar" class="avatar-sm"
-                                 onerror="this.onerror=null; this.src='assets/images/default.webp'">
+                                 onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                             <div style="flex:1;">
                                 <div class="comment-bubble">
                                     <span class="comment-author"><?= htmlspecialchars($c['full_name']) ?></span>
@@ -192,7 +192,7 @@ require __DIR__ . '/../partials/header.php';
                             <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
                             <img src="assets/uploads/<?= htmlspecialchars($_SESSION['profile_image'] ?? 'default.png') ?>"
                                  alt="you" class="avatar-sm"
-                                 onerror="this.onerror=null; this.src='assets/images/default.webp'">
+                                 onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                             <div class="comment-input-wrap">
                                 <input type="text" name="content" class="comment-input"
                                        placeholder="Write a comment..." required>
@@ -246,7 +246,7 @@ require __DIR__ . '/../partials/header.php';
                 <div class="avatar-upload-row">
                     <img src="assets/uploads/<?= htmlspecialchars($user['profile_image']) ?>"
                          alt="avatar" class="avatar-lg" id="avatar-preview"
-                         onerror="this.onerror=null; this.src='assets/images/default.webp'"
+                         onerror="this.onerror=null; this.src='assets/images/default-profile.webp'"
                          style="width:64px;height:64px;">
                     <div>
                         <p style="font-size:13.5px;font-weight:500;margin-bottom:6px;">Profile photo</p>

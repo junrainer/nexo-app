@@ -14,7 +14,7 @@ require __DIR__ . '/../partials/header.php';
 
         <form action="/profile/update" method="POST" enctype="multipart/form-data" class="auth-form">
             <div class="avatar-upload-wrap">
-                <img src="/assets/uploads/<?= htmlspecialchars($user['profile_image']) ?>" alt="avatar" class="avatar-profile" id="avatar-preview" onerror="this.onerror=null; this.src='/assets/images/default.webp'">
+                <img src="/assets/uploads/<?= htmlspecialchars($user['profile_image']) ?>" alt="avatar" class="avatar-profile" id="avatar-preview" onerror="this.onerror=null; this.src='/assets/images/default-profile.webp'">
                 <label class="btn-ghost btn-sm avatar-upload-btn">
                     <i class="fa fa-camera"></i> Change Photo
                     <input type="file" name="profile_image" accept="image/*" hidden onchange="previewAvatar(this)">

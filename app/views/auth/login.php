@@ -51,22 +51,19 @@
             z-index: 2;
         }
 
-        .hero-logo-icon {
-            width: 40px;
-            height: 40px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .hero-logo-img {
+            height: 44px;
+            width: auto;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+            flex-shrink: 0;
         }
 
-        .hero-logo-icon i { color: #fff; font-size: 18px; }
-
         .hero-logo-name {
-            font-size: 1.25rem;
-            font-weight: 700;
+            font-size: 1.5rem;
+            font-weight: 800;
             color: #fff;
+            letter-spacing: 0.05em;
         }
 
         .hero-body {
@@ -358,10 +355,9 @@
         </div>
 
         <div class="hero-logo-row">
-            <div class="hero-logo-icon">
-                <i class="fa fa-users"></i>
-            </div>
-            <span class="hero-logo-name">Nexo</span>
+            <img src="assets/images/app-logo.png" alt="Nexo" class="hero-logo-img"
+                 onerror="this.style.display='none'">
+            <span class="hero-logo-name">NEXO</span>
         </div>
 
         <div class="hero-body">
