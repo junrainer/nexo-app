@@ -27,7 +27,7 @@
                         <a href="index.php?url=profile/<?= htmlspecialchars($s['username']) ?>" class="suggestion-item">
                             <img src="assets/uploads/<?= htmlspecialchars($s['profile_image']) ?>"
                                  alt="avatar" class="avatar-sm"
-                                 onerror="this.onerror=null; this.src='assets/images/default.png'">
+                                 onerror="this.onerror=null; this.src='assets/images/default.webp'">
                             <div>
                                 <p class="suggestion-name"><?= htmlspecialchars($s['full_name']) ?></p>
                                 <p class="suggestion-username">@<?= htmlspecialchars($s['username']) ?></p>
@@ -45,7 +45,7 @@
                         <a href="index.php?url=profile/<?= htmlspecialchars($c['username']) ?>" class="suggestion-item">
                             <img src="assets/uploads/<?= htmlspecialchars($c['profile_image']) ?>"
                                  alt="avatar" class="avatar-sm"
-                                 onerror="this.onerror=null; this.src='assets/images/default.png'">
+                                 onerror="this.onerror=null; this.src='assets/images/default.webp'">
                             <div>
                                 <p class="suggestion-name"><?= htmlspecialchars($c['full_name']) ?></p>
                                 <p class="suggestion-username">@<?= htmlspecialchars($c['username']) ?></p>

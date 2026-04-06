@@ -55,7 +55,7 @@ require __DIR__ . '/../partials/header.php';
                             <a href="index.php?url=profile/<?= htmlspecialchars($u['username']) ?>" class="gm-user-avatar">
                                 <img src="assets/uploads/<?= htmlspecialchars($u['profile_image']) ?>"
                                      alt="avatar"
-                                     onerror="this.onerror=null; this.src='assets/images/default.png'">
+                                     onerror="this.onerror=null; this.src='assets/images/default.webp'">
                             </a>
                             <div class="gm-user-info">
                                 <a href="index.php?url=profile/<?= htmlspecialchars($u['username']) ?>" class="gm-user-name">
@@ -85,7 +85,7 @@ require __DIR__ . '/../partials/header.php';
                                 <a href="index.php?url=profile/<?= htmlspecialchars($post['username']) ?>">
                                     <img src="assets/uploads/<?= htmlspecialchars($post['profile_image']) ?>"
                                          alt="avatar" class="avatar-md"
-                                         onerror="this.onerror=null; this.src='assets/images/default.png'">
+                                         onerror="this.onerror=null; this.src='assets/images/default.webp'">
                                 </a>
                                 <div class="post-author-info">
                                     <a href="index.php?url=profile/<?= htmlspecialchars($post['username']) ?>" class="post-author-name">

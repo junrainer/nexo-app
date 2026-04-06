@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle ?? 'Nexo' ?></title>
+    <link rel="icon" href="assets/images/app-logo.png" type="image/png">
     <?php require_once __DIR__ . '/../../../lib/Security.php'; ?>
     <?= Security::meta() ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -73,7 +74,7 @@ $username   = $_SESSION['username'];
     <aside class="sidebar" id="main-sidebar">
         <div class="sidebar-top">
             <a href="index.php?url=feed" class="sidebar-brand">
-                <img src="assets/images/logo-wordmark.svg"
+                <img src="assets/images/app-logo.png"
                      alt="Nexo"
                      class="brand-wordmark"
                      onerror="this.style.display='none'; document.getElementById('brand-fallback-sb').style.display='flex'">
@@ -122,7 +123,7 @@ $username   = $_SESSION['username'];
             <a href="index.php?url=logout" class="sidebar-logout">
                 <img src="assets/uploads/<?= htmlspecialchars($_SESSION['profile_image'] ?? 'default.png') ?>"
                      alt="avatar" class="avatar-sm"
-                     onerror="this.onerror=null; this.src='assets/images/default.png'">
+                     onerror="this.onerror=null; this.src='assets/images/default.webp'">
                 <span><?= htmlspecialchars($_SESSION['full_name']) ?></span>
                 <i class="fa fa-right-from-bracket logout-icon"></i>
             </a>
@@ -140,7 +141,7 @@ $username   = $_SESSION['username'];
                     <i class="fa fa-bars"></i>
                 </button>
                 <a href="index.php?url=feed" class="mobile-brand">
-                    <img src="assets/images/logo.svg"
+                    <img src="assets/images/app-logo.png"
                          alt="Nexo"
                          class="brand-logo-sm"
                          onerror="this.style.display='none'; document.getElementById('brand-fallback-tb').style.display='flex'">
@@ -198,13 +199,13 @@ $username   = $_SESSION['username'];
                     <button class="avatar-trigger" onclick="toggleAvatarMenu(event)" id="avatar-btn">
                         <img src="assets/uploads/<?= htmlspecialchars($_SESSION['profile_image'] ?? 'default.png') ?>"
                              alt="avatar" class="avatar-sm avatar-ring"
-                             onerror="this.onerror=null; this.src='assets/images/default.png'">
+                             onerror="this.onerror=null; this.src='assets/images/default.webp'">
                     </button>
                     <div class="avatar-dropdown" id="avatar-dropdown">
                         <div class="dropdown-user">
                             <img src="assets/uploads/<?= htmlspecialchars($_SESSION['profile_image'] ?? 'default.png') ?>"
                                  alt="avatar" class="avatar-md"
-                                 onerror="this.onerror=null; this.src='assets/images/default.png'">
+                                 onerror="this.onerror=null; this.src='assets/images/default.webp'">
                             <div>
                                 <p class="dropdown-name"><?= htmlspecialchars($_SESSION['full_name']) ?></p>
                                 <p class="dropdown-username">@<?= htmlspecialchars($username) ?></p>
