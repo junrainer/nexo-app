@@ -678,11 +678,22 @@ function closeSidebar() {
 
 // ── Comment like (inline AJAX) ────────────────────────
 function toggleCommentLike(commentId, btn) {
-    // Optimistic toggle
-    const isLiked = btn.classList.contains('liked');
-    btn.classList.toggle('liked', !isLiked);
-    btn.textContent = isLiked ? 'Like' : 'Unlike';
-    // NOTE: backend endpoint not yet implemented; remove optimistic-only if adding endpoint
+    if (!btn) return;
+    btn.disabled = true;
+    const fd = new FormData();
+    fd.append('comment_id', commentId);
+    fetch('index.php?url=comment/like', { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(data => {
+            if (!data || data.success === false) return;
+            btn.classList.toggle('liked', !!data.liked);
+            const lbl = btn.querySelector('.comment-like-label');
+            const cnt = btn.querySelector('.comment-like-count');
+            if (lbl) lbl.textContent = data.liked ? 'Unlike' : 'Like';
+            if (cnt) cnt.textContent = data.count > 0 ? data.count : '';
+        })
+        .catch(() => {})
+        .finally(() => { btn.disabled = false; });
 }
 
 // ── Settings panel tabs ───────────────────────────────
@@ -1127,3 +1138,67 @@ function _scrollFloatingChatToBottom() {
     const c = document.getElementById('floating-chat-messages');
     if (c) c.scrollTop = c.scrollHeight;
 }
+
+// ── Topbar search typeahead ───────────────────────────
+(function initTopbarTypeahead() {
+    const input = document.getElementById('topbar-search-input');
+    const box   = document.getElementById('topbar-search-suggestions');
+    if (!input || !box) return;
+
+    let timer = null;
+    const hide = () => { box.style.display = 'none'; box.innerHTML = ''; };
+
+    input.addEventListener('input', function () {
+        const q = this.value.trim();
+        clearTimeout(timer);
+        if (q.length < 2) {
+            hide();
+            return;
+        }
+        timer = setTimeout(() => {
+            fetch('index.php?url=search&q=' + encodeURIComponent(q) + '&ajax=1')
+                .then(r => r.json())
+                .then(data => {
+                    const users = (data && data.users) ? data.users.slice(0, 6) : [];
+                    const posts = (data && data.posts) ? data.posts.slice(0, 4) : [];
+                    const rows  = [];
+
+                    users.forEach(u => {
+                        rows.push(
+                            `<a class="topbar-suggest-item" href="index.php?url=profile/${encodeURIComponent(u.username)}">
+                                <img src="${u.profile_image && u.profile_image !== 'default.png' ? 'assets/uploads/' + escapeHtml(u.profile_image) : 'assets/images/default-profile.webp'}" alt="avatar">
+                                <span><strong>${escapeHtml(u.full_name)}</strong><small>@${escapeHtml(u.username)}</small></span>
+                             </a>`
+                        );
+                    });
+
+                    posts.forEach(p => {
+                        rows.push(
+                            `<a class="topbar-suggest-item" href="index.php?url=search&q=${encodeURIComponent(q)}">
+                                <i class="fa fa-file-lines"></i>
+                                <span><strong>Post</strong><small>${escapeHtml((p.content || '').slice(0, 70))}</small></span>
+                             </a>`
+                        );
+                    });
+
+                    if (rows.length === 0) {
+                        hide();
+                        return;
+                    }
+
+                    rows.push(`<a class="topbar-suggest-all" href="index.php?url=search&q=${encodeURIComponent(q)}">See all results for "${escapeHtml(q)}"</a>`);
+                    box.innerHTML = rows.join('');
+                    box.style.display = 'block';
+                })
+                .catch(hide);
+        }, 220);
+    });
+
+    input.addEventListener('focus', function () {
+        if (box.innerHTML.trim() !== '') box.style.display = 'block';
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.topbar-search-form')) hide();
+    });
+})();

@@ -16,7 +16,7 @@ Copy/clone the repo into your server root:
 ### 2. Import the database (XAMPP)
 1. Open phpMyAdmin → http://localhost/phpmyadmin
 2. Create a new database named `nexo`
-3. Import in order: `sql/nexo_app.sql` → `sql/navbar_features.sql` → `sql/forgot_password.sql`
+3. Import in order: `sql/nexo_app.sql` → `sql/navbar_features.sql` → `sql/forgot_password.sql` → `sql/add_post_media.sql` → `sql/add_user_profile_fields.sql` → `sql/add_comment_likes.sql`
 
 ### 3. Configure database (XAMPP)
 Edit `config/database.php`:
@@ -58,7 +58,7 @@ Go to https://infinityfree.com and create a free account + website.
 1. In your InfinityFree cPanel → **MySQL Databases** → create a database.
 2. Note your **DB host**, **DB name**, **username**, and **password**.
 3. Open **phpMyAdmin** from cPanel.
-4. Import in order: `sql/nexo_app.sql` → `sql/navbar_features.sql` → `sql/forgot_password.sql`
+4. Import in order: `sql/nexo_app.sql` → `sql/navbar_features.sql` → `sql/forgot_password.sql` → `sql/add_post_media.sql` → `sql/add_user_profile_fields.sql` → `sql/add_comment_likes.sql`
 
 ### 4. Configure database
 Edit `config/database.php` with your InfinityFree credentials:

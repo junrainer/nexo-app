@@ -13,6 +13,7 @@ CREATE TABLE users (
     full_name VARCHAR(100) NOT NULL,
     bio TEXT,
     profile_image VARCHAR(255) DEFAULT 'default.png',
+    cover_image VARCHAR(255) DEFAULT NULL,
     mobile VARCHAR(20) DEFAULT NULL,
     birthday DATE DEFAULT NULL,
     gender VARCHAR(20) DEFAULT NULL,
@@ -41,6 +42,16 @@ CREATE TABLE comments (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+CREATE TABLE comment_likes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    comment_id INT NOT NULL,
+    user_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_comment_like (comment_id, user_id)
+);
+
 CREATE TABLE likes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     post_id INT NOT NULL,
@@ -50,4 +61,3 @@ CREATE TABLE likes (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     UNIQUE KEY unique_like (post_id, user_id)
 );
-

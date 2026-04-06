@@ -47,6 +47,7 @@ require __DIR__ . '/../partials/header.php';
                 </div>
             </div>
             <form action="index.php?url=settings/account" method="POST" class="settings-form">
+                <?= Security::field() ?>
                 <div class="form-group">
                     <label for="email">Email Address</label>
                     <input type="email" name="email" id="email" class="form-input"
@@ -83,6 +84,7 @@ require __DIR__ . '/../partials/header.php';
                 </div>
             </div>
             <form action="index.php?url=settings/preferences" method="POST" class="settings-form">
+                <?= Security::field() ?>
                 <div class="setting-toggle">
                     <div class="setting-info">
                         <span class="setting-label"><i class="fa fa-moon"></i> Dark Mode</span>
@@ -127,6 +129,7 @@ require __DIR__ . '/../partials/header.php';
                 </div>
             </div>
             <form action="index.php?url=settings/preferences" method="POST" class="settings-form">
+                <?= Security::field() ?>
                 <input type="hidden" name="dark_mode"            value="<?= $preferences['dark_mode'] ? '1' : '0' ?>">
                 <input type="hidden" name="email_notifications"  value="<?= $preferences['email_notifications'] ? '1' : '0' ?>">
                 <input type="hidden" name="push_notifications"   value="<?= $preferences['push_notifications'] ? '1' : '0' ?>">
@@ -201,4 +204,3 @@ function showSettingsPanel(name, btn) {
 </script>
 
 <?php require __DIR__ . '/../partials/footer.php'; ?>
-

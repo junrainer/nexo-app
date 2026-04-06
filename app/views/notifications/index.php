@@ -25,6 +25,7 @@ function notifLink($n) {
         <h1><i class="fa fa-bell"></i> Notifications</h1>
         <?php if (!empty($notifications)): ?>
         <form method="POST" action="index.php?url=notifications/read">
+            <?= Security::field() ?>
             <button type="submit" class="mark-read-btn btn-mark-all">
                 <i class="fa fa-check-double"></i> Mark all as read
             </button>

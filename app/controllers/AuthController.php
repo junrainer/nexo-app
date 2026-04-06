@@ -232,8 +232,11 @@ class AuthController {
                     $baseUrl = APP_BASE_URL;
                 } else {
                     $scheme  = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-                    $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST']
-                             . rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+                    $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+                    if ($basePath === '/' || $basePath === '\\') {
+                        $basePath = '';
+                    }
+                    $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . $basePath;
                 }
                 $resetUrl = $baseUrl . '/index.php?url=reset-password&token=' . urlencode($token);
 
