@@ -162,6 +162,7 @@ switch (true) {
 
     // Profile
     case $url === 'profile/update' && $method === 'POST': $profile->update(); break;
+    case $url === 'profile/update-cover' && $method === 'POST': $profile->updateCover(); break;
 
     // Dynamic profile: profile/{username}
     case (bool) preg_match('#^profile/([a-zA-Z0-9_]+)$#', $url, $m):

@@ -589,9 +589,25 @@ document.addEventListener('DOMContentLoaded', function () {
     if (quickInput.dataset.coverSubmitBound === '1') return;
     quickInput.dataset.coverSubmitBound = '1';
     quickInput.addEventListener('change', function () {
-        if (quickInput.files && quickInput.files.length > 0) {
-            quickForm.submit();
+        if (!quickInput.files || quickInput.files.length === 0) return;
+        const file = quickInput.files[0];
+        if (!file) return;
+
+        const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        const maxSize = 2 * 1024 * 1024;
+
+        if (!allowed.includes(file.type)) {
+            alert('Invalid cover image. Use JPG, PNG, GIF, or WEBP.');
+            quickInput.value = '';
+            return;
         }
+        if (file.size > maxSize) {
+            alert('Cover image is too large. Maximum size is 2MB.');
+            quickInput.value = '';
+            return;
+        }
+
+        quickForm.submit();
     });
 });
 
