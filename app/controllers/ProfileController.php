@@ -68,6 +68,7 @@ class ProfileController {
 
         $user  = $this->userModel->findById($userId);
         $image = $user['profile_image'];
+        $cover = $user['cover_image'] ?? null;
 
         if (empty($fullName)) {
             $_SESSION['error'] = 'Full name cannot be empty.';
@@ -102,6 +103,17 @@ class ProfileController {
             }
         }
 
+        if (!empty($_FILES['cover_image']['name'])) {
+            $newCover = $this->handleImageUpload($_FILES['cover_image'], 'cover_');
+            if ($newCover) {
+                $cover = $newCover;
+            } else {
+                $_SESSION['error'] = 'Invalid cover image. Use JPG, PNG, GIF, or WEBP (max 2MB).';
+                header('Location: index.php?url=profile/' . rawurlencode($_SESSION['username']));
+                exit;
+            }
+        }
+
         $this->userModel->updateFull(
             $userId,
             htmlspecialchars($fullName, ENT_QUOTES, 'UTF-8'),
@@ -110,7 +122,8 @@ class ProfileController {
             $image,
             $mobile,
             $birthday,
-            $gender
+            $gender,
+            $cover
         );
 
         $_SESSION['full_name']     = $fullName;
@@ -122,7 +135,7 @@ class ProfileController {
         exit;
     }
 
-    private function handleImageUpload(array $file): string|false {
+    private function handleImageUpload(array $file, string $filenamePrefix = 'avatar_'): string|false {
         $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         $maxSize = 2 * 1024 * 1024;
 
@@ -130,7 +143,7 @@ class ProfileController {
         if (!in_array($file['type'], $allowed) || $file['size'] > $maxSize) return false;
 
         $ext      = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        $filename = uniqid('avatar_', true) . '.' . $ext;
+        $filename = uniqid($filenamePrefix, true) . '.' . $ext;
         $dest     = __DIR__ . '/../../public/assets/uploads/' . $filename;
 
         if (!move_uploaded_file($file['tmp_name'], $dest)) return false;

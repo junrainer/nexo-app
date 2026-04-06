@@ -18,6 +18,7 @@ require __DIR__ . '/../partials/header.php';
     <!-- ── CREATE POST ── -->
     <div class="compose-card">
         <form action="index.php?url=post/create" method="POST" enctype="multipart/form-data">
+            <?= Security::field() ?>
 
             <div class="compose-top">
                 <img src="assets/uploads/<?= htmlspecialchars($_SESSION['profile_image'] ?? 'default.png') ?>"
@@ -71,7 +72,7 @@ require __DIR__ . '/../partials/header.php';
 
         <?php foreach ($posts as $post): ?>
         <?php
-            $comments   = $cm->getByPost($post['id']);
+            $comments   = $cm->getByPost($post['id'], (int)$_SESSION['user_id']);
             $mediaItems = $mediaModel->getByPost($post['id']);
             // Fallback: legacy posts stored a single image in the posts.image column
             if (empty($mediaItems) && !empty($post['image'])) {
@@ -186,7 +187,11 @@ require __DIR__ . '/../partials/header.php';
                         </div>
                         <div class="comment-meta-row">
                             <span class="comment-time"><time class="live-time" data-time="<?= htmlspecialchars($c['created_at']) ?>"><?= time_ago($c['created_at']) ?></time></span>
-                            <button class="comment-action-btn">Like</button>
+                            <button class="comment-action-btn <?= !empty($c['user_liked']) ? 'liked' : '' ?>"
+                                    onclick="toggleCommentLike(<?= (int)$c['id'] ?>, this)">
+                                <span class="comment-like-label"><?= !empty($c['user_liked']) ? 'Unlike' : 'Like' ?></span>
+                                <span class="comment-like-count"><?= !empty($c['like_count']) ? (int)$c['like_count'] : '' ?></span>
+                            </button>
                             <button class="comment-action-btn">Reply</button>
                             <?php if ($c['user_id'] == $_SESSION['user_id']): ?>
                                 <button class="comment-action-btn"
@@ -195,6 +200,7 @@ require __DIR__ . '/../partials/header.php';
                                 </button>
                                 <form action="index.php?url=comment/delete" method="POST" style="display:inline"
                                       onsubmit="return confirm('Delete comment?')">
+                                    <?= Security::field() ?>
                                     <input type="hidden" name="comment_id" value="<?= $c['id'] ?>">
                                     <input type="hidden" name="post_id"    value="<?= $post['id'] ?>">
                                     <button type="submit" class="comment-action-btn danger">Delete</button>
@@ -207,6 +213,7 @@ require __DIR__ . '/../partials/header.php';
 
                 <!-- Add comment -->
                 <form action="index.php?url=comment/add" method="POST" class="comment-input-row">
+                    <?= Security::field() ?>
                     <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
                     <img src="assets/uploads/<?= htmlspecialchars($_SESSION['profile_image'] ?? 'default.png') ?>"
                          alt="you" class="avatar-sm"
@@ -237,6 +244,7 @@ require __DIR__ . '/../partials/header.php';
             </button>
         </div>
         <form action="index.php?url=post/update" method="POST">
+            <?= Security::field() ?>
             <input type="hidden" name="post_id" id="edit-post-id">
             <div class="modal-body">
                 <textarea name="content" id="edit-post-content" rows="4"
@@ -262,6 +270,7 @@ require __DIR__ . '/../partials/header.php';
 <div class="modal-overlay" id="delete-post-modal" style="display:none;">
     <div class="modal">
         <form action="index.php?url=post/delete" method="POST">
+            <?= Security::field() ?>
             <input type="hidden" name="post_id" id="delete-post-id">
             <div class="modal-body centered">
                 <div class="delete-modal-icon"><i class="fa fa-trash"></i></div>
@@ -287,6 +296,7 @@ require __DIR__ . '/../partials/header.php';
             </button>
         </div>
         <form action="index.php?url=comment/update" method="POST">
+            <?= Security::field() ?>
             <input type="hidden" name="comment_id" id="edit-comment-id">
             <div class="modal-body">
                 <textarea name="content" id="edit-comment-content" rows="3"

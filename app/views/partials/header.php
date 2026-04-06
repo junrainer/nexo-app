@@ -157,9 +157,10 @@ $username   = $_SESSION['username'];
             <form class="topbar-search-form" action="index.php" method="GET">
                     <input type="hidden" name="url" value="search">
                     <i class="fa fa-magnifying-glass"></i>
-                    <input type="text" name="q" placeholder="Search..."
-                           autocomplete="off"
-                           value="<?= isset($_GET['q']) ? htmlspecialchars($_GET['q']) : '' ?>">
+                    <input type="text" name="q" placeholder="Search..." id="topbar-search-input"
+                            autocomplete="off"
+                            value="<?= isset($_GET['q']) ? htmlspecialchars($_GET['q']) : '' ?>">
+                    <div id="topbar-search-suggestions" class="topbar-search-suggestions" style="display:none;"></div>
                 </form>
             <div class="topbar-right">
                 <!-- Messages dropdown -->

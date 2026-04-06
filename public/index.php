@@ -61,6 +61,7 @@ if (!$isGuest && in_array($url, $guestRoutes)) {
 // AJAX routes return JSON; regular routes redirect on failure.
 $ajaxRoutes = [
     'post/like', 'post/save', 'post/unsave',
+    'comment/like',
     'message/send', 'message/new', 'message/unread',
     'friend/request', 'friend/accept', 'friend/decline', 'friend/unfriend', 'friend/status',
     'notifications', 'notifications/count', 'notification/read', 'notifications/read',
@@ -120,6 +121,7 @@ switch (true) {
     case $url === 'comment/add'    && $method === 'POST': $posts->addComment();    break;
     case $url === 'comment/update' && $method === 'POST': $posts->updateComment(); break;
     case $url === 'comment/delete' && $method === 'POST': $posts->deleteComment(); break;
+    case $url === 'comment/like'   && $method === 'POST': $posts->commentLike();   break;
 
     // Search
     case $url === 'search' && $method === 'GET': $posts->search(); break;

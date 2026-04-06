@@ -21,11 +21,17 @@ require __DIR__ . '/../partials/header.php';
 
     <!-- Cover -->
     <div class="profile-cover">
+        <?php if (!empty($user['cover_image'])): ?>
+            <img src="assets/uploads/<?= htmlspecialchars($user['cover_image']) ?>"
+                 alt="cover photo" class="profile-cover-img"
+                 onerror="this.onerror=null; this.style.display='none'">
+        <?php endif; ?>
         <?php if ($isOwner): ?>
-            <button class="cover-btn">
+            <label class="cover-btn">
                 <i class="fa fa-camera"></i>
-                Add cover photo
-            </button>
+                <?= !empty($user['cover_image']) ? 'Change cover photo' : 'Add cover photo' ?>
+                <input type="file" name="cover_image" form="profile-edit-form" accept="image/*" hidden>
+            </label>
         <?php endif; ?>
         <!-- Avatar -->
         <div class="profile-avatar-wrap">
@@ -107,7 +113,7 @@ require __DIR__ . '/../partials/header.php';
                 ?>
                 <?php foreach ($posts as $post): ?>
                 <?php
-                    $comments   = $cm->getByPost($post['id']);
+                    $comments   = $cm->getByPost($post['id'], (int)$_SESSION['user_id']);
                     $mediaItems = $mediaModel->getByPost($post['id']);
                     if (empty($mediaItems) && !empty($post['image'])) {
                         $mediaItems = [['filename' => $post['image'], 'media_type' => 'image']];
@@ -210,11 +216,17 @@ require __DIR__ . '/../partials/header.php';
                                 </div>
                                 <div class="comment-meta-row">
                                     <span class="comment-time"><time class="live-time" data-time="<?= htmlspecialchars($c['created_at']) ?>"><?= time_ago($c['created_at']) ?></time></span>
+                                    <button class="comment-action-btn <?= !empty($c['user_liked']) ? 'liked' : '' ?>"
+                                            onclick="toggleCommentLike(<?= (int)$c['id'] ?>, this)">
+                                        <span class="comment-like-label"><?= !empty($c['user_liked']) ? 'Unlike' : 'Like' ?></span>
+                                        <span class="comment-like-count"><?= !empty($c['like_count']) ? (int)$c['like_count'] : '' ?></span>
+                                    </button>
                                     <?php if ($c['user_id'] == $_SESSION['user_id']): ?>
                                         <button class="comment-action-btn"
                                                 onclick="openEditComment(<?= $c['id'] ?>, <?= htmlspecialchars(json_encode($c['content'])) ?>)">Edit</button>
                                         <form action="index.php?url=comment/delete" method="POST"
                                               style="display:inline" onsubmit="return confirm('Delete comment?')">
+                                            <?= Security::field() ?>
                                             <input type="hidden" name="comment_id" value="<?= $c['id'] ?>">
                                             <input type="hidden" name="post_id"    value="<?= $post['id'] ?>">
                                             <button type="submit" class="comment-action-btn danger">Delete</button>
@@ -225,6 +237,7 @@ require __DIR__ . '/../partials/header.php';
                         </div>
                         <?php endforeach; ?>
                         <form action="index.php?url=comment/add" method="POST" class="comment-input-row">
+                            <?= Security::field() ?>
                             <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
                             <img src="assets/uploads/<?= htmlspecialchars($_SESSION['profile_image'] ?? 'default.png') ?>"
                                  alt="you" class="avatar-sm"
@@ -275,7 +288,8 @@ require __DIR__ . '/../partials/header.php';
                 <i class="fa fa-xmark"></i>
             </button>
         </div>
-        <form action="index.php?url=profile/update" method="POST" enctype="multipart/form-data">
+        <form id="profile-edit-form" action="index.php?url=profile/update" method="POST" enctype="multipart/form-data">
+            <?= Security::field() ?>
             <div class="modal-body">
 
                 <!-- Avatar upload -->
@@ -353,6 +367,7 @@ require __DIR__ . '/../partials/header.php';
             </button>
         </div>
         <form action="index.php?url=post/update" method="POST">
+            <?= Security::field() ?>
             <input type="hidden" name="post_id" id="edit-post-id">
             <div class="modal-body">
                 <textarea name="content" id="edit-post-content" rows="4"
@@ -378,6 +393,7 @@ require __DIR__ . '/../partials/header.php';
 <div class="modal-overlay" id="delete-post-modal" style="display:none;">
     <div class="modal">
         <form action="index.php?url=post/delete" method="POST">
+            <?= Security::field() ?>
             <input type="hidden" name="post_id" id="delete-post-id">
             <div class="modal-body centered">
                 <div class="delete-modal-icon"><i class="fa fa-trash"></i></div>
@@ -403,6 +419,7 @@ require __DIR__ . '/../partials/header.php';
             </button>
         </div>
         <form action="index.php?url=comment/update" method="POST">
+            <?= Security::field() ?>
             <input type="hidden" name="comment_id" id="edit-comment-id">
             <div class="modal-body">
                 <textarea name="content" id="edit-comment-content" rows="3"

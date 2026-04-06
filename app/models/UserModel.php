@@ -67,8 +67,23 @@ class UserModel {
         string $profileImage,
         ?string $mobile   = null,
         ?string $birthday = null,
-        ?string $gender   = null
+        ?string $gender   = null,
+        ?string $coverImage = null
     ): bool {
+        if ($coverImage !== null) {
+            try {
+                $stmt = $this->db->prepare(
+                    'UPDATE users
+                     SET full_name = ?, username = ?, bio = ?, profile_image = ?,
+                         mobile = ?, birthday = ?, gender = ?, cover_image = ?
+                     WHERE id = ?'
+                );
+                return $stmt->execute([$fullName, $username, $bio, $profileImage, $mobile, $birthday, $gender, $coverImage, $id]);
+            } catch (PDOException $e) {
+                // cover_image column may not exist yet.
+            }
+        }
+
         $stmt = $this->db->prepare(
             'UPDATE users
              SET full_name = ?, username = ?, bio = ?, profile_image = ?,

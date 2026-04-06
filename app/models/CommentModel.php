@@ -8,16 +8,30 @@ class CommentModel {
         $this->db = Database::getInstance()->getConnection();
     }
 
-    public function getByPost(int $postId): array {
-        $stmt = $this->db->prepare(
-            'SELECT c.*, u.username, u.full_name, u.profile_image
-             FROM comments c
-             JOIN users u ON c.user_id = u.id
-             WHERE c.post_id = ?
-             ORDER BY c.created_at ASC'
-        );
-        $stmt->execute([$postId]);
-        return $stmt->fetchAll();
+    public function getByPost(int $postId, int $currentUserId = 0): array {
+        try {
+            $stmt = $this->db->prepare(
+                'SELECT c.*, u.username, u.full_name, u.profile_image
+                        ,(SELECT COUNT(*) FROM comment_likes cl WHERE cl.comment_id = c.id) AS like_count
+                        ,(SELECT COUNT(*) FROM comment_likes cl WHERE cl.comment_id = c.id AND cl.user_id = ?) AS user_liked
+                 FROM comments c
+                 JOIN users u ON c.user_id = u.id
+                 WHERE c.post_id = ?
+                 ORDER BY c.created_at ASC'
+            );
+            $stmt->execute([$currentUserId, $postId]);
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            $stmt = $this->db->prepare(
+                'SELECT c.*, u.username, u.full_name, u.profile_image, 0 AS like_count, 0 AS user_liked
+                 FROM comments c
+                 JOIN users u ON c.user_id = u.id
+                 WHERE c.post_id = ?
+                 ORDER BY c.created_at ASC'
+            );
+            $stmt->execute([$postId]);
+            return $stmt->fetchAll();
+        }
     }
 
     public function create(int $postId, int $userId, string $content): int {
@@ -59,5 +73,31 @@ class CommentModel {
         $stmt->execute([$userId]);
         $result = $stmt->fetch();
         return $result ?: null;
+    }
+
+    public function toggleLike(int $commentId, int $userId): array {
+        try {
+            $existing = $this->db->prepare(
+                'SELECT id FROM comment_likes WHERE comment_id = ? AND user_id = ? LIMIT 1'
+            );
+            $existing->execute([$commentId, $userId]);
+
+            if ($existing->fetch()) {
+                $this->db->prepare('DELETE FROM comment_likes WHERE comment_id = ? AND user_id = ?')
+                         ->execute([$commentId, $userId]);
+                $liked = false;
+            } else {
+                $this->db->prepare('INSERT INTO comment_likes (comment_id, user_id) VALUES (?, ?)')
+                         ->execute([$commentId, $userId]);
+                $liked = true;
+            }
+
+            $countStmt = $this->db->prepare('SELECT COUNT(*) FROM comment_likes WHERE comment_id = ?');
+            $countStmt->execute([$commentId]);
+
+            return ['success' => true, 'liked' => $liked, 'count' => (int)$countStmt->fetchColumn()];
+        } catch (PDOException $e) {
+            return ['success' => false, 'liked' => false, 'count' => 0];
+        }
     }
 }
