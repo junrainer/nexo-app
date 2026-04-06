@@ -218,8 +218,9 @@ class AuthController {
             exit;
         }
 
-        if ($this->isForgotPasswordCooldownActive($email)) {
-            $_SESSION['error'] = 'Please wait ' . self::FORGOT_PASSWORD_COOLDOWN_SECONDS . ' seconds before requesting another reset email.';
+        $cooldownRemaining = $this->getForgotPasswordCooldownRemaining($email);
+        if ($cooldownRemaining > 0) {
+            $_SESSION['error'] = 'Please wait ' . $cooldownRemaining . ' seconds before requesting another reset email.';
             header('Location: index.php?url=forgot-password');
             exit;
         }
@@ -434,6 +435,10 @@ class AuthController {
         }
     }
 
+    /**
+     * Returns true when verification timestamp is missing/invalid or outside TTL.
+     * Non-integer and null values are treated as expired for safety.
+     */
     private function isVerificationExpired($verifiedAt): bool {
         return !is_int($verifiedAt) || (time() - $verifiedAt > self::RESET_VERIFY_TTL_SECONDS);
     }
@@ -442,6 +447,16 @@ class AuthController {
         $key = self::FORGOT_PASSWORD_COOLDOWN_KEY . ':' . md5(strtolower($email));
         $last = $_SESSION[$key] ?? null;
         return is_int($last) && (time() - $last < self::FORGOT_PASSWORD_COOLDOWN_SECONDS);
+    }
+
+    private function getForgotPasswordCooldownRemaining(string $email): int {
+        $key = self::FORGOT_PASSWORD_COOLDOWN_KEY . ':' . md5(strtolower($email));
+        $last = $_SESSION[$key] ?? null;
+        if (!is_int($last)) {
+            return 0;
+        }
+        $remaining = self::FORGOT_PASSWORD_COOLDOWN_SECONDS - (time() - $last);
+        return max(0, $remaining);
     }
 
     private function setForgotPasswordCooldown(string $email): void {
