@@ -44,7 +44,12 @@ require __DIR__ . '/../partials/header.php';
                         <i class="fa fa-video red"></i> Video
                         <input type="file" name="image" accept="image/*" hidden onchange="previewPostImage(this)">
                     </label>
-
+                    <button type="button" class="compose-audience" id="compose-audience-btn"
+                            onclick="cycleAudience(this)">
+                        <i class="fa fa-globe" id="compose-audience-icon"></i>
+                        <span id="compose-audience-label">Public</span>
+                    </button>
+                    <input type="hidden" name="visibility" id="compose-visibility" value="public">
                 </div>
                 <button type="submit" class="btn btn-primary btn-rounded btn-sm">Post</button>
             </div>
@@ -83,7 +88,9 @@ require __DIR__ . '/../partials/header.php';
                         <?= htmlspecialchars($post['username']) ?>
                     </a>
                     <span class="post-author-meta">
-                        <?= htmlspecialchars($post['full_name']) ?> · <?= time_ago($post['created_at']) ?>
+                        <?= htmlspecialchars($post['full_name']) ?> · <time class="live-time" data-time="<?= htmlspecialchars($post['created_at']) ?>"><?= time_ago($post['created_at']) ?></time>
+                        <?php [$visIcon, $visLabel] = post_visibility_meta($post['visibility'] ?? 'public'); ?>
+                        · <span class="post-visibility" title="<?= $visLabel ?>"><i class="fa <?= $visIcon ?>"></i> <?= $visLabel ?></span>
                     </span>
                 </div>
 
@@ -93,7 +100,7 @@ require __DIR__ . '/../partials/header.php';
                         <i class="fa fa-ellipsis-h"></i>
                     </button>
                     <div class="post-dropdown" id="post-menu-<?= $post['id'] ?>">
-                        <button onclick="openEditPost(<?= $post['id'] ?>, <?= htmlspecialchars(json_encode($post['content'])) ?>)">
+                        <button onclick="openEditPost(<?= $post['id'] ?>, <?= htmlspecialchars(json_encode($post['content'])) ?>, <?= htmlspecialchars(json_encode($post['visibility'] ?? 'public')) ?>)">
                             <i class="fa fa-pen"></i> Edit post
                         </button>
                         <button class="danger-item" onclick="confirmDeletePost(<?= $post['id'] ?>)">
@@ -147,7 +154,7 @@ require __DIR__ . '/../partials/header.php';
                             <p class="comment-text"><?= nl2br(htmlspecialchars($c['content'])) ?></p>
                         </div>
                         <div class="comment-meta-row">
-                            <span class="comment-time"><?= time_ago($c['created_at']) ?></span>
+                            <span class="comment-time"><time class="live-time" data-time="<?= htmlspecialchars($c['created_at']) ?>"><?= time_ago($c['created_at']) ?></time></span>
                             <button class="comment-action-btn">Like</button>
                             <button class="comment-action-btn">Reply</button>
                             <?php if ($c['user_id'] == $_SESSION['user_id']): ?>
@@ -203,6 +210,13 @@ require __DIR__ . '/../partials/header.php';
             <div class="modal-body">
                 <textarea name="content" id="edit-post-content" rows="4"
                           class="modal-textarea" required></textarea>
+                <div style="margin-top:10px;">
+                    <select name="visibility" id="edit-post-visibility" class="modal-select">
+                        <option value="public">🌐 Public</option>
+                        <option value="friends">👥 Friends</option>
+                        <option value="only_me">🔒 Only me</option>
+                    </select>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-ghost btn-sm"

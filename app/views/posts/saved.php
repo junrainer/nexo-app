@@ -35,7 +35,7 @@ require __DIR__ . '/../partials/header.php';
                     <div class="gm-saved-info">
                         <p class="gm-saved-title"><?= htmlspecialchars(mb_strimwidth($post['content'], 0, 60, '…')) ?></p>
                         <p class="gm-saved-meta">
-                            <?= htmlspecialchars($post['full_name']) ?> · <?= time_ago($post['created_at']) ?>
+                            <?= htmlspecialchars($post['full_name']) ?> · <time class="live-time" data-time="<?= htmlspecialchars($post['created_at']) ?>"><?= time_ago($post['created_at']) ?></time>
                         </p>
                     </div>
                     <button class="gm-unsave-btn" onclick="unsavePost(<?= $post['id'] ?>, this)" title="Remove from saved">

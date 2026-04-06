@@ -92,7 +92,7 @@ require __DIR__ . '/../partials/header.php';
                                         <?= htmlspecialchars($post['username']) ?>
                                     </a>
                                     <span class="post-author-meta">
-                                        <?= htmlspecialchars($post['full_name']) ?> · <?= time_ago($post['created_at']) ?>
+                                        <?= htmlspecialchars($post['full_name']) ?> · <time class="live-time" data-time="<?= htmlspecialchars($post['created_at']) ?>"><?= time_ago($post['created_at']) ?></time>
                                     </span>
                                 </div>
                             </div>

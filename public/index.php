@@ -30,6 +30,15 @@ function time_ago(string $datetime): string {
     return date('M j, Y', strtotime($datetime));
 }
 
+// ── Helper: post visibility icon + label ─────────────────────
+function post_visibility_meta(string $visibility): array {
+    return match ($visibility) {
+        'friends' => ['fa-user-group', 'Friends'],
+        'only_me' => ['fa-lock',       'Only me'],
+        default   => ['fa-globe',      'Public'],
+    };
+}
+
 // ── Get current route ─────────────────────────────────────────
 $url    = trim($_GET['url'] ?? 'login', '/');
 $method = $_SERVER['REQUEST_METHOD'];

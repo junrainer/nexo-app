@@ -72,6 +72,14 @@ function timeAgo(datetime) {
     return new Date(datetime).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+// ── Live timestamp refresh ───────────────────────────
+function refreshLiveTimes() {
+    document.querySelectorAll('time.live-time[data-time]').forEach(el => {
+        el.textContent = timeAgo(el.dataset.time);
+    });
+}
+setInterval(refreshLiveTimes, 30000);
+
 // ── Avatar dropdown ──────────────────────────────────
 const allDropdownsSelector = '.avatar-dropdown.open, .notification-dropdown.open, .message-dropdown.open';
 
@@ -132,12 +140,12 @@ function loadNotificationsInto(listId) {
                     <a href="${escapeHtml(getNotificationLink(n))}"
                        class="notif-item ${n.is_read ? '' : 'unread'}"
                        onclick="markNotificationRead(${n.id})">
-                        <img src="assets/uploads/${escapeHtml(n.actor_image || 'default.png')}"
+                        <img src="${n.actor_image && n.actor_image !== 'default.png' ? 'assets/uploads/' + escapeHtml(n.actor_image) : 'assets/images/default-profile.webp'}"
                              alt="avatar" class="notif-avatar"
-                             onerror="this.onerror=null; this.src='assets/images/default.png'">
+                             onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                         <div class="notif-content">
                             <p>${escapeHtml(n.message)}</p>
-                            <span class="notif-time">${timeAgo(n.created_at)}</span>
+                            <span class="notif-time"><time class="live-time" data-time="${escapeHtml(n.created_at)}">${timeAgo(n.created_at)}</time></span>
                         </div>
                         ${n.is_read ? '' : '<span class="notif-dot"></span>'}
                     </a>
@@ -226,7 +234,7 @@ function loadMessages() {
                         <div class="msg-content">
                             <div class="msg-top">
                                 <span class="msg-name ${c.unread > 0 ? 'bold' : ''}">${escapeHtml(c.name)}</span>
-                                <span class="msg-time">${timeAgo(c.last_time)}</span>
+                                <span class="msg-time"><time class="live-time" data-time="${escapeHtml(c.last_time)}">${timeAgo(c.last_time)}</time></span>
                             </div>
                             <p class="msg-preview ${c.unread > 0 ? 'bold' : ''}">${escapeHtml(c.last_message)}</p>
                         </div>
@@ -375,10 +383,30 @@ function toggleComments(postId) {
 }
 
 // ── Edit post modal ───────────────────────────────────
-function openEditPost(postId, content) {
+function openEditPost(postId, content, visibility) {
     document.getElementById('edit-post-id').value      = postId;
     document.getElementById('edit-post-content').value = content;
+    const visSelect = document.getElementById('edit-post-visibility');
+    if (visSelect) visSelect.value = visibility || 'public';
     document.getElementById('edit-post-modal').style.display = 'flex';
+}
+
+// ── Audience cycle for compose form ─────────────────
+const audienceOptions = [
+    { value: 'public',  icon: 'fa-globe',      label: 'Public'   },
+    { value: 'friends', icon: 'fa-user-group', label: 'Friends'  },
+    { value: 'only_me', icon: 'fa-lock',       label: 'Only me'  },
+];
+function cycleAudience(btn) {
+    const hidden = document.getElementById('compose-visibility');
+    const icon   = document.getElementById('compose-audience-icon');
+    const label  = document.getElementById('compose-audience-label');
+    if (!hidden || !icon || !label) return;
+    const current = audienceOptions.findIndex(o => o.value === hidden.value);
+    const next    = audienceOptions[(current + 1) % audienceOptions.length];
+    hidden.value   = next.value;
+    icon.className = 'fa ' + next.icon;
+    label.textContent = next.label;
 }
 
 // ── Edit comment modal ────────────────────────────────
@@ -911,7 +939,8 @@ function _appendFloatingMsg(text, isMine, profileImage, createdAt, msgId) {
                       onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">`;
     }
     const timeStr = createdAt ? timeAgo(createdAt) : 'just now';
-    html += `<div class="message-content"><p>${escapeHtml(text)}</p><span class="message-time">${timeStr}</span></div>`;
+    const timeAttr = createdAt ? ` class="live-time message-time" data-time="${escapeHtml(createdAt)}"` : ' class="message-time"';
+    html += `<div class="message-content"><p>${escapeHtml(text)}</p><time${timeAttr}>${timeStr}</time></div>`;
     div.innerHTML = html;
     container.appendChild(div);
 }
