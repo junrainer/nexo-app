@@ -21,7 +21,7 @@ class AuthController {
     }
 
     public function login(): void {
-        $identifier = trim($_POST['email'] ?? '');
+        $identifier = ltrim(trim($_POST['username'] ?? ''), '@');
         $password   = $_POST['password'] ?? '';
 
         if (empty($identifier) || empty($password)) {
@@ -30,9 +30,6 @@ class AuthController {
             exit;
         }
 
-        // Strip leading @ if user typed it
-        $identifier = ltrim($identifier, '@');
-
         // Rate limit check
         if (!Security::checkRateLimit($identifier)) {
             $_SESSION['error'] = 'Too many login attempts. Please try again in 15 minutes.';
@@ -40,15 +37,11 @@ class AuthController {
             exit;
         }
 
-        // Try finding by email first, then by username
-        $user = $this->userModel->findByEmail($identifier);
-        if (!$user) {
-            $user = $this->userModel->findByUsername($identifier);
-        }
+        $user = $this->userModel->findByUsername($identifier);
 
         if (!$user || !password_verify($password, $user['password'])) {
             Security::incrementAttempts($identifier);
-            $_SESSION['error'] = 'Invalid username/email or password.';
+            $_SESSION['error'] = 'Invalid username or password.';
             header('Location: index.php?url=login');
             exit;
         }
@@ -90,7 +83,7 @@ class AuthController {
     public function register(): void {
         $fullName = trim($_POST['full_name'] ?? '');
         $username = ltrim(trim($_POST['username'] ?? ''), '@');
-        $email    = trim($_POST['email'] ?? '');
+        $email    = strtolower(trim($_POST['email'] ?? ''));
         $password = $_POST['password'] ?? '';
         $confirm  = $_POST['confirm_password'] ?? '';
         $bio      = trim($_POST['bio'] ?? '');

@@ -2237,6 +2237,16 @@ input, textarea, select { font-family: inherit; }
     flex-direction: row-reverse;
 }
 
+.message-body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.message.sent .message-body {
+    align-items: flex-end;
+}
+
 .message-avatar {
     width: 28px;
     height: 28px;
@@ -2256,8 +2266,7 @@ input, textarea, select { font-family: inherit; }
 }
 
 .message-content p { font-size: 14px; line-height: 1.4; word-break: break-word; }
-.message-time { font-size: 11px; color: var(--muted-fg); display: block; margin-top: 4px; }
-.message.sent .message-time { color: rgba(255,255,255,0.7); }
+.message-time { font-size: 11px; color: var(--muted-fg); display: block; margin-top: 4px; padding: 0 4px; }
 
 .no-chat-selected {
     flex: 1;
