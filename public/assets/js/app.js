@@ -448,30 +448,115 @@ function confirmDeletePost(postId) {
     document.getElementById('delete-post-modal').style.display = 'flex';
 }
 
-// ── Image preview for compose ─────────────────────────
-function previewPostImage(input) {
-    const wrap = document.getElementById('image-previews');
+// ── Media preview for compose (photos + video) ───────
+const COMPOSE_MAX_PHOTOS    = 5;
+const COMPOSE_MAX_VIDEO_GB  = 10;
+const COMPOSE_MAX_VIDEO_BYTES = COMPOSE_MAX_VIDEO_GB * 1024 * 1024 * 1024;
+
+function previewPostMedia(type, input) {
+    const wrap = document.getElementById('media-previews');
     if (!input.files || !wrap) return;
-    // Clear previous previews first
-    wrap.innerHTML = '';
-    Array.from(input.files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = ev => {
-            const div = document.createElement('div');
-            div.className = 'preview-thumb';
-            div.innerHTML = `<img src="${ev.target.result}" alt="preview">
-                <button type="button" class="preview-remove" onclick="this.parentElement.remove(); clearFileInput()">
-                    <i class="fa fa-xmark"></i>
-                </button>`;
-            wrap.appendChild(div);
-        };
-        reader.readAsDataURL(file);
-    });
+
+    if (type === 'image') {
+        // Cannot mix images with an already-chosen video
+        if (wrap.querySelector('.preview-thumb[data-type="video"]')) {
+            alert('Remove the video first before adding photos.');
+            input.value = '';
+            return;
+        }
+
+        const existing  = wrap.querySelectorAll('.preview-thumb[data-type="image"]').length;
+        const available = COMPOSE_MAX_PHOTOS - existing;
+
+        if (available <= 0) {
+            alert(`You can only upload up to ${COMPOSE_MAX_PHOTOS} photos per post.`);
+            input.value = '';
+            return;
+        }
+
+        const files = Array.from(input.files).slice(0, available);
+        if (input.files.length > available) {
+            alert(`Only ${available} more photo(s) can be added (max ${COMPOSE_MAX_PHOTOS} total). Extra files were ignored.`);
+        }
+
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = ev => {
+                const div = document.createElement('div');
+                div.className    = 'preview-thumb';
+                div.dataset.type = 'image';
+                div.innerHTML    = `<img src="${ev.target.result}" alt="preview">
+                    <button type="button" class="preview-remove" onclick="removePostMediaPreview(this)">
+                        <i class="fa fa-xmark"></i>
+                    </button>`;
+                wrap.appendChild(div);
+                updateMediaCountHint();
+            };
+            reader.readAsDataURL(file);
+        });
+
+    } else if (type === 'video') {
+        const file = input.files[0];
+        if (!file) return;
+
+        // Cannot mix video with already-chosen images
+        if (wrap.querySelector('.preview-thumb[data-type="image"]')) {
+            alert('Remove the photos first before adding a video.');
+            input.value = '';
+            return;
+        }
+
+        const validMime  = ['video/mp4', 'video/quicktime'];
+        const validExt   = /\.(mp4|mov)$/i;
+
+        if (file.size > COMPOSE_MAX_VIDEO_BYTES) {
+            alert(`Video exceeds the ${COMPOSE_MAX_VIDEO_GB} GB size limit.`);
+            input.value = '';
+            return;
+        }
+        if (!validMime.includes(file.type) && !validExt.test(file.name)) {
+            alert('Only MP4 or MOV video files are supported.');
+            input.value = '';
+            return;
+        }
+
+        // Replace any existing video preview
+        wrap.querySelectorAll('.preview-thumb[data-type="video"]').forEach(el => el.remove());
+
+        const url = URL.createObjectURL(file);
+        const div = document.createElement('div');
+        div.className    = 'preview-thumb preview-video-thumb';
+        div.dataset.type = 'video';
+        div.innerHTML    = `<video src="${url}" class="preview-video-el" preload="metadata" muted></video>
+            <div class="preview-video-overlay"><i class="fa fa-play"></i></div>
+            <button type="button" class="preview-remove" onclick="removePostMediaPreview(this)">
+                <i class="fa fa-xmark"></i>
+            </button>`;
+        wrap.appendChild(div);
+        updateMediaCountHint();
+    }
 }
 
+function removePostMediaPreview(btn) {
+    btn.parentElement.remove();
+    // Reset file inputs so the user can re-select
+    document.querySelectorAll('.compose-card input[type="file"]').forEach(inp => { inp.value = ''; });
+    updateMediaCountHint();
+}
+
+function updateMediaCountHint() {
+    const wrap      = document.getElementById('media-previews');
+    const hint      = document.getElementById('media-count-hint');
+    if (!wrap || !hint) return;
+    const photoCount = wrap.querySelectorAll('.preview-thumb[data-type="image"]').length;
+    hint.textContent = photoCount > 0 ? `${photoCount} / ${COMPOSE_MAX_PHOTOS} photo${photoCount === 1 ? '' : 's'}` : '';
+}
+
+// Keep legacy name working in case any older code calls it
+function previewPostImage(input) { previewPostMedia('image', input); }
+
 function clearFileInput() {
-    const inputs = document.querySelectorAll('.compose-card input[type="file"]');
-    inputs.forEach(inp => { inp.value = ''; });
+    document.querySelectorAll('.compose-card input[type="file"]').forEach(inp => { inp.value = ''; });
 }
 
 // ── Avatar preview (edit profile) ─────────────────────
@@ -482,6 +567,33 @@ function previewAvatar(input) {
     reader.onload = ev => { img.src = ev.target.result; };
     reader.readAsDataURL(input.files[0]);
 }
+
+// ── Comment anti-spam cooldown ─────────────────────────
+// Disables the send button for COMMENT_COOLDOWN seconds after each submission
+// so users cannot flood a post with rapid-fire comments.
+const COMMENT_COOLDOWN_SECS = 15;
+document.addEventListener('submit', function (e) {
+    const form = e.target;
+    if (!form.classList.contains('comment-input-row')) return;
+
+    const btn = form.querySelector('.comment-send-btn');
+    if (!btn) return;
+
+    // Disable immediately on submit
+    btn.disabled = true;
+    let remaining = COMMENT_COOLDOWN_SECS;
+    const origHTML = btn.innerHTML;
+
+    const timer = setInterval(() => {
+        remaining--;
+        btn.innerHTML = `<span style="font-size:11px;">${remaining}s</span>`;
+        if (remaining <= 0) {
+            clearInterval(timer);
+            btn.innerHTML = origHTML;
+            btn.disabled  = false;
+        }
+    }, 1000);
+});
 
 // ── Tab switching (profile / search page) ─────────────
 function switchTab(tabName) {
