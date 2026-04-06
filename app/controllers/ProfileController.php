@@ -162,6 +162,10 @@ class ProfileController {
         }
 
         if (!$this->userModel->updateCoverImage($userId, $newCover)) {
+            $uploadedPath = __DIR__ . '/../../public/assets/uploads/' . $newCover;
+            if (is_file($uploadedPath)) {
+                @unlink($uploadedPath);
+            }
             $_SESSION['error'] = 'Unable to update cover photo right now. Please try again.';
             header('Location: index.php?url=profile/' . rawurlencode($user['username']));
             exit;
