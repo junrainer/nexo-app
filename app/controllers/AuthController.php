@@ -32,9 +32,6 @@ class AuthController {
 
         // Strip leading @ if user typed it
         $identifier = ltrim($identifier, '@');
-        if (str_contains($identifier, '@')) {
-            $identifier = strtolower($identifier);
-        }
 
         // Rate limit check
         if (!Security::checkRateLimit($identifier)) {

@@ -404,10 +404,10 @@
             <form action="index.php?url=login" method="POST">
                  <?= Security::field() ?>
                 <div class="lf-group">
-                    <label class="lf-label">Username</label>
+                    <label class="lf-label">Username or Email</label>
                     <div class="lf-input-wrap">
                         <input type="text" name="email" class="lf-input"
-                               placeholder="Enter username" required autocomplete="username">
+                               placeholder="Enter username or email" required autocomplete="username">
                     </div>
                 </div>
 
