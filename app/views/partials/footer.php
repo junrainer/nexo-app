@@ -24,15 +24,21 @@
                     <h3 class="right-sidebar-title">Suggested for you</h3>
                     <?php if (!empty($suggestions)): ?>
                         <?php foreach ($suggestions as $s): ?>
-                        <a href="index.php?url=profile/<?= htmlspecialchars($s['username']) ?>" class="suggestion-item">
-                            <img src="assets/uploads/<?= htmlspecialchars($s['profile_image']) ?>"
-                                 alt="avatar" class="avatar-sm"
-                                 onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
-                            <div>
-                                <p class="suggestion-name"><?= htmlspecialchars($s['full_name']) ?></p>
-                                <p class="suggestion-username">@<?= htmlspecialchars($s['username']) ?></p>
-                            </div>
-                        </a>
+                        <div class="suggestion-item" id="sidebar-sug-<?= (int)$s['id'] ?>">
+                            <a href="index.php?url=profile/<?= htmlspecialchars($s['username']) ?>" class="suggestion-item-link">
+                                <img src="assets/uploads/<?= htmlspecialchars($s['profile_image']) ?>"
+                                     alt="avatar" class="avatar-sm"
+                                     onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
+                                <div>
+                                    <p class="suggestion-name"><?= htmlspecialchars($s['full_name']) ?></p>
+                                    <p class="suggestion-username">@<?= htmlspecialchars($s['username']) ?></p>
+                                </div>
+                            </a>
+                            <button class="sidebar-add-btn js-sidebar-add" title="Add Friend"
+                                    data-user-id="<?= (int)$s['id'] ?>">
+                                <i class="fa fa-user-plus"></i>
+                            </button>
+                        </div>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <p class="sidebar-empty">No suggestions</p>
