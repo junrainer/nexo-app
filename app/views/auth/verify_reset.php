@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enter Verification Code â Nexo</title>
+    <title>Enter Verification Code – Nexo</title>
     <?php
     require_once __DIR__ . '/../../../lib/Security.php';
     $csrfField = Security::field();
@@ -83,7 +83,7 @@
     </div>
 
     <div class="auth-footer-card">
-        <a href="index.php?url=login">â Back to Sign in</a>
+        <a href="index.php?url=login">&larr; Back to Sign in</a>
     </div>
 </div>
 
