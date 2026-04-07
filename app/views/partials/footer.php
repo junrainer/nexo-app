@@ -18,12 +18,33 @@
                 $stmt->execute([$_SESSION['user_id']]);
                 $sidebarContacts = $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (PDOException $e) { /* friendships table may not exist */ }
+
+            $sidebarSuggestions = $suggestions ?? [];
+            if (empty($sidebarSuggestions)) {
+                try {
+                    $db = Database::getInstance()->getConnection();
+                    $stmt = $db->prepare("
+                        SELECT u.id, u.username, u.full_name, u.profile_image
+                        FROM users u
+                        WHERE u.id != ?
+                          AND u.id NOT IN (
+                              SELECT friend_id FROM friendships WHERE user_id = ?
+                              UNION
+                              SELECT user_id  FROM friendships WHERE friend_id = ?
+                          )
+                        ORDER BY RAND()
+                        LIMIT 5
+                    ");
+                    $stmt->execute([$_SESSION['user_id'], $_SESSION['user_id'], $_SESSION['user_id']]);
+                    $sidebarSuggestions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                } catch (PDOException $e) { /* ignore */ }
+            }
             ?>
             <aside class="right-sidebar">
                 <div class="sidebar-half">
                     <h3 class="right-sidebar-title">Suggested for you</h3>
-                    <?php if (!empty($suggestions)): ?>
-                        <?php foreach ($suggestions as $s): ?>
+                    <?php if (!empty($sidebarSuggestions)): ?>
+                        <?php foreach ($sidebarSuggestions as $s): ?>
                         <div class="suggestion-item" id="sidebar-sug-<?= (int)$s['id'] ?>">
                             <a href="index.php?url=profile/<?= htmlspecialchars($s['username']) ?>" class="suggestion-item-link">
                                 <img src="assets/uploads/<?= htmlspecialchars($s['profile_image']) ?>"

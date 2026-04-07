@@ -706,73 +706,165 @@ function switchFriendTab(tabName, btn) {
     if (content) content.classList.add('active');
 }
 
+var FRIEND_FADE_MS = 200;
+
 function sendRequest(userId) {
+    // Optimistic UI: swap the Add button immediately
+    const card = document.getElementById('suggestion-' + userId);
+    let savedOuter = null;
+    if (card) {
+        const btn = card.querySelector('.gm-btn-primary') || card.querySelector('button');
+        if (btn) {
+            savedOuter = btn.outerHTML;
+            const span = document.createElement('span');
+            span.className = 'gm-pending-label';
+            span.innerHTML = '<i class="fa fa-clock"></i> Pending';
+            btn.replaceWith(span);
+        }
+    }
     const fd = new FormData();
     fd.append('friend_id', userId);
     fetch('index.php?url=friend/request', { method: 'POST', body: fd })
         .then(r => r.json())
         .then(data => {
-            if (data.success) {
-                const card = document.getElementById('suggestion-' + userId);
-                if (card) {
-                    card.querySelector('.friend-actions').innerHTML =
-                        '<span class="pending-label"><i class="fa fa-check"></i> Request Sent</span>';
-                }
+            if (!data.success && card && savedOuter) {
+                const span = card.querySelector('.gm-pending-label');
+                if (span) span.outerHTML = savedOuter;
             }
         })
-        .catch(() => {});
+        .catch(() => {
+            if (card && savedOuter) {
+                const span = card.querySelector('.gm-pending-label');
+                if (span) span.outerHTML = savedOuter;
+            }
+        });
 }
 
 function acceptRequest(userId) {
+    const reqCard = document.getElementById('request-' + userId);
+    let fullName = '', username = '', avatarSrc = '';
+    if (reqCard) {
+        fullName = (reqCard.querySelector('.gm-user-name') || {}).textContent || '';
+        fullName = fullName.trim();
+        const handleEl = reqCard.querySelector('.gm-user-handle');
+        username = handleEl ? handleEl.textContent.trim().replace(/^@/, '') : '';
+        const img = reqCard.querySelector('.gm-user-avatar img');
+        avatarSrc = img ? img.src : 'assets/images/default-profile.webp';
+        reqCard.style.transition = 'opacity 0.2s';
+        reqCard.style.opacity = '0';
+        setTimeout(function () { reqCard.remove(); }, FRIEND_FADE_MS);
+    }
     const fd = new FormData();
     fd.append('friend_id', userId);
     fetch('index.php?url=friend/accept', { method: 'POST', body: fd })
         .then(r => r.json())
-        .then(data => { if (data.success) location.reload(); })
-        .catch(() => {});
+        .then(function (data) {
+            if (data.success) {
+                const friendsPanel = document.getElementById('tab-friends');
+                if (friendsPanel && fullName) {
+                    let list = friendsPanel.querySelector('.gm-list');
+                    if (!list) {
+                        list = document.createElement('div');
+                        list.className = 'gm-list';
+                        const emptyEl = friendsPanel.querySelector('.gm-empty');
+                        if (emptyEl) emptyEl.replaceWith(list);
+                        else friendsPanel.appendChild(list);
+                    }
+                    const profileHref = 'index.php?url=profile/' + encodeURIComponent(username);
+                    const row = document.createElement('div');
+                    row.className = 'gm-person-row';
+                    row.id = 'friend-' + userId;
+
+                    const avatarLink = document.createElement('a');
+                    avatarLink.href = profileHref;
+                    avatarLink.className = 'gm-user-avatar';
+                    const avatarImg = document.createElement('img');
+                    avatarImg.src = avatarSrc;
+                    avatarImg.alt = 'avatar';
+                    avatarImg.onerror = function () { this.onerror = null; this.src = 'assets/images/default-profile.webp'; };
+                    avatarLink.appendChild(avatarImg);
+
+                    const infoDiv = document.createElement('div');
+                    infoDiv.className = 'gm-user-info';
+                    const nameLink = document.createElement('a');
+                    nameLink.href = profileHref;
+                    nameLink.className = 'gm-user-name';
+                    nameLink.textContent = fullName;
+                    const handleP = document.createElement('p');
+                    handleP.className = 'gm-user-handle';
+                    handleP.textContent = '@' + username;
+                    infoDiv.appendChild(nameLink);
+                    infoDiv.appendChild(handleP);
+
+                    const unfriendBtn = document.createElement('button');
+                    unfriendBtn.className = 'gm-btn-ghost gm-btn-sm';
+                    unfriendBtn.innerHTML = '<i class="fa fa-user-minus"></i> Unfriend';
+                    unfriendBtn.addEventListener('click', function () { unfriend(userId); });
+
+                    row.appendChild(avatarLink);
+                    row.appendChild(infoDiv);
+                    row.appendChild(unfriendBtn);
+                    list.appendChild(row);
+                }
+                // Update friends tab count
+                const friendsTabBtn = document.querySelector('[data-tab="friends"]');
+                if (friendsTabBtn) {
+                    const m = friendsTabBtn.textContent.match(/\((\d+)\)/);
+                    if (m) {
+                        const newCount = parseInt(m[1], 10) + 1;
+                        const textNode = Array.from(friendsTabBtn.childNodes).find(function (n) {
+                            return n.nodeType === 3 && /\(\d+\)/.test(n.textContent);
+                        });
+                        if (textNode) {
+                            textNode.textContent = textNode.textContent.replace(/\(\d+\)/, '(' + newCount + ')');
+                        }
+                    }
+                }
+            } else {
+                location.reload();
+            }
+        })
+        .catch(function () { location.reload(); });
 }
 
 function declineRequest(userId) {
+    const card = document.getElementById('request-' + userId);
+    if (card) {
+        card.style.transition = 'opacity 0.2s';
+        card.style.opacity = '0';
+        setTimeout(function () { card.remove(); }, FRIEND_FADE_MS);
+    }
     const fd = new FormData();
     fd.append('friend_id', userId);
     fetch('index.php?url=friend/decline', { method: 'POST', body: fd })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                const card = document.getElementById('request-' + userId);
-                if (card) card.style.animation = 'fadeOut .3s forwards', setTimeout(() => card.remove(), 300);
-            }
-        })
-        .catch(() => {});
+        .catch(function () { if (card) { card.style.opacity = '1'; } });
 }
 
 function cancelRequest(userId) {
+    const card = document.getElementById('sent-' + userId);
+    if (card) {
+        card.style.transition = 'opacity 0.2s';
+        card.style.opacity = '0';
+        setTimeout(function () { card.remove(); }, FRIEND_FADE_MS);
+    }
     const fd = new FormData();
     fd.append('friend_id', userId);
     fetch('index.php?url=friend/decline', { method: 'POST', body: fd })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                const card = document.getElementById('sent-' + userId);
-                if (card) card.remove();
-            }
-        })
-        .catch(() => {});
+        .catch(function () { if (card) { card.style.opacity = '1'; } });
 }
 
 function unfriend(userId) {
     if (!confirm('Are you sure you want to unfriend this person?')) return;
+    const card = document.getElementById('friend-' + userId);
+    if (card) {
+        card.style.transition = 'opacity 0.2s';
+        card.style.opacity = '0';
+        setTimeout(function () { card.remove(); }, FRIEND_FADE_MS);
+    }
     const fd = new FormData();
     fd.append('friend_id', userId);
     fetch('index.php?url=friend/unfriend', { method: 'POST', body: fd })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                const card = document.getElementById('friend-' + userId);
-                if (card) card.remove();
-            }
-        })
-        .catch(() => {});
+        .catch(function () { if (card) { card.style.opacity = '1'; } });
 }
 
 // ── Right sidebar: Add Friend button ─────────────────
