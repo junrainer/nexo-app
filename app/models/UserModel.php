@@ -3,7 +3,8 @@ require_once __DIR__ . '/../../config/database.php';
 
 class UserModel {
     private PDO $db;
-    private int $onlineWindowMinutes = 5;
+    // Minutes window to consider a user as online.
+    private const ONLINE_WINDOW_MINUTES = 5;
 
     public function __construct() {
         $this->db = Database::getInstance()->getConnection();
@@ -162,7 +163,7 @@ class UserModel {
                     ':uid_filter'    => $currentUserId,
                     ':friends_only'  => $friendsOnlyValue,
                     ':like'          => $like,
-                    ':online_window' => $this->onlineWindowMinutes,
+                    ':online_window' => self::ONLINE_WINDOW_MINUTES,
                 ];
                 $stmt->execute($params);
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -201,7 +202,7 @@ class UserModel {
                     $stmt->execute($params);
                     return $stmt->fetchAll(PDO::FETCH_ASSOC);
                 } catch (PDOException $e) {
-                    // Fall through to basic search.
+                    // Fallback to basic search if database migration hasn't been applied yet.
                 }
             }
         }

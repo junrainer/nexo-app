@@ -63,6 +63,7 @@ function escapeHtml(text) {
 }
 
 // ── Helper: time ago ─────────────────────────────────
+// Approximate seconds in a year (365.25 days to account for leap years).
 const SECONDS_IN_YEAR = 31557600;
 
 function timeAgo(datetime) {
@@ -1234,7 +1235,13 @@ function filterConversations(query) {
     box.style.display = 'block';
 
     _convSearchTimeout = setTimeout(() => {
-        const params = new URLSearchParams({ url: 'search', q: searchTerm, ajax: '1', friends: '1' });
+        const friendsOnly = true; // Messages search is friends-only.
+        const params = new URLSearchParams({
+            url: 'search',
+            q: searchTerm,
+            ajax: '1',
+            friends: friendsOnly ? '1' : '0',
+        });
         fetch('index.php?' + params.toString())
             .then(r => r.json())
             .then(data => {
@@ -1363,7 +1370,13 @@ function searchUsers(query) {
     results.innerHTML = '<div style="padding:12px;text-align:center;color:#888;"><i class="fa fa-spinner fa-spin"></i></div>';
 
     _searchTimeout = setTimeout(() => {
-        const params = new URLSearchParams({ url: 'search', q: query, ajax: '1', friends: '1' });
+        const friendsOnly = true; // New message search is friends-only.
+        const params = new URLSearchParams({
+            url: 'search',
+            q: query,
+            ajax: '1',
+            friends: friendsOnly ? '1' : '0',
+        });
         fetch('index.php?' + params.toString())
             .then(r => r.json())
             .then(data => {

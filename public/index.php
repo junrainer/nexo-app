@@ -21,6 +21,7 @@ header('X-XSS-Protection: 1; mode=block');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 
 // ── Helper: time ago ──────────────────────────────────────────
+// Approximate seconds in a year (365.25 days to account for leap years).
 const SECONDS_IN_YEAR = 31557600;
 
 function time_ago(string $datetime): string {
