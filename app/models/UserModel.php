@@ -154,12 +154,15 @@ class UserModel {
                        {$friendFilterSql}
                      LIMIT 20"
                 );
-                $stmt->execute([
-                    ':uid_filter' => $currentUserId,
+                $params = [
                     ':uid_friend' => $currentUserId,
                     ':uid_self'   => $currentUserId,
                     ':like'       => $like,
-                ]);
+                ];
+                if ($friendsOnly) {
+                    $params[':uid_filter'] = $currentUserId;
+                }
+                $stmt->execute($params);
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (PDOException $e) {
                 try {
@@ -178,12 +181,15 @@ class UserModel {
                            {$friendFilterSql}
                          LIMIT 20"
                     );
-                    $stmt->execute([
-                        ':uid_filter' => $currentUserId,
+                    $params = [
                         ':uid_friend' => $currentUserId,
                         ':uid_self'   => $currentUserId,
                         ':like'       => $like,
-                    ]);
+                    ];
+                    if ($friendsOnly) {
+                        $params[':uid_filter'] = $currentUserId;
+                    }
+                    $stmt->execute($params);
                     return $stmt->fetchAll(PDO::FETCH_ASSOC);
                 } catch (PDOException $e) {
                     // Fall through to basic search.

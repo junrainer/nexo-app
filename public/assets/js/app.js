@@ -1232,7 +1232,8 @@ function filterConversations(query) {
     box.style.display = 'block';
 
     _convSearchTimeout = setTimeout(() => {
-        fetch('index.php?url=search&q=' + encodeURIComponent(searchTerm) + '&ajax=1&friends=1')
+        const params = new URLSearchParams({ url: 'search', q: searchTerm, ajax: '1', friends: '1' });
+        fetch('index.php?' + params.toString())
             .then(r => r.json())
             .then(data => {
                 const users = (data && data.users) ? data.users : [];
@@ -1360,7 +1361,8 @@ function searchUsers(query) {
     results.innerHTML = '<div style="padding:12px;text-align:center;color:#888;"><i class="fa fa-spinner fa-spin"></i></div>';
 
     _searchTimeout = setTimeout(() => {
-        fetch('index.php?url=search&q=' + encodeURIComponent(query) + '&ajax=1&friends=1')
+        const params = new URLSearchParams({ url: 'search', q: query, ajax: '1', friends: '1' });
+        fetch('index.php?' + params.toString())
             .then(r => r.json())
             .then(data => {
                 results.innerHTML = '';
@@ -1597,7 +1599,8 @@ function _scrollFloatingChatToBottom() {
             return;
         }
         timer = setTimeout(() => {
-            fetch('index.php?url=search&q=' + encodeURIComponent(q) + '&ajax=1')
+            const params = new URLSearchParams({ url: 'search', q, ajax: '1' });
+            fetch('index.php?' + params.toString())
                 .then(r => r.json())
                 .then(data => {
                     const users = (data && data.users) ? data.users.slice(0, 6) : [];
