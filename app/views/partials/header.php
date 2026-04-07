@@ -66,7 +66,7 @@ $currentUrl = $_GET['url'] ?? 'feed';
 $username   = $_SESSION['username'];
 ?>
 
-<div class="app-shell" data-user-id="<?= (int)$_SESSION['user_id'] ?>">
+<div class="app-shell<?= !empty($appShellClass) ? ' ' . htmlspecialchars($appShellClass) : '' ?>" data-user-id="<?= (int)$_SESSION['user_id'] ?>">
 
     <!-- MOBILE OVERLAY (closes sidebar) -->
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>

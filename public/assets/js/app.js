@@ -790,6 +790,78 @@ function ensureFriendPanelList(panelId) {
     return list;
 }
 
+const _friendSuggestionTimers = {};
+
+function updateFriendPanelEmpty(panelId, iconClass, message) {
+    const panel = typeof panelId === 'string' ? document.getElementById(panelId) : panelId;
+    if (!panel) return;
+    const list = panel.querySelector('.gm-list');
+    const rows = list ? list.querySelectorAll('.gm-person-row') : [];
+    const empty = panel.querySelector('.gm-empty');
+    if (rows.length === 0) {
+        if (list) list.remove();
+        if (!empty) {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'gm-empty';
+            placeholder.innerHTML = `<i class="fa ${iconClass}"></i><p>${message}</p>`;
+            panel.appendChild(placeholder);
+        }
+    } else if (empty) {
+        empty.remove();
+    }
+}
+
+function updateSidebarSuggestionsEmpty() {
+    const panel = document.querySelector('.right-sidebar .sidebar-half');
+    if (!panel) return;
+    const items = panel.querySelectorAll('.suggestion-item');
+    const empty = panel.querySelector('.sidebar-empty');
+    if (items.length === 0) {
+        if (!empty) {
+            const placeholder = document.createElement('p');
+            placeholder.className = 'sidebar-empty';
+            placeholder.textContent = 'No suggestions';
+            panel.appendChild(placeholder);
+        }
+    } else if (empty) {
+        empty.remove();
+    }
+}
+
+function clearSuggestionRemoval(userId) {
+    if (_friendSuggestionTimers[userId]) {
+        clearTimeout(_friendSuggestionTimers[userId]);
+        delete _friendSuggestionTimers[userId];
+    }
+}
+
+function scheduleSuggestionRemoval(userId) {
+    clearSuggestionRemoval(userId);
+    _friendSuggestionTimers[userId] = setTimeout(() => {
+        delete _friendSuggestionTimers[userId];
+        const suggestionRow = document.getElementById('suggestion-' + userId);
+        if (suggestionRow) {
+            suggestionRow.style.animation = 'fadeOut .3s forwards';
+            setTimeout(() => {
+                suggestionRow.remove();
+                updateFriendPanelEmpty('tab-suggestions', 'fa-lightbulb', 'No suggestions right now');
+            }, 300);
+        } else {
+            updateFriendPanelEmpty('tab-suggestions', 'fa-lightbulb', 'No suggestions right now');
+        }
+        const sidebarRow = document.getElementById('sidebar-sug-' + userId);
+        if (sidebarRow) {
+            sidebarRow.style.animation = 'fadeOut .3s forwards';
+            setTimeout(() => {
+                sidebarRow.remove();
+                updateSidebarSuggestionsEmpty();
+            }, 300);
+        } else {
+            updateSidebarSuggestionsEmpty();
+        }
+    }, 3000);
+}
+
 function buildSuggestionButton(userId) {
     const btn = document.createElement('button');
     btn.className = 'gm-btn-primary gm-btn-sm';
@@ -918,13 +990,14 @@ function ensureSentRow(userId, meta) {
 
 function setSidebarButtonState(userId, state) {
     document.querySelectorAll('.js-sidebar-add[data-user-id="' + userId + '"]').forEach(btn => {
+        const label = '<i class="fa fa-user-plus"></i><span>Add</span>';
         if (state === 'sent') {
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa fa-check"></i><span>Sent</span>';
+            btn.innerHTML = label;
             btn.title = 'Request sent';
         } else {
             btn.disabled = false;
-            btn.innerHTML = '<i class="fa fa-user-plus"></i><span>Add Friend</span>';
+            btn.innerHTML = label;
             btn.title = 'Add Friend';
         }
     });
@@ -935,6 +1008,7 @@ function sendRequest(userId, btn) {
     setSuggestionRowPending(userId, meta);
     setSidebarButtonState(userId, 'sent');
     ensureSentRow(userId, meta);
+    scheduleSuggestionRemoval(userId);
 
     const fd = new FormData();
     fd.append('friend_id', userId);
@@ -942,17 +1016,25 @@ function sendRequest(userId, btn) {
         .then(r => r.json())
         .then(data => {
             if (!data.success) {
+                clearSuggestionRemoval(userId);
                 setSuggestionRowReady(userId, meta);
                 setSidebarButtonState(userId, 'ready');
                 const sentRow = document.getElementById('sent-' + userId);
-                if (sentRow) sentRow.remove();
+                if (sentRow) {
+                    sentRow.remove();
+                    updateFriendPanelEmpty('tab-sent', 'fa-clock', 'No sent requests');
+                }
             }
         })
         .catch(() => {
+            clearSuggestionRemoval(userId);
             setSuggestionRowReady(userId, meta);
             setSidebarButtonState(userId, 'ready');
             const sentRow = document.getElementById('sent-' + userId);
-            if (sentRow) sentRow.remove();
+            if (sentRow) {
+                sentRow.remove();
+                updateFriendPanelEmpty('tab-sent', 'fa-clock', 'No sent requests');
+            }
         });
 }
 
@@ -973,7 +1055,15 @@ function declineRequest(userId) {
         .then(data => {
             if (data.success) {
                 const card = document.getElementById('request-' + userId);
-                if (card) card.style.animation = 'fadeOut .3s forwards', setTimeout(() => card.remove(), 300);
+                if (card) {
+                    card.style.animation = 'fadeOut .3s forwards';
+                    setTimeout(() => {
+                        card.remove();
+                        updateFriendPanelEmpty('tab-requests', 'fa-inbox', 'No pending requests');
+                    }, 300);
+                } else {
+                    updateFriendPanelEmpty('tab-requests', 'fa-inbox', 'No pending requests');
+                }
             }
         })
         .catch(() => {});
@@ -982,7 +1072,16 @@ function declineRequest(userId) {
 function cancelRequest(userId) {
     const meta = collectFriendMeta(userId);
     const sentRow = document.getElementById('sent-' + userId);
-    if (sentRow) sentRow.remove();
+    clearSuggestionRemoval(userId);
+    if (sentRow) {
+        sentRow.style.animation = 'fadeOut .3s forwards';
+        setTimeout(() => {
+            sentRow.remove();
+            updateFriendPanelEmpty('tab-sent', 'fa-clock', 'No sent requests');
+        }, 300);
+    } else {
+        updateFriendPanelEmpty('tab-sent', 'fa-clock', 'No sent requests');
+    }
     setSuggestionRowReady(userId, meta);
     setSidebarButtonState(userId, 'ready');
     const fd = new FormData();
@@ -1012,7 +1111,15 @@ function unfriend(userId) {
         .then(data => {
             if (data.success) {
                 const card = document.getElementById('friend-' + userId);
-                if (card) card.remove();
+                if (card) {
+                    card.style.animation = 'fadeOut .3s forwards';
+                    setTimeout(() => {
+                        card.remove();
+                        updateFriendPanelEmpty('tab-friends', 'fa-user-group', 'No friends yet. Check suggestions!');
+                    }, 300);
+                } else {
+                    updateFriendPanelEmpty('tab-friends', 'fa-user-group', 'No friends yet. Check suggestions!');
+                }
             }
         })
         .catch(() => {});
@@ -1190,10 +1297,13 @@ function searchUsers(query) {
                         const a = document.createElement('a');
                         a.href = 'index.php?url=message/start&user=' + user.id;
                         a.className = 'user-result';
+                        const avatar = (user.profile_image && user.profile_image !== 'default.png')
+                            ? 'assets/uploads/' + escapeHtml(user.profile_image)
+                            : 'assets/images/default-profile.webp';
                         a.innerHTML = `
-                            <img src="assets/uploads/${escapeHtml(user.profile_image || 'default.png')}"
+                            <img src="${avatar}"
                                  alt="avatar" class="avatar-sm"
-                                 onerror="this.onerror=null; this.src='assets/images/default.png'">
+                                 onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                             <div>
                                 <span class="user-name">${escapeHtml(user.full_name)}</span>
                                 <span class="user-username">@${escapeHtml(user.username)}</span>
@@ -1418,7 +1528,9 @@ function _scrollFloatingChatToBottom() {
                     users.forEach(u => {
                         rows.push(
                             `<a class="topbar-suggest-item" href="index.php?url=profile/${encodeURIComponent(u.username)}">
-                                <img src="${u.profile_image && u.profile_image !== 'default.png' ? 'assets/uploads/' + escapeHtml(u.profile_image) : 'assets/images/default-profile.webp'}" alt="avatar">
+                                <img src="${u.profile_image && u.profile_image !== 'default.png' ? 'assets/uploads/' + escapeHtml(u.profile_image) : 'assets/images/default-profile.webp'}"
+                                     alt="avatar"
+                                     onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                                 <span><strong>${escapeHtml(u.full_name)}</strong><small>@${escapeHtml(u.username)}</small></span>
                              </a>`
                         );

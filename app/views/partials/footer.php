@@ -46,7 +46,7 @@
                             </a>
                             <button class="sidebar-add-btn js-sidebar-add" title="Add Friend"
                                     data-user-id="<?= (int)$s['id'] ?>">
-                                <i class="fa fa-user-plus"></i><span>Add Friend</span>
+                                <i class="fa fa-user-plus"></i><span>Add</span>
                             </button>
                         </div>
                         <?php endforeach; ?>
