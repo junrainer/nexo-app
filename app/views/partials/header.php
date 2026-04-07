@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle ?? 'Nexo' ?></title>
-    <link rel="icon" href="assets/images/app-logo.png" type="image/png">
+    <link rel="icon" href="assets/images/app-logo.png" type="image/png" sizes="48x48">
+    <link rel="apple-touch-icon" href="assets/images/app-logo.png">
     <?php require_once __DIR__ . '/../../../lib/Security.php'; ?>
     <?= Security::meta() ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
