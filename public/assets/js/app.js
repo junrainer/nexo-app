@@ -715,7 +715,7 @@ function readFriendMetaFromDataset(el) {
     const fullName   = el.dataset.fullName || '';
     const username   = el.dataset.username || '';
     const avatar     = el.dataset.avatar || '';
-    const profileUrl = el.dataset.profileUrl || (username ? 'index.php?url=profile/' + encodeURIComponent(username) : '');
+    const profileUrl = el.dataset.profileUrl || (username ? 'index.php?url=profile/' + username : '');
     if (!fullName && !username && !avatar && !profileUrl) return null;
     return { fullName, username, avatar, profileUrl };
 }
@@ -793,7 +793,7 @@ function ensureFriendPanelList(panelId) {
 function buildSuggestionButton(userId) {
     const btn = document.createElement('button');
     btn.className = 'gm-btn-primary gm-btn-sm';
-    btn.innerHTML = '<i class="fa fa-user-plus"></i> Add Friend';
+    btn.innerHTML = '<i class="fa fa-user-plus"></i><span>Add Friend</span>';
     btn.addEventListener('click', () => sendRequest(userId, btn));
     return btn;
 }
@@ -888,7 +888,7 @@ function setSuggestionRowPending(userId, meta) {
     if (btn) {
         const pending = document.createElement('span');
         pending.className = 'gm-pending-label';
-        pending.innerHTML = '<i class="fa fa-check"></i> Request Sent';
+        pending.innerHTML = '<i class="fa fa-check"></i><span>Request Sent</span>';
         btn.replaceWith(pending);
     }
 }

@@ -26,7 +26,8 @@
                         <?php foreach ($suggestions as $s): ?>
                         <?php
                             $sidebarProfileUrl = 'index.php?url=profile/' . htmlspecialchars($s['username']);
-                            $sidebarAvatar = 'assets/uploads/' . htmlspecialchars($s['profile_image'] ?? 'default.png');
+                            $sidebarAvatarFile = htmlspecialchars($s['profile_image'] ?: 'default.png');
+                            $sidebarAvatar = 'assets/uploads/' . $sidebarAvatarFile;
                         ?>
                         <div class="suggestion-item" id="sidebar-sug-<?= (int)$s['id'] ?>"
                              data-user-id="<?= (int)$s['id'] ?>"

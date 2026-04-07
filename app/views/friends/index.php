@@ -173,7 +173,7 @@ require __DIR__ . '/../partials/header.php';
                         <p class="gm-user-handle">@<?= htmlspecialchars($sug['username']) ?></p>
                     </div>
                     <button class="gm-btn-primary gm-btn-sm" onclick="sendRequest(<?= $sug['id'] ?>, this)">
-                        <i class="fa fa-user-plus"></i> Add Friend
+                        <i class="fa fa-user-plus"></i><span>Add Friend</span>
                     </button>
                 </div>
                 <?php endforeach; ?>
