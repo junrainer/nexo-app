@@ -27,7 +27,8 @@ function time_ago(string $datetime): string {
     if ($diff < 3600)   return floor($diff / 60) . 'm ago';
     if ($diff < 86400)  return floor($diff / 3600) . 'h ago';
     if ($diff < 604800) return floor($diff / 86400) . 'd ago';
-    return date('M j, Y', strtotime($datetime));
+    $showYear = $diff >= 31536000;
+    return date($showYear ? 'M j, Y' : 'M j', strtotime($datetime));
 }
 
 // ── Helper: post visibility icon + label ─────────────────────
@@ -55,6 +56,17 @@ if ($isGuest && !in_array($url, $guestRoutes)) {
 if (!$isGuest && in_array($url, $guestRoutes)) {
     header('Location: index.php?url=feed');
     exit;
+}
+
+// ── Track last active time for online status ───────────
+if (!$isGuest) {
+    try {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare('UPDATE users SET last_active_at = NOW() WHERE id = ?');
+        $stmt->execute([$_SESSION['user_id']]);
+    } catch (PDOException $e) {
+        // last_active_at column may not exist yet
+    }
 }
 
 // ── CSRF validation for all POST requests ─────────────────────

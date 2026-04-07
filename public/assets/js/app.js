@@ -69,7 +69,11 @@ function timeAgo(datetime) {
     if (diff < 3600)   return Math.floor(diff / 60) + 'm ago';
     if (diff < 86400)  return Math.floor(diff / 3600) + 'h ago';
     if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
-    return new Date(datetime).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const showYear = diff >= 31536000;
+    return new Date(datetime).toLocaleDateString(
+        'en-US',
+        showYear ? { month: 'short', day: 'numeric', year: 'numeric' } : { month: 'short', day: 'numeric' }
+    );
 }
 
 // ── Live timestamp refresh ───────────────────────────
@@ -1203,6 +1207,74 @@ function handleAcceptRequest(userId) {
 }
 
 // ── Messages page ─────────────────────────────────────
+let _convSearchTimeout;
+function filterConversations(query) {
+    const items = document.querySelectorAll('.conversation-item');
+    const q = (query || '').toLowerCase().trim();
+    items.forEach(item => {
+        const name = item.querySelector('.conversation-name')?.textContent?.toLowerCase() || '';
+        const preview = item.querySelector('.conversation-preview')?.textContent?.toLowerCase() || '';
+        item.style.display = (!q || name.includes(q) || preview.includes(q)) ? '' : 'none';
+    });
+
+    const box = document.getElementById('conv-search-suggestions');
+    if (!box) return;
+
+    clearTimeout(_convSearchTimeout);
+    const searchTerm = (query || '').trim();
+    if (searchTerm.length < 2) {
+        box.style.display = 'none';
+        box.innerHTML = '';
+        return;
+    }
+
+    box.innerHTML = '<div class="topbar-suggest-empty"><i class="fa fa-spinner fa-spin"></i></div>';
+    box.style.display = 'block';
+
+    _convSearchTimeout = setTimeout(() => {
+        fetch('index.php?url=search&q=' + encodeURIComponent(searchTerm) + '&ajax=1&friends=1')
+            .then(r => r.json())
+            .then(data => {
+                const users = (data && data.users) ? data.users : [];
+                if (users.length === 0) {
+                    box.innerHTML = '<div class="topbar-suggest-empty">No friends found</div>';
+                    return;
+                }
+                box.innerHTML = users.map(user => {
+                    const avatar = (user.profile_image && user.profile_image !== 'default.png')
+                        ? 'assets/uploads/' + escapeHtml(user.profile_image)
+                        : 'assets/images/default-profile.webp';
+                    const isFriend = Number(user.is_friend) === 1 || user.is_friend === true;
+                    const isOnline = Number(user.is_online) === 1 || user.is_online === true;
+                    const metaParts = [
+                        '@' + escapeHtml(user.username),
+                        isFriend ? 'Friend' : 'Not friend',
+                        isOnline ? 'Online' : 'Offline',
+                    ];
+                    return `
+                        <a class="topbar-suggest-item" href="index.php?url=message/start&user=${user.id}">
+                            <img src="${avatar}"
+                                 alt="avatar"
+                                 onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
+                            <span><strong>${escapeHtml(user.full_name)}</strong><small>${metaParts.join(' · ')}</small></span>
+                        </a>`;
+                }).join('');
+            })
+            .catch(() => {
+                box.style.display = 'none';
+                box.innerHTML = '';
+            });
+    }, 220);
+}
+
+document.addEventListener('click', e => {
+    const box = document.getElementById('conv-search-suggestions');
+    const wrapper = document.querySelector('.conversations-search');
+    if (box && wrapper && !wrapper.contains(e.target)) {
+        box.style.display = 'none';
+    }
+});
+
 function sendMessage(e) {
     e.preventDefault();
     const form  = e.target;
@@ -1288,7 +1360,7 @@ function searchUsers(query) {
     results.innerHTML = '<div style="padding:12px;text-align:center;color:#888;"><i class="fa fa-spinner fa-spin"></i></div>';
 
     _searchTimeout = setTimeout(() => {
-        fetch('index.php?url=search&q=' + encodeURIComponent(query) + '&ajax=1')
+        fetch('index.php?url=search&q=' + encodeURIComponent(query) + '&ajax=1&friends=1')
             .then(r => r.json())
             .then(data => {
                 results.innerHTML = '';
@@ -1300,18 +1372,25 @@ function searchUsers(query) {
                         const avatar = (user.profile_image && user.profile_image !== 'default.png')
                             ? 'assets/uploads/' + escapeHtml(user.profile_image)
                             : 'assets/images/default-profile.webp';
+                        const isFriend = Number(user.is_friend) === 1 || user.is_friend === true;
+                        const isOnline = Number(user.is_online) === 1 || user.is_online === true;
+                        const metaParts = [
+                            '@' + escapeHtml(user.username),
+                            isFriend ? 'Friend' : 'Not friend',
+                            isOnline ? 'Online' : 'Offline',
+                        ];
                         a.innerHTML = `
                             <img src="${avatar}"
                                  alt="avatar" class="avatar-sm"
                                  onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                             <div>
                                 <span class="user-name">${escapeHtml(user.full_name)}</span>
-                                <span class="user-username">@${escapeHtml(user.username)}</span>
+                                <span class="user-username">${metaParts.join(' · ')}</span>
                             </div>`;
                         results.appendChild(a);
                     });
                 } else {
-                    results.innerHTML = '<p style="padding:12px;color:#888;text-align:center;">No users found</p>';
+                    results.innerHTML = '<p style="padding:12px;color:#888;text-align:center;">No friends found</p>';
                 }
             })
             .catch(() => { results.innerHTML = ''; });
@@ -1526,12 +1605,19 @@ function _scrollFloatingChatToBottom() {
                     const rows  = [];
 
                     users.forEach(u => {
+                        const isFriend = Number(u.is_friend) === 1 || u.is_friend === true;
+                        const isOnline = Number(u.is_online) === 1 || u.is_online === true;
+                        const metaParts = [
+                            '@' + escapeHtml(u.username),
+                            isFriend ? 'Friend' : 'Not friend',
+                            isOnline ? 'Online' : 'Offline',
+                        ];
                         rows.push(
                             `<a class="topbar-suggest-item" href="index.php?url=profile/${encodeURIComponent(u.username)}">
                                 <img src="${u.profile_image && u.profile_image !== 'default.png' ? 'assets/uploads/' + escapeHtml(u.profile_image) : 'assets/images/default-profile.webp'}"
                                      alt="avatar"
                                      onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
-                                <span><strong>${escapeHtml(u.full_name)}</strong><small>@${escapeHtml(u.username)}</small></span>
+                                <span><strong>${escapeHtml(u.full_name)}</strong><small>${metaParts.join(' · ')}</small></span>
                              </a>`
                         );
                     });

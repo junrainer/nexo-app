@@ -121,14 +121,88 @@ class UserModel {
         return $row && password_verify($password, $row['password']);
     }
 
-    public function search(string $query): array {
+    public function search(string $query, ?int $currentUserId = null, bool $friendsOnly = false): array {
         $like = '%' . $query . '%';
+
+        if ($currentUserId) {
+            $friendFilterSql = $friendsOnly
+                ? "AND EXISTS (
+                        SELECT 1 FROM friendships f
+                        WHERE f.user_id = :uid_filter
+                          AND f.friend_id = u.id
+                          AND f.status = 'accepted'
+                    )"
+                : '';
+
+            try {
+                $stmt = $this->db->prepare(
+                    "SELECT u.id, u.username, u.full_name, u.profile_image, u.bio,
+                            CASE
+                                WHEN EXISTS (
+                                    SELECT 1 FROM friendships f
+                                    WHERE f.user_id = :uid_friend AND f.friend_id = u.id AND f.status = 'accepted'
+                                ) THEN 1 ELSE 0
+                            END AS is_friend,
+                            CASE
+                                WHEN u.last_active_at IS NOT NULL
+                                     AND u.last_active_at >= (NOW() - INTERVAL 5 MINUTE)
+                                THEN 1 ELSE 0
+                            END AS is_online
+                     FROM users u
+                     WHERE (u.username LIKE :like OR u.full_name LIKE :like)
+                       AND u.id != :uid_self
+                       {$friendFilterSql}
+                     LIMIT 20"
+                );
+                $stmt->execute([
+                    ':uid_filter' => $currentUserId,
+                    ':uid_friend' => $currentUserId,
+                    ':uid_self'   => $currentUserId,
+                    ':like'       => $like,
+                ]);
+                return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } catch (PDOException $e) {
+                try {
+                    $stmt = $this->db->prepare(
+                        "SELECT u.id, u.username, u.full_name, u.profile_image, u.bio,
+                                CASE
+                                    WHEN EXISTS (
+                                        SELECT 1 FROM friendships f
+                                        WHERE f.user_id = :uid_friend AND f.friend_id = u.id AND f.status = 'accepted'
+                                    ) THEN 1 ELSE 0
+                                END AS is_friend,
+                                0 AS is_online
+                         FROM users u
+                         WHERE (u.username LIKE :like OR u.full_name LIKE :like)
+                           AND u.id != :uid_self
+                           {$friendFilterSql}
+                         LIMIT 20"
+                    );
+                    $stmt->execute([
+                        ':uid_filter' => $currentUserId,
+                        ':uid_friend' => $currentUserId,
+                        ':uid_self'   => $currentUserId,
+                        ':like'       => $like,
+                    ]);
+                    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+                } catch (PDOException $e) {
+                    // Fall through to basic search.
+                }
+            }
+        }
+
         $stmt = $this->db->prepare(
             'SELECT id, username, full_name, profile_image, bio FROM users
              WHERE username LIKE ? OR full_name LIKE ? LIMIT 20'
         );
         $stmt->execute([$like, $like]);
-        return $stmt->fetchAll();
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return array_map(static function (array $row): array {
+            $row['is_friend'] = 0;
+            $row['is_online'] = 0;
+            return $row;
+        }, $rows);
     }
 
     public function getSuggestions(int $currentUserId): array {

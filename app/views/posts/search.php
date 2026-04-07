@@ -61,7 +61,16 @@ require __DIR__ . '/../partials/header.php';
                                 <a href="index.php?url=profile/<?= htmlspecialchars($u['username']) ?>" class="gm-user-name">
                                     <?= htmlspecialchars($u['full_name']) ?>
                                 </a>
-                                <p class="gm-user-handle">@<?= htmlspecialchars($u['username']) ?></p>
+                                <?php
+                                    $isFriend = !empty($u['is_friend']);
+                                    $isOnline = !empty($u['is_online']);
+                                    $metaParts = [
+                                        '@' . $u['username'],
+                                        $isFriend ? 'Friend' : 'Not friend',
+                                        $isOnline ? 'Online' : 'Offline',
+                                    ];
+                                ?>
+                                <p class="gm-user-handle"><?= htmlspecialchars(implode(' · ', $metaParts)) ?></p>
                             </div>
                             <button class="gm-btn-primary gm-btn-sm gm-btn-rounded">Follow</button>
                         </div>
