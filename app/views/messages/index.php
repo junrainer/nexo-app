@@ -1,6 +1,7 @@
 <?php
 $pageTitle = 'Messages – Nexo';
 $hideRightSidebar = true;
+$appShellClass = 'app-shell--messages';
 require __DIR__ . '/../partials/header.php';
 ?>
 
