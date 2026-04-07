@@ -775,6 +775,37 @@ function unfriend(userId) {
         .catch(() => {});
 }
 
+// ── Right sidebar: Add Friend button ─────────────────
+function sidebarSendRequest(userId, btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+    const fd = new FormData();
+    fd.append('friend_id', userId);
+    fetch('index.php?url=friend/request', { method: 'POST', body: fd })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (data.success) {
+                btn.innerHTML = '<i class="fa fa-check"></i>';
+                btn.title = 'Request sent';
+            } else {
+                btn.innerHTML = '<i class="fa fa-user-plus"></i>';
+                btn.disabled = false;
+            }
+        })
+        .catch(function () {
+            btn.innerHTML = '<i class="fa fa-user-plus"></i>';
+            btn.disabled = false;
+        });
+}
+
+// Attach event delegation for sidebar Add Friend buttons
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.js-sidebar-add');
+    if (!btn) return;
+    const userId = btn.dataset.userId;
+    if (userId) sidebarSendRequest(userId, btn);
+});
+
 // ── Profile page: friend button handlers ─────────────
 function handleFriendAction(userId) {
     const btn = document.getElementById('friend-btn-' + userId);
@@ -1201,28 +1232,198 @@ function _scrollFloatingChatToBottom() {
 
 // ── Emoji Picker ─────────────────────────────────────
 (function initEmojiPickers() {
-    const EMOJIS = [
-        '😀','😂','😍','🥰','😎','😊','🤣','😭','😢','😡',
-        '🤔','😅','😴','😤','🤗','🥺','😱','🤯','🫠','😏',
-        '👍','👎','👋','👏','🙌','🙏','💪','🤝','🫶','❤️',
-        '🔥','✨','🌟','🎉','💯','🎶','🍕','🎮','💀','🤩',
+    const RECENT_KEY = 'nexo_recent_emojis';
+    const MAX_RECENT = 24;
+
+    const EMOJI_CATS = [
+        {
+            id: 'smileys', icon: '😀', title: 'Smileys & Emotion',
+            emojis: ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','🙃','🫠','😉','😊','😇',
+                     '🥰','😍','🤩','😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑',
+                     '🤗','🫡','🤔','🤫','🤭','🤥','😶','😐','😑','😬','🙄','😯','😦','😧',
+                     '😮','😲','🥱','😴','🤤','😪','😵','🤐','🥴','🤢','🤮','🤧','🥵','🥶',
+                     '😱','😎','🤓','🧐','😕','😟','🙁','😣','😖','😫','😩','🥺','😢','😭',
+                     '😤','😠','😡','🤬','💀','💩','🤡','👻','👽','🤖']
+        },
+        {
+            id: 'people', icon: '👋', title: 'People & Body',
+            emojis: ['👋','🤚','🖐️','✋','🖖','👌','🤌','🤏','✌️','🤞','🤟','🤘','🤙',
+                     '👈','👉','👆','🖕','👇','☝️','👍','👎','✊','👊','🤛','🤜','👏','🙌',
+                     '🫶','👐','🤲','🙏','💪','🦾','🫂','👦','👧','🧑','👱','👨','🧔',
+                     '👩','🧓','👴','👵','👶','🧒','🧕','💂','🕵️','👮','👷','🤴','👸',
+                     '🦸','🦹','🧙','🧝','🧛','🧟','🧞','🧜','🧚','👼','🤶','🎅']
+        },
+        {
+            id: 'animals', icon: '🐶', title: 'Animals & Nature',
+            emojis: ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷',
+                     '🐸','🐵','🙈','🙉','🙊','🐔','🐧','🐦','🦆','🦅','🦉','🦇','🐺',
+                     '🐴','🦄','🐝','🦋','🐌','🐞','🐜','🐢','🐍','🦎','🐙','🦑','🐠',
+                     '🐬','🐳','🦈','🐊','🦒','🐘','🦛','🦏','🐪','🐫','🦘','🐃','🐄',
+                     '🐎','🐖','🐏','🐑','🐐','🌵','🎄','🌲','🌳','🌴','🌱','🌿','☘️',
+                     '🍀','🍃','🍂','🍁','🍄','🌾','💐','🌷','🌹','🥀','🌺','🌸','🌼',
+                     '🌻','⭐','🌟','💫','✨','🌙','☀️','🌈','⛅','🌊']
+        },
+        {
+            id: 'food', icon: '🍎', title: 'Food & Drink',
+            emojis: ['🍎','🍊','🍋','🍇','🍓','🫐','🍒','🍑','🥭','🍍','🥥','🥝','🍅',
+                     '🫒','🥑','🍆','🥔','🥕','🌽','🌶️','🥒','🥬','🥦','🧄','🍄','🥜',
+                     '🍞','🥐','🥖','🧀','🥚','🍳','🥞','🥓','🥩','🍗','🍖','🌭','🍔',
+                     '🍟','🍕','🌮','🌯','🥙','🍜','🍝','🍣','🍤','🍙','🍚','🍛','🧁',
+                     '🍰','🎂','🍭','🍬','🍫','🍿','🍩','🍪','🍯','🧃','🥤','🧋','☕',
+                     '🍵','🍺','🍻','🥂','🍷','🥃','🍸','🍹','🍾']
+        },
+        {
+            id: 'activities', icon: '⚽', title: 'Activities',
+            emojis: ['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🏓','🏸','🥊',
+                     '🥋','🎯','⛳','🎣','🤿','🎽','🛹','🏋️','🤸','🏊','🚴','🎮','🕹️',
+                     '🎲','🧩','♟️','🎭','🎨','🎬','🎤','🎧','🎼','🎹','🥁','🪘','🎷',
+                     '🎺','🎸','🪕','🎻','🏆','🥇','🏅','🎖️']
+        },
+        {
+            id: 'travel', icon: '🌍', title: 'Travel & Places',
+            emojis: ['🌍','🌎','🌏','🗺️','🧭','🏔️','🌋','🏕️','🏖️','🏙️','🏠','🏡',
+                     '🏢','🏥','🏦','🏨','🏪','🏫','🗼','🗽','⛪','🕌','🕋','⛲','🏰',
+                     '🏯','✈️','🛫','🛬','💺','🚂','🚆','🚇','🚌','🚗','🚙','🛻','🚚',
+                     '🚒','🚑','🚓','🛵','🏍️','🚲','🛴','🚦','⛽','🎌']
+        },
+        {
+            id: 'objects', icon: '💡', title: 'Objects',
+            emojis: ['💡','🔦','🕯️','💰','💳','💎','⚖️','🔑','🗝️','🔒','🔓','🔨','⚙️',
+                     '🔧','🔭','🔬','📱','💻','🖥️','⌨️','🖱️','💾','💿','📀','🎥','📷',
+                     '📸','📹','📺','📻','📡','⏰','📚','📖','📝','✏️','📎','📌','📍',
+                     '🗑️','📦','📫','📮','🗃️','🪄','🎩','🧸','🪆','🪅','🎁','🎀','🎗️',
+                     '🎟️','🎫']
+        },
+        {
+            id: 'symbols', icon: '❤️', title: 'Symbols',
+            emojis: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞',
+                     '💓','💗','💖','💘','💝','💟','☮️','✅','❌','❎','⭕','🛑','⛔',
+                     '🚫','💯','♻️','⚠️','✔️','☑️','➡️','⬅️','⬆️','⬇️','↔️','↕️','🔄',
+                     '🔙','🔚','🔛','🔜','🔝','🔰','📛','♠️','♣️','♥️','♦️','🎴','🃏',
+                     '🔥','✨','💥','🌀','🎵','🎶','🔔','🔕','💬','💭','💤','🔱','⚜️']
+        },
     ];
+
+    function getRecent() {
+        try {
+            return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveRecent(emoji) {
+        let recent = getRecent().filter(function (e) { return e !== emoji; });
+        recent.unshift(emoji);
+        recent = recent.slice(0, MAX_RECENT);
+        try {
+            localStorage.setItem(RECENT_KEY, JSON.stringify(recent));
+        } catch (e) {
+            // localStorage may be unavailable (private browsing, quota exceeded)
+        }
+        return recent;
+    }
+
+    function makeEmojiBtn(emoji, targetInputId, pickerEl) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = emoji;
+        btn.title = emoji;
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            window.insertEmoji(targetInputId, emoji);
+            const recent = saveRecent(emoji);
+            pickerEl.querySelectorAll('.emoji-recent-grid').forEach(function (grid) {
+                fillRecentGrid(grid, recent, targetInputId, pickerEl);
+            });
+            pickerEl.classList.remove('open');
+        });
+        return btn;
+    }
+
+    function fillRecentGrid(grid, emojis, targetInputId, pickerEl) {
+        grid.innerHTML = '';
+        if (!emojis || !emojis.length) {
+            const empty = document.createElement('p');
+            empty.className = 'emoji-empty';
+            empty.textContent = 'No recently used emojis yet';
+            grid.appendChild(empty);
+        } else {
+            emojis.forEach(function (e) {
+                grid.appendChild(makeEmojiBtn(e, targetInputId, pickerEl));
+            });
+        }
+    }
 
     function buildPicker(el, targetInputId) {
         if (!el || el.dataset.built) return;
         el.dataset.built = '1';
-        EMOJIS.forEach(emoji => {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.textContent = emoji;
-            btn.title = emoji;
-            btn.addEventListener('click', function (e) {
-                e.stopPropagation();
-                insertEmoji(targetInputId, emoji);
-                el.classList.remove('open');
+        el.innerHTML = '';
+
+        // Tab bar
+        const tabBar = document.createElement('div');
+        tabBar.className = 'emoji-tabs';
+
+        // Scrollable body
+        const body = document.createElement('div');
+        body.className = 'emoji-body';
+
+        // ── Recent tab & section ──────────────────────────
+        const recentTab = document.createElement('button');
+        recentTab.type = 'button';
+        recentTab.className = 'emoji-tab active';
+        recentTab.textContent = '🕐';
+        recentTab.title = 'Recently Used';
+        recentTab.dataset.cat = 'recent';
+        tabBar.appendChild(recentTab);
+
+        const recentSection = document.createElement('div');
+        recentSection.className = 'emoji-cat-section active';
+        recentSection.dataset.cat = 'recent';
+        const recentGrid = document.createElement('div');
+        recentGrid.className = 'emoji-grid emoji-recent-grid';
+        fillRecentGrid(recentGrid, getRecent(), targetInputId, el);
+        recentSection.appendChild(recentGrid);
+        body.appendChild(recentSection);
+
+        // ── Category tabs & sections ───────────────────────
+        EMOJI_CATS.forEach(function (cat) {
+            const tab = document.createElement('button');
+            tab.type = 'button';
+            tab.className = 'emoji-tab';
+            tab.textContent = cat.icon;
+            tab.title = cat.title;
+            tab.dataset.cat = cat.id;
+            tabBar.appendChild(tab);
+
+            const section = document.createElement('div');
+            section.className = 'emoji-cat-section';
+            section.dataset.cat = cat.id;
+
+            const grid = document.createElement('div');
+            grid.className = 'emoji-grid';
+            cat.emojis.forEach(function (e) {
+                grid.appendChild(makeEmojiBtn(e, targetInputId, el));
             });
-            el.appendChild(btn);
+
+            section.appendChild(grid);
+            body.appendChild(section);
         });
+
+        // ── Tab switching ──────────────────────────────────
+        tabBar.addEventListener('click', function (e) {
+            const tab = e.target.closest('.emoji-tab');
+            if (!tab) return;
+            e.stopPropagation();
+            tabBar.querySelectorAll('.emoji-tab').forEach(function (t) { t.classList.remove('active'); });
+            el.querySelectorAll('.emoji-cat-section').forEach(function (s) { s.classList.remove('active'); });
+            tab.classList.add('active');
+            const sec = el.querySelector('.emoji-cat-section[data-cat="' + tab.dataset.cat + '"]');
+            if (sec) sec.classList.add('active');
+        });
+
+        el.appendChild(tabBar);
+        el.appendChild(body);
     }
 
     // Build pickers on first open
@@ -1234,15 +1435,15 @@ function _scrollFloatingChatToBottom() {
         buildPicker(picker, inputId);
 
         const isOpen = picker.classList.contains('open');
-        document.querySelectorAll('.emoji-picker.open').forEach(p => p.classList.remove('open'));
+        document.querySelectorAll('.emoji-picker.open').forEach(function (p) { p.classList.remove('open'); });
         if (!isOpen) picker.classList.add('open');
     };
 
     window.insertEmoji = function (inputId, emoji) {
         const input = document.getElementById(inputId);
         if (!input) return;
-        const start = input.selectionStart ?? input.value.length;
-        const end   = input.selectionEnd   ?? input.value.length;
+        const start = input.selectionStart != null ? input.selectionStart : input.value.length;
+        const end = input.selectionEnd != null ? input.selectionEnd : input.value.length;
         input.value = input.value.slice(0, start) + emoji + input.value.slice(end);
         input.selectionStart = input.selectionEnd = start + emoji.length;
         input.focus();
@@ -1251,7 +1452,7 @@ function _scrollFloatingChatToBottom() {
     // Close emoji pickers when clicking outside
     document.addEventListener('click', function (e) {
         if (!e.target.closest('.emoji-btn-wrap')) {
-            document.querySelectorAll('.emoji-picker.open').forEach(p => p.classList.remove('open'));
+            document.querySelectorAll('.emoji-picker.open').forEach(function (p) { p.classList.remove('open'); });
         }
     });
 })();
