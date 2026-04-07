@@ -706,21 +706,254 @@ function switchFriendTab(tabName, btn) {
     if (content) content.classList.add('active');
 }
 
-function sendRequest(userId) {
+function normalizeFriendHandle(handle) {
+    return (handle || '').replace(/^@/, '').trim();
+}
+
+function readFriendMetaFromDataset(el) {
+    if (!el || !el.dataset) return null;
+    const fullName   = el.dataset.fullName || '';
+    const username   = el.dataset.username || '';
+    const avatar     = el.dataset.avatar || '';
+    const profileUrl = el.dataset.profileUrl || (username ? 'index.php?url=profile/' + username : '');
+    if (!fullName && !username && !avatar && !profileUrl) return null;
+    return { fullName, username, avatar, profileUrl };
+}
+
+function readFriendMetaFromSuggestionRow(row) {
+    if (!row) return null;
+    const datasetMeta = readFriendMetaFromDataset(row);
+    if (datasetMeta) return datasetMeta;
+    const nameEl = row.querySelector('.gm-user-name');
+    const handleEl = row.querySelector('.gm-user-handle');
+    const avatarEl = row.querySelector('img');
+    const linkEl = row.querySelector('.gm-user-avatar') || nameEl;
+    return {
+        fullName: (nameEl?.textContent || '').trim(),
+        username: normalizeFriendHandle(handleEl?.textContent || ''),
+        avatar: avatarEl?.getAttribute('src') || '',
+        profileUrl: linkEl?.getAttribute('href') || ''
+    };
+}
+
+function readFriendMetaFromSidebarRow(row) {
+    if (!row) return null;
+    const datasetMeta = readFriendMetaFromDataset(row);
+    if (datasetMeta) return datasetMeta;
+    const nameEl = row.querySelector('.suggestion-name');
+    const handleEl = row.querySelector('.suggestion-username');
+    const avatarEl = row.querySelector('img');
+    const linkEl = row.querySelector('.suggestion-item-link');
+    return {
+        fullName: (nameEl?.textContent || '').trim(),
+        username: normalizeFriendHandle(handleEl?.textContent || ''),
+        avatar: avatarEl?.getAttribute('src') || '',
+        profileUrl: linkEl?.getAttribute('href') || ''
+    };
+}
+
+function collectFriendMeta(userId, sourceEl) {
+    if (sourceEl) {
+        const row = sourceEl.closest('.gm-person-row');
+        if (row) return readFriendMetaFromSuggestionRow(row);
+        const sidebarRow = sourceEl.closest('.suggestion-item');
+        if (sidebarRow) return readFriendMetaFromSidebarRow(sidebarRow);
+    }
+    const suggestionRow = document.getElementById('suggestion-' + userId);
+    if (suggestionRow) return readFriendMetaFromSuggestionRow(suggestionRow);
+    const sidebarRow = document.getElementById('sidebar-sug-' + userId);
+    if (sidebarRow) return readFriendMetaFromSidebarRow(sidebarRow);
+    const sentRow = document.getElementById('sent-' + userId);
+    if (sentRow) return readFriendMetaFromSuggestionRow(sentRow);
+    return null;
+}
+
+function applyFriendMetaDataset(row, meta) {
+    if (!row || !meta) return;
+    if (meta.fullName) row.dataset.fullName = meta.fullName;
+    if (meta.username) row.dataset.username = meta.username;
+    if (meta.avatar) row.dataset.avatar = meta.avatar;
+    if (meta.profileUrl) row.dataset.profileUrl = meta.profileUrl;
+}
+
+function ensureFriendPanelList(panelId) {
+    const panel = typeof panelId === 'string' ? document.getElementById(panelId) : panelId;
+    if (!panel) return null;
+    let list = panel.querySelector('.gm-list');
+    if (!list) {
+        const empty = panel.querySelector('.gm-empty');
+        if (empty) empty.remove();
+        list = document.createElement('div');
+        list.className = 'gm-list';
+        panel.appendChild(list);
+    }
+    return list;
+}
+
+function buildSuggestionButton(userId) {
+    const btn = document.createElement('button');
+    btn.className = 'gm-btn-primary gm-btn-sm';
+    btn.innerHTML = '<i class="fa fa-user-plus"></i><span>Add Friend</span>';
+    btn.addEventListener('click', () => sendRequest(userId, btn));
+    return btn;
+}
+
+function buildSuggestionRow(userId, meta) {
+    if (!meta) return null;
+    const row = document.createElement('div');
+    row.className = 'gm-person-row';
+    row.id = 'suggestion-' + userId;
+    applyFriendMetaDataset(row, meta);
+
+    const avatarLink = document.createElement('a');
+    avatarLink.href = meta.profileUrl || '#';
+    avatarLink.className = 'gm-user-avatar';
+
+    const img = document.createElement('img');
+    img.src = meta.avatar || 'assets/images/default-profile.webp';
+    img.alt = 'avatar';
+    img.onerror = function () { this.onerror = null; this.src = 'assets/images/default-profile.webp'; };
+    avatarLink.appendChild(img);
+
+    const info = document.createElement('div');
+    info.className = 'gm-user-info';
+    const nameLink = document.createElement('a');
+    nameLink.href = avatarLink.href;
+    nameLink.className = 'gm-user-name';
+    nameLink.textContent = meta.fullName || meta.username || 'User';
+    const handle = document.createElement('p');
+    handle.className = 'gm-user-handle';
+    handle.textContent = meta.username ? '@' + meta.username : '';
+    info.appendChild(nameLink);
+    info.appendChild(handle);
+
+    row.appendChild(avatarLink);
+    row.appendChild(info);
+    row.appendChild(buildSuggestionButton(userId));
+    return row;
+}
+
+function buildSentRow(userId, meta) {
+    if (!meta) return null;
+    const row = document.createElement('div');
+    row.className = 'gm-person-row';
+    row.id = 'sent-' + userId;
+    applyFriendMetaDataset(row, meta);
+
+    const avatarLink = document.createElement('a');
+    avatarLink.href = meta.profileUrl || '#';
+    avatarLink.className = 'gm-user-avatar';
+
+    const img = document.createElement('img');
+    img.src = meta.avatar || 'assets/images/default-profile.webp';
+    img.alt = 'avatar';
+    img.onerror = function () { this.onerror = null; this.src = 'assets/images/default-profile.webp'; };
+    avatarLink.appendChild(img);
+
+    const info = document.createElement('div');
+    info.className = 'gm-user-info';
+    const nameLink = document.createElement('a');
+    nameLink.href = avatarLink.href;
+    nameLink.className = 'gm-user-name';
+    nameLink.textContent = meta.fullName || meta.username || 'User';
+    const handle = document.createElement('p');
+    handle.className = 'gm-user-handle';
+    handle.textContent = meta.username ? '@' + meta.username : '';
+    info.appendChild(nameLink);
+    info.appendChild(handle);
+
+    const actions = document.createElement('div');
+    actions.className = 'gm-row-actions';
+    const pending = document.createElement('span');
+    pending.className = 'gm-pending-label';
+    pending.innerHTML = '<i class="fa fa-clock"></i> Pending';
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'gm-btn-ghost gm-btn-sm';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.addEventListener('click', () => cancelRequest(userId, cancelBtn));
+    actions.appendChild(pending);
+    actions.appendChild(cancelBtn);
+
+    row.appendChild(avatarLink);
+    row.appendChild(info);
+    row.appendChild(actions);
+    return row;
+}
+
+function setSuggestionRowPending(userId, meta) {
+    const row = document.getElementById('suggestion-' + userId);
+    if (!row) return;
+    if (meta) applyFriendMetaDataset(row, meta);
+    const btn = row.querySelector('.gm-btn-primary');
+    if (btn) {
+        const pending = document.createElement('span');
+        pending.className = 'gm-pending-label';
+        pending.innerHTML = '<i class="fa fa-check"></i><span>Request Sent</span>';
+        btn.replaceWith(pending);
+    }
+}
+
+function setSuggestionRowReady(userId, meta) {
+    let row = document.getElementById('suggestion-' + userId);
+    if (!row) {
+        const list = ensureFriendPanelList('tab-suggestions');
+        if (!list || !meta) return;
+        row = buildSuggestionRow(userId, meta);
+        if (row) list.prepend(row);
+        return;
+    }
+    if (meta) applyFriendMetaDataset(row, meta);
+    const pending = row.querySelector('.gm-pending-label');
+    if (pending) pending.replaceWith(buildSuggestionButton(userId));
+}
+
+function ensureSentRow(userId, meta) {
+    const panel = document.getElementById('tab-sent');
+    if (!panel) return;
+    if (document.getElementById('sent-' + userId)) return;
+    const list = ensureFriendPanelList(panel);
+    const row = buildSentRow(userId, meta);
+    if (row && list) list.prepend(row);
+}
+
+function setSidebarButtonState(userId, state) {
+    document.querySelectorAll('.js-sidebar-add[data-user-id="' + userId + '"]').forEach(btn => {
+        if (state === 'sent') {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa fa-check"></i><span>Sent</span>';
+            btn.title = 'Request sent';
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa fa-user-plus"></i><span>Add Friend</span>';
+            btn.title = 'Add Friend';
+        }
+    });
+}
+
+function sendRequest(userId, btn) {
+    const meta = collectFriendMeta(userId, btn);
+    setSuggestionRowPending(userId, meta);
+    setSidebarButtonState(userId, 'sent');
+    ensureSentRow(userId, meta);
+
     const fd = new FormData();
     fd.append('friend_id', userId);
     fetch('index.php?url=friend/request', { method: 'POST', body: fd })
         .then(r => r.json())
         .then(data => {
-            if (data.success) {
-                const card = document.getElementById('suggestion-' + userId);
-                if (card) {
-                    card.querySelector('.friend-actions').innerHTML =
-                        '<span class="pending-label"><i class="fa fa-check"></i> Request Sent</span>';
-                }
+            if (!data.success) {
+                setSuggestionRowReady(userId, meta);
+                setSidebarButtonState(userId, 'ready');
+                const sentRow = document.getElementById('sent-' + userId);
+                if (sentRow) sentRow.remove();
             }
         })
-        .catch(() => {});
+        .catch(() => {
+            setSuggestionRowReady(userId, meta);
+            setSidebarButtonState(userId, 'ready');
+            const sentRow = document.getElementById('sent-' + userId);
+            if (sentRow) sentRow.remove();
+        });
 }
 
 function acceptRequest(userId) {
@@ -747,17 +980,27 @@ function declineRequest(userId) {
 }
 
 function cancelRequest(userId) {
+    const meta = collectFriendMeta(userId);
+    const sentRow = document.getElementById('sent-' + userId);
+    if (sentRow) sentRow.remove();
+    setSuggestionRowReady(userId, meta);
+    setSidebarButtonState(userId, 'ready');
     const fd = new FormData();
     fd.append('friend_id', userId);
     fetch('index.php?url=friend/decline', { method: 'POST', body: fd })
         .then(r => r.json())
         .then(data => {
-            if (data.success) {
-                const card = document.getElementById('sent-' + userId);
-                if (card) card.remove();
+            if (!data.success) {
+                setSuggestionRowPending(userId, meta);
+                setSidebarButtonState(userId, 'sent');
+                ensureSentRow(userId, meta);
             }
         })
-        .catch(() => {});
+        .catch(() => {
+            setSuggestionRowPending(userId, meta);
+            setSidebarButtonState(userId, 'sent');
+            ensureSentRow(userId, meta);
+        });
 }
 
 function unfriend(userId) {
@@ -777,25 +1020,7 @@ function unfriend(userId) {
 
 // ── Right sidebar: Add Friend button ─────────────────
 function sidebarSendRequest(userId, btn) {
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
-    const fd = new FormData();
-    fd.append('friend_id', userId);
-    fetch('index.php?url=friend/request', { method: 'POST', body: fd })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-            if (data.success) {
-                btn.innerHTML = '<i class="fa fa-check"></i>';
-                btn.title = 'Request sent';
-            } else {
-                btn.innerHTML = '<i class="fa fa-user-plus"></i>';
-                btn.disabled = false;
-            }
-        })
-        .catch(function () {
-            btn.innerHTML = '<i class="fa fa-user-plus"></i>';
-            btn.disabled = false;
-        });
+    sendRequest(userId, btn);
 }
 
 // Attach event delegation for sidebar Add Friend buttons

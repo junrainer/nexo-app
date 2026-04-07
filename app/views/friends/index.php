@@ -118,7 +118,12 @@ require __DIR__ . '/../partials/header.php';
         <?php else: ?>
             <div class="gm-list">
                 <?php foreach ($pendingSent as $sent): ?>
-                <div class="gm-person-row" id="sent-<?= $sent['id'] ?>">
+                <div class="gm-person-row" id="sent-<?= $sent['id'] ?>"
+                     data-user-id="<?= (int)$sent['id'] ?>"
+                     data-username="<?= htmlspecialchars($sent['username']) ?>"
+                     data-full-name="<?= htmlspecialchars($sent['full_name']) ?>"
+                     data-avatar="assets/uploads/<?= htmlspecialchars($sent['profile_image'] ?? 'default.png') ?>"
+                     data-profile-url="index.php?url=profile/<?= htmlspecialchars($sent['username']) ?>">
                     <a href="index.php?url=profile/<?= htmlspecialchars($sent['username']) ?>" class="gm-user-avatar">
                         <img src="assets/uploads/<?= htmlspecialchars($sent['profile_image'] ?? 'default.png') ?>"
                              alt="avatar"
@@ -150,7 +155,12 @@ require __DIR__ . '/../partials/header.php';
         <?php else: ?>
             <div class="gm-list">
                 <?php foreach ($suggestions as $sug): ?>
-                <div class="gm-person-row" id="suggestion-<?= $sug['id'] ?>">
+                <div class="gm-person-row" id="suggestion-<?= $sug['id'] ?>"
+                     data-user-id="<?= (int)$sug['id'] ?>"
+                     data-username="<?= htmlspecialchars($sug['username']) ?>"
+                     data-full-name="<?= htmlspecialchars($sug['full_name']) ?>"
+                     data-avatar="assets/uploads/<?= htmlspecialchars($sug['profile_image'] ?? 'default.png') ?>"
+                     data-profile-url="index.php?url=profile/<?= htmlspecialchars($sug['username']) ?>">
                     <a href="index.php?url=profile/<?= htmlspecialchars($sug['username']) ?>" class="gm-user-avatar">
                         <img src="assets/uploads/<?= htmlspecialchars($sug['profile_image'] ?? 'default.png') ?>"
                              alt="avatar"
@@ -162,8 +172,8 @@ require __DIR__ . '/../partials/header.php';
                         </a>
                         <p class="gm-user-handle">@<?= htmlspecialchars($sug['username']) ?></p>
                     </div>
-                    <button class="gm-btn-primary gm-btn-sm" onclick="sendRequest(<?= $sug['id'] ?>)">
-                        <i class="fa fa-user-plus"></i> Add
+                    <button class="gm-btn-primary gm-btn-sm" onclick="sendRequest(<?= $sug['id'] ?>, this)">
+                        <i class="fa fa-user-plus"></i><span>Add Friend</span>
                     </button>
                 </div>
                 <?php endforeach; ?>

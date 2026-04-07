@@ -24,9 +24,19 @@
                     <h3 class="right-sidebar-title">Suggested for you</h3>
                     <?php if (!empty($suggestions)): ?>
                         <?php foreach ($suggestions as $s): ?>
-                        <div class="suggestion-item" id="sidebar-sug-<?= (int)$s['id'] ?>">
-                            <a href="index.php?url=profile/<?= htmlspecialchars($s['username']) ?>" class="suggestion-item-link">
-                                <img src="assets/uploads/<?= htmlspecialchars($s['profile_image']) ?>"
+                        <?php
+                            $sidebarProfileUrl = 'index.php?url=profile/' . htmlspecialchars($s['username']);
+                            $sidebarAvatarFile = htmlspecialchars($s['profile_image'] ?: 'default.png');
+                            $sidebarAvatar = 'assets/uploads/' . $sidebarAvatarFile;
+                        ?>
+                        <div class="suggestion-item" id="sidebar-sug-<?= (int)$s['id'] ?>"
+                             data-user-id="<?= (int)$s['id'] ?>"
+                             data-username="<?= htmlspecialchars($s['username']) ?>"
+                             data-full-name="<?= htmlspecialchars($s['full_name']) ?>"
+                             data-avatar="<?= $sidebarAvatar ?>"
+                             data-profile-url="<?= $sidebarProfileUrl ?>">
+                            <a href="<?= $sidebarProfileUrl ?>" class="suggestion-item-link">
+                                <img src="<?= $sidebarAvatar ?>"
                                      alt="avatar" class="avatar-sm"
                                      onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                                 <div>
@@ -36,7 +46,7 @@
                             </a>
                             <button class="sidebar-add-btn js-sidebar-add" title="Add Friend"
                                     data-user-id="<?= (int)$s['id'] ?>">
-                                <i class="fa fa-user-plus"></i>
+                                <i class="fa fa-user-plus"></i><span>Add Friend</span>
                             </button>
                         </div>
                         <?php endforeach; ?>
