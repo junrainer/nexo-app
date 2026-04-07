@@ -1296,6 +1296,7 @@ input, textarea, select { font-family: inherit; }
     transition: color 0.15s, border-color 0.15s, background 0.15s;
     flex-shrink: 0;
     cursor: pointer;
+    -webkit-user-select: none;
     user-select: none;
 }
 
@@ -2824,6 +2825,7 @@ input, textarea, select { font-family: inherit; }
     display: flex;
     align-items: center;
     z-index: 1100;
+    -webkit-backdrop-filter: blur(2px);
     backdrop-filter: blur(2px);
     padding: 16px; /* mobile: 16px gap on all sides */
 }
@@ -3381,8 +3383,8 @@ textarea.compose-input { resize: vertical; min-height: 60px; }
 
 /* Modal select element */
 select.modal-input {
-    appearance: none;
     -webkit-appearance: none;
+    appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 12px center;
@@ -3655,8 +3657,6 @@ select.modal-input {
 }
 
 /* ── Tabs (search) ── */
-.gm-tabs { }
-
 .gm-tabs-list {
     display: flex;
     gap: 4px;

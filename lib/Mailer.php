@@ -85,7 +85,9 @@ class Mailer {
             $this->cmd($socket, 'DATA');
             $this->expect($socket, '354');
 
-            $headers  = "From: {$this->fromName} <{$this->username}>\r\n";
+            $headers  = "Date: " . date('r') . "\r\n";
+            $headers .= "Message-ID: <" . time() . "." . bin2hex(random_bytes(8)) . "@nexo.app>\r\n";
+            $headers .= "From: {$this->fromName} <{$this->username}>\r\n";
             $headers .= "To: <{$to}>\r\n";
             $headers .= "Subject: {$subject}\r\n";
             $headers .= "MIME-Version: 1.0\r\n";
@@ -109,7 +111,9 @@ class Mailer {
     // ── PHP mail() fallback ────────────────────────────────────
 
     private function sendMail(string $to, string $subject, string $body): bool {
-        $headers  = "From: {$this->fromName} <{$this->username}>\r\n";
+        $headers  = "Date: " . date('r') . "\r\n";
+        $headers .= "Message-ID: <" . time() . "." . bin2hex(random_bytes(8)) . "@nexo.app>\r\n";
+        $headers .= "From: {$this->fromName} <{$this->username}>\r\n";
         $headers .= "Reply-To: {$this->username}\r\n";
         $headers .= "MIME-Version: 1.0\r\n";
         $headers .= "Content-Type: text/html; charset=UTF-8\r\n";

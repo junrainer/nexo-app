@@ -254,15 +254,11 @@ class AuthController {
             // Send the reset email
             require_once __DIR__ . '/../../config/mail.php';
             require_once __DIR__ . '/../../lib/Mailer.php';
-            $mailer = new Mailer(MAIL_ADDRESS, MAIL_PASSWORD, MAIL_FROM_NAME);
-            $body   = '<p>Hello,</p>'
-                    . '<p>We received a request to reset the password for your Nexo account.</p>'
-                    . '<p>Click this link to verify it\'s you, then continue to create a new password. '
-                    . 'This link is valid for <strong>1 hour</strong>.</p>'
-                    . '<p><a href="' . htmlspecialchars($verifyUrl, ENT_QUOTES, 'UTF-8') . '">'
-                    . htmlspecialchars($verifyUrl, ENT_QUOTES, 'UTF-8') . '</a></p>'
-                    . '<p>If you did not request a password reset, you can safely ignore this email.</p>'
-                    . '<p>– The Nexo Team</p>';
+            $mailer   = new Mailer(MAIL_ADDRESS, MAIL_PASSWORD, MAIL_FROM_NAME);
+            $resetUrl = htmlspecialchars($verifyUrl, ENT_QUOTES, 'UTF-8');
+            ob_start();
+            require __DIR__ . '/../views/auth/email_reset_body.php';
+            $body = ob_get_clean();
 
             if (!$mailer->send($email, 'Verify your Nexo password reset', $body)) {
                 $this->setForgotPasswordCooldown($email);

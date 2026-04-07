@@ -1,0 +1,6 @@
+# Local configuration — never commit real credentials
+config/mail.php
+
+# Uploaded user files
+public/assets/uploads/*
+!public/assets/uploads/.gitkeep
