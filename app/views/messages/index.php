@@ -18,8 +18,9 @@ require __DIR__ . '/../partials/header.php';
             </div>
             <div class="conversations-search">
                 <i class="fa fa-magnifying-glass"></i>
-                <input type="text" placeholder="Search conversations..." id="conv-search-input"
+                <input type="text" placeholder="Search people..." id="conv-search-input"
                        oninput="filterConversations(this.value)" autocomplete="off">
+                <div id="conv-search-suggestions" class="topbar-search-suggestions" style="display:none;"></div>
             </div>
             
             <?php if (empty($conversations)): ?>
@@ -127,7 +128,7 @@ require __DIR__ . '/../partials/header.php';
         </div>
         <div class="modal-body">
             <input type="text" id="user-search" class="modal-input" 
-                   placeholder="Search for a user..." oninput="searchUsers(this.value)">
+                   placeholder="Search for people..." oninput="searchUsers(this.value)">
             <div id="user-search-results" class="user-search-results"></div>
         </div>
     </div>

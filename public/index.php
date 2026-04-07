@@ -21,13 +21,17 @@ header('X-XSS-Protection: 1; mode=block');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 
 // ── Helper: time ago ──────────────────────────────────────────
+// Approximate seconds in a year (365.25 days to account for leap years).
+const SECONDS_IN_YEAR = 31557600;
+
 function time_ago(string $datetime): string {
     $diff = time() - strtotime($datetime);
     if ($diff < 60)     return 'just now';
     if ($diff < 3600)   return floor($diff / 60) . 'm ago';
     if ($diff < 86400)  return floor($diff / 3600) . 'h ago';
     if ($diff < 604800) return floor($diff / 86400) . 'd ago';
-    return date('M j, Y', strtotime($datetime));
+    $showYear = $diff >= SECONDS_IN_YEAR;
+    return date($showYear ? 'M j, Y' : 'M j', strtotime($datetime));
 }
 
 // ── Helper: post visibility icon + label ─────────────────────
@@ -55,6 +59,17 @@ if ($isGuest && !in_array($url, $guestRoutes)) {
 if (!$isGuest && in_array($url, $guestRoutes)) {
     header('Location: index.php?url=feed');
     exit;
+}
+
+// ── Track last active time for online status ───────────
+if (!$isGuest) {
+    try {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare('UPDATE users SET last_active_at = NOW() WHERE id = ?');
+        $stmt->execute([$_SESSION['user_id']]);
+    } catch (PDOException $e) {
+        // last_active_at column may not exist yet
+    }
 }
 
 // ── CSRF validation for all POST requests ─────────────────────

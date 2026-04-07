@@ -304,8 +304,9 @@ class PostController {
     public function search(): void {
         $query         = trim($_GET['q'] ?? '');
         $currentUserId = $_SESSION['user_id'];
-        $posts         = $query ? $this->postModel->search($query, $currentUserId) : [];
-        $users         = $query ? $this->userModel->search($query) : [];
+        $friendsOnly   = !empty($_GET['friends']) && $_GET['friends'] !== '0';
+        $posts         = ($query && !$friendsOnly) ? $this->postModel->search($query, $currentUserId) : [];
+        $users         = $query ? $this->userModel->search($query, $currentUserId, $friendsOnly) : [];
 
         if (isset($_GET['ajax'])) {
             header('Content-Type: application/json');

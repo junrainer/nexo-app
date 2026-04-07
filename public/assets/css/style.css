@@ -406,6 +406,13 @@ input, textarea, select { font-family: inherit; }
     background: color-mix(in srgb, var(--primary) 12%, transparent);
 }
 
+.topbar-suggest-empty {
+    padding: 10px 12px;
+    font-size: 12px;
+    color: var(--muted-fg);
+    text-align: center;
+}
+
 .topbar-right {
     display: flex;
     align-items: center;
