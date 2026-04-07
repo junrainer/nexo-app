@@ -21,13 +21,15 @@ header('X-XSS-Protection: 1; mode=block');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 
 // ── Helper: time ago ──────────────────────────────────────────
+const SECONDS_IN_YEAR = 31536000;
+
 function time_ago(string $datetime): string {
     $diff = time() - strtotime($datetime);
     if ($diff < 60)     return 'just now';
     if ($diff < 3600)   return floor($diff / 60) . 'm ago';
     if ($diff < 86400)  return floor($diff / 3600) . 'h ago';
     if ($diff < 604800) return floor($diff / 86400) . 'd ago';
-    $showYear = $diff >= 31536000;
+    $showYear = $diff >= SECONDS_IN_YEAR;
     return date($showYear ? 'M j, Y' : 'M j', strtotime($datetime));
 }
 

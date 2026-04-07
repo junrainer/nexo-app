@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../config/database.php';
 
 class UserModel {
     private PDO $db;
+    private int $onlineWindowMinutes = 5;
 
     public function __construct() {
         $this->db = Database::getInstance()->getConnection();
@@ -145,7 +146,7 @@ class UserModel {
                             END AS is_friend,
                             CASE
                                 WHEN u.last_active_at IS NOT NULL
-                                     AND u.last_active_at >= (NOW() - INTERVAL 5 MINUTE)
+                                     AND u.last_active_at >= (NOW() - INTERVAL {$this->onlineWindowMinutes} MINUTE)
                                 THEN 1 ELSE 0
                             END AS is_online
                      FROM users u

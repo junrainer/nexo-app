@@ -63,13 +63,15 @@ function escapeHtml(text) {
 }
 
 // ── Helper: time ago ─────────────────────────────────
+const SECONDS_IN_YEAR = 31536000;
+
 function timeAgo(datetime) {
     const diff = Math.floor((Date.now() - new Date(datetime).getTime()) / 1000);
     if (diff < 60)     return 'just now';
     if (diff < 3600)   return Math.floor(diff / 60) + 'm ago';
     if (diff < 86400)  return Math.floor(diff / 3600) + 'h ago';
     if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
-    const showYear = diff >= 31536000;
+    const showYear = diff >= SECONDS_IN_YEAR;
     return new Date(datetime).toLocaleDateString(
         'en-US',
         showYear ? { month: 'short', day: 'numeric', year: 'numeric' } : { month: 'short', day: 'numeric' }
@@ -1238,7 +1240,7 @@ function filterConversations(query) {
             .then(data => {
                 const users = (data && data.users) ? data.users : [];
                 if (users.length === 0) {
-                    box.innerHTML = '<div class="topbar-suggest-empty">No friends found</div>';
+                    box.innerHTML = '<div class="topbar-suggest-empty">No results found</div>';
                     return;
                 }
                 box.innerHTML = users.map(user => {
@@ -1392,7 +1394,7 @@ function searchUsers(query) {
                         results.appendChild(a);
                     });
                 } else {
-                    results.innerHTML = '<p style="padding:12px;color:#888;text-align:center;">No friends found</p>';
+                    results.innerHTML = '<p style="padding:12px;color:#888;text-align:center;">No results found</p>';
                 }
             })
             .catch(() => { results.innerHTML = ''; });
