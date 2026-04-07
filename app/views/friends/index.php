@@ -22,6 +22,11 @@ require __DIR__ . '/../partials/header.php';
         <?php unset($_SESSION['error']); ?>
     <?php endif; ?>
 
+    <?php if (!empty($_SESSION['success'])): ?>
+        <div class="alert alert-success"><i class="fa fa-circle-check"></i> <?= htmlspecialchars($_SESSION['success']) ?></div>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
+
     <!-- Tab switcher -->
     <div class="gm-tab-switcher">
         <button class="gm-tab-sw active" data-tab="friends" onclick="switchFriendTab('friends', this)">
