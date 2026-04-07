@@ -176,6 +176,11 @@ $username   = $_SESSION['username'];
                             <span>Messages</span>
                             <a href="index.php?url=messages" class="msg-see-all">See all</a>
                         </div>
+                        <div class="msg-search">
+                            <i class="fa fa-magnifying-glass"></i>
+                            <input type="text" placeholder="Search messages..." id="msg-dropdown-search"
+                                   oninput="filterMsgDropdown(this.value)" autocomplete="off">
+                        </div>
                         <div class="msg-list" id="msg-list">
                             <div class="msg-loading"><i class="fa fa-spinner fa-spin"></i> Loading...</div>
                         </div>
