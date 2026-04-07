@@ -53,6 +53,12 @@ class ProfileController {
             }
         } catch (PDOException $e) { /* friendships table may not exist */ }
 
+        try {
+            $suggestions = $this->userModel->getSuggestions($currentUserId);
+        } catch (PDOException $e) {
+            $suggestions = [];
+        }
+
         $pageTitle = htmlspecialchars($user['full_name']) . ' – Nexo';
         require __DIR__ . '/../views/profile/profile.php';
     }

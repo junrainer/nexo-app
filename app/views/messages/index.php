@@ -1,5 +1,6 @@
 <?php
 $pageTitle = 'Messages – Nexo';
+$hideRightSidebar = true;
 require __DIR__ . '/../partials/header.php';
 ?>
 
@@ -91,6 +92,10 @@ require __DIR__ . '/../partials/header.php';
                 <!-- Message Input -->
                 <form class="chat-input-form" id="message-form" onsubmit="sendMessage(event)">
                     <input type="hidden" name="recipient_id" value="<?= $activeUser['id'] ?>">
+                    <div class="emoji-btn-wrap" style="position:relative;">
+                        <button type="button" class="emoji-btn" title="Emoji" onclick="toggleEmojiPicker('main-emoji-picker')">😊</button>
+                        <div class="emoji-picker" id="main-emoji-picker"></div>
+                    </div>
                     <input type="text" name="message" id="message-input" 
                            placeholder="Type a message..." autocomplete="off" required>
                     <button type="submit" class="send-btn">

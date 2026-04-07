@@ -176,11 +176,6 @@ $username   = $_SESSION['username'];
                             <span>Messages</span>
                             <a href="index.php?url=messages" class="msg-see-all">See all</a>
                         </div>
-                        <div class="msg-search">
-                            <i class="fa fa-magnifying-glass"></i>
-                            <input type="text" placeholder="Search messages..." id="msg-dropdown-search"
-                                   oninput="filterMsgDropdown(this.value)" autocomplete="off">
-                        </div>
                         <div class="msg-list" id="msg-list">
                             <div class="msg-loading"><i class="fa fa-spinner fa-spin"></i> Loading...</div>
                         </div>
@@ -264,6 +259,10 @@ $username   = $_SESSION['username'];
                 <div class="floating-chat-messages" id="floating-chat-messages"></div>
                 <form class="floating-chat-input-form" id="floating-chat-form" onsubmit="sendFloatingMessage(event)">
                     <input type="hidden" id="floating-chat-recipient" name="recipient_id" value="">
+                    <div class="emoji-btn-wrap" style="position:relative;">
+                        <button type="button" class="emoji-btn" title="Emoji" onclick="toggleEmojiPicker('floating-emoji-picker')">😊</button>
+                        <div class="emoji-picker" id="floating-emoji-picker"></div>
+                    </div>
                     <input type="text" id="floating-chat-input" name="message"
                            placeholder="Type a message..." autocomplete="off" required>
                     <button type="submit"><i class="fa fa-paper-plane"></i></button>
