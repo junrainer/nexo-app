@@ -63,7 +63,7 @@ function escapeHtml(text) {
 }
 
 // ── Helper: time ago ─────────────────────────────────
-const SECONDS_IN_YEAR = 31536000;
+const SECONDS_IN_YEAR = 31557600;
 
 function timeAgo(datetime) {
     const diff = Math.floor((Date.now() - new Date(datetime).getTime()) / 1000);

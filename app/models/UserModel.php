@@ -126,14 +126,7 @@ class UserModel {
         $like = '%' . $query . '%';
 
         if ($currentUserId) {
-            $friendFilterSql = $friendsOnly
-                ? "AND EXISTS (
-                        SELECT 1 FROM friendships f
-                        WHERE f.user_id = :uid_filter
-                          AND f.friend_id = u.id
-                          AND f.status = 'accepted'
-                    )"
-                : '';
+            $friendsOnlyValue = $friendsOnly ? 1 : 0;
 
             try {
                 $stmt = $this->db->prepare(
@@ -152,18 +145,25 @@ class UserModel {
                      FROM users u
                      WHERE (u.username LIKE :like OR u.full_name LIKE :like)
                        AND u.id != :uid_self
-                       {$friendFilterSql}
+                       AND (
+                           :friends_only = 0
+                           OR EXISTS (
+                               SELECT 1 FROM friendships f
+                               WHERE f.user_id = :uid_filter
+                                 AND f.friend_id = u.id
+                                 AND f.status = 'accepted'
+                           )
+                       )
                      LIMIT 20"
                 );
                 $params = [
                     ':uid_friend'    => $currentUserId,
                     ':uid_self'      => $currentUserId,
+                    ':uid_filter'    => $currentUserId,
+                    ':friends_only'  => $friendsOnlyValue,
                     ':like'          => $like,
                     ':online_window' => $this->onlineWindowMinutes,
                 ];
-                if ($friendsOnly) {
-                    $params[':uid_filter'] = $currentUserId;
-                }
                 $stmt->execute($params);
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (PDOException $e) {
@@ -180,17 +180,24 @@ class UserModel {
                          FROM users u
                          WHERE (u.username LIKE :like OR u.full_name LIKE :like)
                            AND u.id != :uid_self
-                           {$friendFilterSql}
+                           AND (
+                               :friends_only = 0
+                               OR EXISTS (
+                                   SELECT 1 FROM friendships f
+                                   WHERE f.user_id = :uid_filter
+                                     AND f.friend_id = u.id
+                                     AND f.status = 'accepted'
+                               )
+                           )
                          LIMIT 20"
                     );
                     $params = [
-                        ':uid_friend' => $currentUserId,
-                        ':uid_self'   => $currentUserId,
-                        ':like'       => $like,
+                        ':uid_friend'   => $currentUserId,
+                        ':uid_self'     => $currentUserId,
+                        ':uid_filter'   => $currentUserId,
+                        ':friends_only' => $friendsOnlyValue,
+                        ':like'         => $like,
                     ];
-                    if ($friendsOnly) {
-                        $params[':uid_filter'] = $currentUserId;
-                    }
                     $stmt->execute($params);
                     return $stmt->fetchAll(PDO::FETCH_ASSOC);
                 } catch (PDOException $e) {
