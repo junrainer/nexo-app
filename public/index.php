@@ -26,10 +26,25 @@ const SECONDS_IN_YEAR = 31557600;
 
 function time_ago(string $datetime): string {
     $diff = time() - strtotime($datetime);
-    if ($diff < 60)     return 'just now';
-    if ($diff < 3600)   return floor($diff / 60) . 'm ago';
-    if ($diff < 86400)  return floor($diff / 3600) . 'h ago';
-    if ($diff < 604800) return floor($diff / 86400) . 'd ago';
+    if ($diff < 0) {
+        $diff = 0;
+    }
+    if ($diff < 60) {
+        $seconds = (int) $diff;
+        return $seconds . ' ' . ($seconds === 1 ? 'sec' : 'secs') . ' ago';
+    }
+    if ($diff < 3600) {
+        $minutes = (int) floor($diff / 60);
+        return $minutes . ' ' . ($minutes === 1 ? 'min' : 'mins') . ' ago';
+    }
+    if ($diff < 86400) {
+        $hours = (int) floor($diff / 3600);
+        return $hours . ' ' . ($hours === 1 ? 'hr' : 'hrs') . ' ago';
+    }
+    if ($diff < 604800) {
+        $days = (int) floor($diff / 86400);
+        return $days . ' ' . ($days === 1 ? 'day' : 'days') . ' ago';
+    }
     $showYear = $diff >= SECONDS_IN_YEAR;
     return date($showYear ? 'M j, Y' : 'M j', strtotime($datetime));
 }
