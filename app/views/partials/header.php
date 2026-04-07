@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle ?? 'Nexo' ?></title>
-    <link rel="icon" href="assets/images/app-logo.png" type="image/png">
+    <link rel="icon" href="assets/images/app-logo.png" type="image/png" sizes="48x48">
+    <link rel="apple-touch-icon" href="assets/images/app-logo.png">
     <?php require_once __DIR__ . '/../../../lib/Security.php'; ?>
     <?= Security::meta() ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -175,6 +176,11 @@ $username   = $_SESSION['username'];
                             <span>Messages</span>
                             <a href="index.php?url=messages" class="msg-see-all">See all</a>
                         </div>
+                        <div class="msg-search">
+                            <i class="fa fa-magnifying-glass"></i>
+                            <input type="text" placeholder="Search messages..." id="msg-dropdown-search"
+                                   oninput="filterMsgDropdown(this.value)" autocomplete="off">
+                        </div>
                         <div class="msg-list" id="msg-list">
                             <div class="msg-loading"><i class="fa fa-spinner fa-spin"></i> Loading...</div>
                         </div>
@@ -202,7 +208,7 @@ $username   = $_SESSION['username'];
                 <div class="avatar-menu">
                     <button class="avatar-trigger" onclick="toggleAvatarMenu(event)" id="avatar-btn">
                         <img src="<?= ($_SESSION['profile_image'] ?? 'default.png') !== 'default.png' ? 'assets/uploads/' . htmlspecialchars($_SESSION['profile_image']) : 'assets/images/default-profile.webp' ?>"
-                             alt="avatar" class="avatar-sm avatar-ring"
+                             alt="avatar" class="avatar-md avatar-ring"
                              onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                     </button>
                     <div class="avatar-dropdown" id="avatar-dropdown">

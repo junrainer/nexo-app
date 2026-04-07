@@ -29,7 +29,10 @@ $safeUrl  = htmlspecialchars($verifyUrl, ENT_QUOTES, 'UTF-8');
           <!-- ── Header ── -->
           <tr>
             <td style="background:#7431e8;padding:28px 40px;text-align:center;">
-              <span style="color:#ffffff;font-size:28px;font-weight:700;letter-spacing:-0.5px;line-height:1;">Nexo</span>
+              <img src="<?= htmlspecialchars($baseUrl, ENT_QUOTES, 'UTF-8') ?>/assets/images/app-logo.png"
+                   alt="Nexo" width="52" height="52"
+                   style="display:inline-block;vertical-align:middle;border-radius:12px;margin-bottom:8px;"><br>
+              <span style="color:#ffffff;font-size:24px;font-weight:700;letter-spacing:-0.5px;line-height:1;">Nexo</span>
             </td>
           </tr>
 

@@ -199,8 +199,21 @@ function toggleMessages(e) {
     document.querySelectorAll(allDropdownsSelector).forEach(el => el.classList.remove('open'));
     if (!isOpen) {
         dd.classList.add('open');
+        const searchInput = document.getElementById('msg-dropdown-search');
+        if (searchInput) { searchInput.value = ''; filterMsgDropdown(''); }
         loadMessages();
     }
+}
+
+// Filter message dropdown items by name/preview
+function filterMsgDropdown(q) {
+    const items = document.querySelectorAll('#msg-list .msg-item');
+    q = q.toLowerCase().trim();
+    items.forEach(item => {
+        const name = item.querySelector('.msg-name')?.textContent?.toLowerCase() || '';
+        const preview = item.querySelector('.msg-preview')?.textContent?.toLowerCase() || '';
+        item.style.display = (!q || name.includes(q) || preview.includes(q)) ? '' : 'none';
+    });
 }
 
 document.addEventListener('click', e => {

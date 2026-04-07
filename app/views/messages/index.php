@@ -14,6 +14,11 @@ require __DIR__ . '/../partials/header.php';
                     <i class="fa fa-pen-to-square"></i>
                 </button>
             </div>
+            <div class="conversations-search">
+                <i class="fa fa-magnifying-glass"></i>
+                <input type="text" placeholder="Search conversations..." id="conv-search-input"
+                       oninput="filterConversations(this.value)" autocomplete="off">
+            </div>
             
             <?php if (empty($conversations)): ?>
                 <div class="empty-conversations">
@@ -123,6 +128,17 @@ require __DIR__ . '/../partials/header.php';
 </div>
 
 <script>
+// Filter conversations by name/preview
+function filterConversations(q) {
+    const items = document.querySelectorAll('.conversation-item');
+    q = q.toLowerCase().trim();
+    items.forEach(item => {
+        const name = item.querySelector('.conversation-name')?.textContent?.toLowerCase() || '';
+        const preview = item.querySelector('.conversation-preview')?.textContent?.toLowerCase() || '';
+        item.style.display = (!q || name.includes(q) || preview.includes(q)) ? '' : 'none';
+    });
+}
+
 // Send message via AJAX
 function sendMessage(e) {
     e.preventDefault();
