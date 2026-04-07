@@ -326,6 +326,12 @@ class PostController {
             $savedPosts = [];
         }
 
+        try {
+            $suggestions = $this->userModel->getSuggestions($userId);
+        } catch (PDOException $e) {
+            $suggestions = [];
+        }
+
         $pageTitle = 'Saved – Nexo';
         require __DIR__ . '/../views/posts/saved.php';
     }

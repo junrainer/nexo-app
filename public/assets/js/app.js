@@ -199,8 +199,6 @@ function toggleMessages(e) {
     document.querySelectorAll(allDropdownsSelector).forEach(el => el.classList.remove('open'));
     if (!isOpen) {
         dd.classList.add('open');
-        const searchInput = document.getElementById('msg-dropdown-search');
-        if (searchInput) { searchInput.value = ''; filterMsgDropdown(''); }
         loadMessages();
     }
 }
@@ -1198,5 +1196,62 @@ function _scrollFloatingChatToBottom() {
 
     document.addEventListener('click', function (e) {
         if (!e.target.closest('.topbar-search-form')) hide();
+    });
+})();
+
+// ── Emoji Picker ─────────────────────────────────────
+(function initEmojiPickers() {
+    const EMOJIS = [
+        '😀','😂','😍','🥰','😎','😊','🤣','😭','😢','😡',
+        '🤔','😅','😴','😤','🤗','🥺','😱','🤯','🫠','😏',
+        '👍','👎','👋','👏','🙌','🙏','💪','🤝','🫶','❤️',
+        '🔥','✨','🌟','🎉','💯','🎶','🍕','🎮','💀','🤩',
+    ];
+
+    function buildPicker(el, targetInputId) {
+        if (!el || el.dataset.built) return;
+        el.dataset.built = '1';
+        EMOJIS.forEach(emoji => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = emoji;
+            btn.title = emoji;
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                insertEmoji(targetInputId, emoji);
+                el.classList.remove('open');
+            });
+            el.appendChild(btn);
+        });
+    }
+
+    // Build pickers on first open
+    window.toggleEmojiPicker = function (pickerId) {
+        const picker = document.getElementById(pickerId);
+        if (!picker) return;
+
+        const inputId = pickerId === 'main-emoji-picker' ? 'message-input' : 'floating-chat-input';
+        buildPicker(picker, inputId);
+
+        const isOpen = picker.classList.contains('open');
+        document.querySelectorAll('.emoji-picker.open').forEach(p => p.classList.remove('open'));
+        if (!isOpen) picker.classList.add('open');
+    };
+
+    window.insertEmoji = function (inputId, emoji) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        const start = input.selectionStart ?? input.value.length;
+        const end   = input.selectionEnd   ?? input.value.length;
+        input.value = input.value.slice(0, start) + emoji + input.value.slice(end);
+        input.selectionStart = input.selectionEnd = start + emoji.length;
+        input.focus();
+    };
+
+    // Close emoji pickers when clicking outside
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.emoji-btn-wrap')) {
+            document.querySelectorAll('.emoji-picker.open').forEach(p => p.classList.remove('open'));
+        }
     });
 })();
