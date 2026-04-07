@@ -70,7 +70,7 @@ function timeAgo(datetime) {
     let diff = Math.floor((Date.now() - new Date(datetime).getTime()) / 1000);
     if (diff < 0) diff = 0;
     if (diff < 60) {
-        const seconds = diff;
+        const seconds = Math.floor(diff);
         return seconds + ' ' + (seconds === 1 ? 'sec' : 'secs') + ' ago';
     }
     if (diff < 3600) {
