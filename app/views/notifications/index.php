@@ -56,7 +56,7 @@ function notifLink($n) {
                     <button type="submit" class="btn-mark-all" name="bulk_action" value="mark_unread">
                         <i class="fa fa-envelope"></i> Mark as unread
                     </button>
-                    <button type="submit" class="btn-mark-all btn-danger-soft" id="notif-delete-selected-btn" name="bulk_action" value="delete" style="display:none;">
+                    <button type="submit" class="btn-mark-all btn-danger-soft" id="notif-delete-selected-btn" name="bulk_action" value="delete">
                         <i class="fa fa-trash"></i> Delete selected
                     </button>
                 </div>
@@ -112,9 +112,11 @@ function notifLink($n) {
                 selectAll.checked = allChecked;
                 selectAll.indeterminate = selectedCount > 0 && !allChecked;
                 const everySelectedIsRead = selectedCount > 0 && checked.every(i => i.dataset.isRead === '1');
-                deleteBtn.style.display = selectedCount > 0 ? 'inline-flex' : 'none';
-                deleteBtn.disabled = !everySelectedIsRead;
-                deleteBtn.title = everySelectedIsRead ? 'Delete selected' : 'Only read notifications can be deleted';
+                deleteBtn.style.display = 'inline-flex';
+                deleteBtn.disabled = selectedCount === 0 || !everySelectedIsRead;
+                deleteBtn.title = selectedCount === 0
+                    ? 'Select notifications to delete'
+                    : (everySelectedIsRead ? 'Delete selected' : 'Only read notifications can be deleted');
             };
 
             selectAll.addEventListener('change', function () {
