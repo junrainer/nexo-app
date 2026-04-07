@@ -51,7 +51,7 @@
             <div class="auth-field">
                 <div class="auth-input-wrap">
                     <i class="fa fa-envelope auth-input-icon"></i>
-                    <input type="email" name="email" class="auth-input auth-input-icon-left"
+                    <input type="text" name="email" class="auth-input auth-input-icon-left"
                            placeholder="Enter your email address" required autocomplete="email">
                 </div>
             </div>

@@ -9,14 +9,14 @@ class UserModel {
     }
 
     public function findByEmail(string $email): array|false {
-        $stmt = $this->db->prepare('SELECT * FROM users WHERE email = ? LIMIT 1');
-        $stmt->execute([strtolower(trim($email))]);
+        $stmt = $this->db->prepare('SELECT * FROM users WHERE LOWER(email) = LOWER(?) LIMIT 1');
+        $stmt->execute([trim($email)]);
         return $stmt->fetch();
     }
 
     public function findByUsername(string $username): array|false {
-        $stmt = $this->db->prepare('SELECT * FROM users WHERE username = ? LIMIT 1');
-        $stmt->execute([$username]);
+        $stmt = $this->db->prepare('SELECT * FROM users WHERE LOWER(username) = LOWER(?) LIMIT 1');
+        $stmt->execute([trim($username)]);
         return $stmt->fetch();
     }
 

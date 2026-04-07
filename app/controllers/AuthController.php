@@ -39,6 +39,11 @@ class AuthController {
 
         $user = $this->userModel->findByUsername($identifier);
 
+        // If no user found by username, try treating the identifier as an email
+        if (!$user && str_contains($identifier, '@')) {
+            $user = $this->userModel->findByEmail($identifier);
+        }
+
         if (!$user || !password_verify($password, $user['password'])) {
             Security::incrementAttempts($identifier);
             $_SESSION['error'] = 'Invalid username or password.';
@@ -232,11 +237,12 @@ class AuthController {
             // Remove any previous tokens for this email
             $db->prepare('DELETE FROM password_resets WHERE email = ?')->execute([$email]);
 
-            // Generate a secure random token
+            // Generate a secure random token and a 6-digit verification code
             $token = bin2hex(random_bytes(32));
-            $db->prepare('INSERT INTO password_resets (email, token) VALUES (?, ?)')->execute([$email, $token]);
+            $code  = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $db->prepare('INSERT INTO password_resets (email, token, code) VALUES (?, ?, ?)')->execute([$email, $token, $code]);
 
-            // Build the verify URL (step 1 before reset form)
+            // Build the verify URL so the user lands directly on the code-entry page
             if (defined('APP_BASE_URL') && APP_BASE_URL !== '') {
                 $baseUrl = APP_BASE_URL;
             } else {
@@ -249,20 +255,20 @@ class AuthController {
                 }
                 $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . $basePath;
             }
-            $verifyUrl = $baseUrl . '/index.php?url=verify-reset&token=' . urlencode($token);
+            $verifyUrl        = $baseUrl . '/index.php?url=verify-reset&token=' . urlencode($token);
+            $verificationCode = $code;
 
-            // Send the reset email
+            // Send the reset email with the 6-digit code
             require_once __DIR__ . '/../../config/mail.php';
             require_once __DIR__ . '/../../lib/Mailer.php';
-            $mailer   = new Mailer(MAIL_ADDRESS, MAIL_PASSWORD, MAIL_FROM_NAME);
-            $resetUrl = htmlspecialchars($verifyUrl, ENT_QUOTES, 'UTF-8');
+            $mailer = new Mailer(MAIL_ADDRESS, MAIL_PASSWORD, MAIL_FROM_NAME);
             ob_start();
             require __DIR__ . '/../views/auth/email_reset_body.php';
             $body = ob_get_clean();
 
-            if (!$mailer->send($email, 'Verify your Nexo password reset', $body)) {
+            if (!$mailer->send($email, 'Your Nexo password reset code', $body)) {
                 $this->setForgotPasswordCooldown($email);
-                $_SESSION['error'] = 'Unable to send verification email. Please check your email address and try again.';
+                $_SESSION['error'] = 'Unable to send the verification email. Please try again in a moment.';
                 header('Location: index.php?url=forgot-password');
                 exit;
             }
@@ -275,8 +281,8 @@ class AuthController {
         }
 
         $this->setForgotPasswordCooldown($email);
-        $_SESSION['success'] = 'Email confirmed. Check your inbox and click the link to verify it’s you.';
-        header('Location: index.php?url=forgot-password');
+        $_SESSION['success'] = 'A 6-digit verification code has been sent to your email.';
+        header('Location: index.php?url=verify-reset&token=' . urlencode($token));
         exit;
     }
 
@@ -293,9 +299,30 @@ class AuthController {
 
     public function verifyReset(): void {
         $token = trim($_POST['token'] ?? '');
-        if ($token === '' || $this->findValidResetToken($token) === null) {
+        $code  = trim($_POST['code'] ?? '');
+
+        if ($token === '') {
             $_SESSION['error'] = 'This verification link is invalid or has expired.';
             header('Location: index.php?url=forgot-password');
+            exit;
+        }
+
+        if (!preg_match('/^\d{6}$/', $code)) {
+            $_SESSION['error'] = 'Please enter the 6-digit code from your email.';
+            header('Location: index.php?url=verify-reset&token=' . urlencode($token));
+            exit;
+        }
+
+        $row = $this->findValidResetToken($token);
+        if (!$row) {
+            $_SESSION['error'] = 'This verification link is invalid or has expired.';
+            header('Location: index.php?url=forgot-password');
+            exit;
+        }
+
+        if (!hash_equals($row['code'], $code)) {
+            $_SESSION['error'] = 'Incorrect verification code. Please try again.';
+            header('Location: index.php?url=verify-reset&token=' . urlencode($token));
             exit;
         }
 
@@ -402,7 +429,7 @@ class AuthController {
         try {
             $db   = Database::getInstance()->getConnection();
             $stmt = $db->prepare(
-                'SELECT email FROM password_resets WHERE token = ? AND created_at >= NOW() - INTERVAL 1 HOUR'
+                'SELECT email, code FROM password_resets WHERE token = ? AND created_at >= NOW() - INTERVAL 1 HOUR'
             );
             $stmt->execute([$token]);
             $row = $stmt->fetch();

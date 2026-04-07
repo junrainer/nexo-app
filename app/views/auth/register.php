@@ -236,14 +236,6 @@
         #regPass2::-ms-clear { display: none; }
         input[type="password"]::-webkit-textfield-decoration-container { display: none; }
 
-        /* Prefix icon for username */
-        .rf-prefix {
-            position: absolute; left: 12px;
-            color: #9ca3af; font-size: 14px;
-            pointer-events: none;
-        }
-
-        .rf-input-padded { padding-left: 32px; }
 
         /* Textarea */
         .rf-textarea {
@@ -399,8 +391,7 @@
                 <div class="rf-group">
                     <label class="rf-label">Username</label>
                     <div class="rf-input-wrap">
-                        <span class="rf-prefix">@</span>
-                        <input type="text" name="username" class="rf-input rf-input-padded"
+                        <input type="text" name="username" class="rf-input"
                                placeholder="Enter username" required>
                     </div>
                 </div>
