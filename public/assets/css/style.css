@@ -3176,6 +3176,10 @@ input, textarea, select { font-family: inherit; }
     color: #fff;
     border: none;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
     transition: background 0.15s, opacity 0.15s;
     line-height: 1.4;
 }
