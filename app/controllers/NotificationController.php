@@ -160,26 +160,11 @@ class NotificationController {
             }
 
             if ($action === 'delete') {
-                $totalStmt = $this->db->prepare("
-                    SELECT COUNT(*) as total_count
-                    FROM notifications
-                    WHERE user_id = ? AND id IN ($idPlaceholders)
-                ");
-                $totalStmt->execute($params);
-                $row = $totalStmt->fetch(PDO::FETCH_ASSOC);
-                $requestedCount = (int) ($row['total_count'] ?? 0);
-
                 $deleteStmt = $this->db->prepare("
                     DELETE FROM notifications
-                    WHERE user_id = ? AND id IN ($idPlaceholders) AND is_read = 1
+                    WHERE user_id = ? AND id IN ($idPlaceholders)
                 ");
                 $deleteStmt->execute($params);
-
-                if ($deleteStmt->rowCount() < $requestedCount) {
-                    $_SESSION['error'] = 'Delete is only allowed for notifications that are already read.';
-                    header('Location: ' . $backUrl);
-                    exit;
-                }
 
                 $_SESSION['success'] = $deleteStmt->rowCount() > 0
                     ? 'Selected notifications deleted.'

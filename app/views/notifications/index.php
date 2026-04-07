@@ -111,12 +111,10 @@ function notifLink($n) {
                 const allChecked = selectedCount === items.length;
                 selectAll.checked = allChecked;
                 selectAll.indeterminate = selectedCount > 0 && !allChecked;
-                const everySelectedIsRead = selectedCount > 0 && checked.every(i => i.dataset.isRead === '1');
-                deleteBtn.style.display = 'inline-flex';
-                deleteBtn.disabled = selectedCount === 0 || !everySelectedIsRead;
-                deleteBtn.title = selectedCount === 0
-                    ? 'Select notifications to delete'
-                    : (everySelectedIsRead ? 'Delete selected' : 'Only read notifications can be deleted');
+                const showDelete = selectedCount > 0;
+                deleteBtn.style.display = showDelete ? 'inline-flex' : 'none';
+                deleteBtn.disabled = !showDelete;
+                deleteBtn.title = showDelete ? 'Delete selected' : 'Select notifications to delete';
             };
 
             selectAll.addEventListener('change', function () {
