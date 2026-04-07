@@ -153,7 +153,8 @@ $username   = $_SESSION['username'];
                     </span>
                 </a>
             </div>
-            <!-- Search — direct child of topbar so flex:1 works -->
+            <!-- Spacer pushes search form to the right, beside the "Suggested for you" sidebar -->
+            <div class="topbar-fill"></div>
             <form class="topbar-search-form" action="index.php" method="GET">
                     <input type="hidden" name="url" value="search">
                     <i class="fa fa-magnifying-glass"></i>

@@ -311,12 +311,11 @@ input, textarea, select { font-family: inherit; }
 
 .topbar-search-form {
     position: relative;
-    flex: 1;
-    max-width: 50%;
+    width: 220px;
     min-width: 100px;
     display: flex;
     align-items: center;
-    margin: 0 auto;
+    margin-right: 12px;
 }
 
 .topbar-search-form i {
@@ -881,6 +880,7 @@ input, textarea, select { font-family: inherit; }
 
 .auth-btn:hover  { background: var(--primary-h); }
 .auth-btn:active { transform: scale(0.98); }
+.auth-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 .auth-btn-linklike {
     display: block;
     text-align: center;

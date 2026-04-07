@@ -37,6 +37,14 @@
             <?php unset($_SESSION['error']); ?>
         <?php endif; ?>
 
+        <?php
+        $fpCooldown = 0;
+        if (!empty($_SESSION['_fp_cooldown_seconds'])) {
+            $fpCooldown = (int)$_SESSION['_fp_cooldown_seconds'];
+            unset($_SESSION['_fp_cooldown_seconds']);
+        }
+        ?>
+
         <?php if (!empty($_SESSION['success'])): ?>
             <div class="auth-alert auth-alert-success">
                 <i class="fa fa-circle-check"></i>
@@ -56,8 +64,35 @@
                 </div>
             </div>
 
-            <button type="submit" class="auth-btn">Send Reset Link</button>
+            <button type="submit" class="auth-btn" id="fp-submit-btn"
+                    <?= $fpCooldown > 0 ? 'disabled' : '' ?>>Send Reset Link</button>
         </form>
+
+        <?php if ($fpCooldown > 0): ?>
+        <p class="auth-cooldown-msg" id="fp-cooldown-msg" style="text-align:center;margin-top:12px;font-size:13px;color:var(--muted-fg);">
+            You can request another link in <strong id="fp-countdown"><?= $fpCooldown ?></strong> <span id="fp-countdown-label">second<?= $fpCooldown !== 1 ? 's' : '' ?></span>.
+        </p>
+        <script>
+        (function () {
+            var remaining = <?= $fpCooldown ?>;
+            var el = document.getElementById('fp-countdown');
+            var label = document.getElementById('fp-countdown-label');
+            var btn = document.getElementById('fp-submit-btn');
+            var msg = document.getElementById('fp-cooldown-msg');
+            var interval = setInterval(function () {
+                remaining--;
+                if (remaining <= 0) {
+                    clearInterval(interval);
+                    btn.disabled = false;
+                    msg.style.display = 'none';
+                } else {
+                    el.textContent = remaining;
+                    label.textContent = remaining === 1 ? 'second' : 'seconds';
+                }
+            }, 1000);
+        })();
+        </script>
+        <?php endif; ?>
 
     </div>
 
