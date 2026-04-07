@@ -83,7 +83,7 @@
     </div>
 
     <div class="auth-footer-card">
-        <a href="index.php?url=login">← Back to Sign in</a>
+        <a href="index.php?url=login">&larr; Back to Sign in</a>
     </div>
 </div>
 
