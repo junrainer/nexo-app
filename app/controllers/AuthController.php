@@ -39,6 +39,11 @@ class AuthController {
 
         $user = $this->userModel->findByUsername($identifier);
 
+        // If no user found by username, try treating the identifier as an email
+        if (!$user && str_contains($identifier, '@')) {
+            $user = $this->userModel->findByEmail($identifier);
+        }
+
         if (!$user || !password_verify($password, $user['password'])) {
             Security::incrementAttempts($identifier);
             $_SESSION['error'] = 'Invalid username or password.';
