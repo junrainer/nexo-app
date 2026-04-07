@@ -203,7 +203,7 @@ $username   = $_SESSION['username'];
                 <div class="avatar-menu">
                     <button class="avatar-trigger" onclick="toggleAvatarMenu(event)" id="avatar-btn">
                         <img src="<?= ($_SESSION['profile_image'] ?? 'default.png') !== 'default.png' ? 'assets/uploads/' . htmlspecialchars($_SESSION['profile_image']) : 'assets/images/default-profile.webp' ?>"
-                             alt="avatar" class="avatar-sm avatar-ring"
+                             alt="avatar" class="avatar-md avatar-ring"
                              onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                     </button>
                     <div class="avatar-dropdown" id="avatar-dropdown">
