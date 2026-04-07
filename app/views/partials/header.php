@@ -243,8 +243,10 @@ $username   = $_SESSION['username'];
             <div class="floating-chat" id="floating-chat">
                 <div class="floating-chat-header">
                     <div class="floating-chat-user">
-                        <img id="floating-chat-avatar" src="assets/images/default-profile.webp" alt="avatar" class="avatar-sm"
-                             onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
+                        <div id="floating-chat-avatar-wrap" class="fc-avatar-wrap">
+                            <img id="floating-chat-avatar" src="assets/images/default-profile.webp" alt="avatar" class="avatar-sm"
+                                 onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
+                        </div>
                         <span id="floating-chat-name"></span>
                     </div>
                     <div class="floating-chat-actions">

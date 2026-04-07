@@ -15,6 +15,22 @@ require __DIR__ . '/../partials/header.php';
         <?php unset($_SESSION['success']); ?>
     <?php endif; ?>
 
+<!-- ── FRIENDS ONLINE BAR ── -->
+<?php if (!empty($feedFriends)): ?>
+<div class="online-bar" id="online-bar">
+    <?php foreach ($feedFriends as $f): ?>
+    <div class="online-bar-item" data-uid="<?= (int)$f['id'] ?>">
+        <a href="index.php?url=profile/<?= htmlspecialchars($f['username']) ?>" class="online-bar-avatar">
+            <img src="assets/uploads/<?= htmlspecialchars($f['profile_image'] ?? 'default.png') ?>"
+                 alt="avatar"
+                 onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
+        </a>
+        <span class="online-bar-name"><?= htmlspecialchars(mb_strimwidth($f['full_name'], 0, 9, '')) ?></span>
+    </div>
+    <?php endforeach; ?>
+</div>
+<?php endif; ?>
+
     <!-- ── CREATE POST ── -->
     <div class="compose-card">
         <form action="index.php?url=post/create" method="POST" enctype="multipart/form-data">
@@ -84,11 +100,13 @@ require __DIR__ . '/../partials/header.php';
 
             <!-- Header -->
             <div class="post-header">
-                <a href="index.php?url=profile/<?= htmlspecialchars($post['username']) ?>">
-                    <img src="assets/uploads/<?= htmlspecialchars($post['profile_image']) ?>"
-                         alt="avatar" class="avatar-md"
-                         onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
-                </a>
+                <div class="post-avatar-wrap" data-uid="<?= (int)$post['user_id'] ?>">
+                    <a href="index.php?url=profile/<?= htmlspecialchars($post['username']) ?>">
+                        <img src="assets/uploads/<?= htmlspecialchars($post['profile_image']) ?>"
+                             alt="avatar" class="avatar-md"
+                             onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
+                    </a>
+                </div>
                 <div class="post-author-info">
                     <a href="index.php?url=profile/<?= htmlspecialchars($post['username']) ?>" class="post-author-name">
                         <?= htmlspecialchars($post['username']) ?>

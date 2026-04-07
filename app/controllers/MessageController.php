@@ -335,8 +335,10 @@ class MessageController {
         try {
             $stmt = $this->db->prepare("
                 SELECT c.id,
+                       u.id AS other_user_id,
                        u.full_name  AS name,
                        u.profile_image AS avatar,
+                       CASE WHEN IFNULL(u.last_seen, '2000-01-01') > NOW() - INTERVAL 5 MINUTE THEN 1 ELSE 0 END AS is_online,
                        (SELECT message FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) AS last_message,
                        (SELECT created_at FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) AS last_time,
                        (SELECT COUNT(*) FROM messages WHERE conversation_id = c.id AND sender_id != :uid2 AND is_read = FALSE) AS unread
@@ -359,10 +361,11 @@ class MessageController {
                     'id'           => $r['id'],
                     'name'         => $r['name'],
                     'avatar'       => $r['avatar'] ?: 'default.png',
+                    'other_user_id'=> (int)$r['other_user_id'],
                     'last_message' => $r['last_message'] ?: '',
                     'last_time'    => $r['last_time']    ?: '',
                     'unread'       => (int)$r['unread'],
-                    'online'       => false,
+                    'online'       => (bool)($r['is_online'] ?? false),
                 ];
             }, $rows);
 

@@ -125,9 +125,11 @@ require __DIR__ . '/../partials/header.php';
 
                 <div class="post-card" id="post-<?= $post['id'] ?>">
                     <div class="post-header">
-                        <img src="assets/uploads/<?= htmlspecialchars($user['profile_image']) ?>"
-                             alt="avatar" class="avatar-md"
-                             onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
+                        <div class="post-avatar-wrap" data-uid="<?= (int)$user['id'] ?>">
+                            <img src="assets/uploads/<?= htmlspecialchars($user['profile_image']) ?>"
+                                 alt="avatar" class="avatar-md"
+                                 onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
+                        </div>
                         <div class="post-author-info">
                             <span class="post-author-name"><?= htmlspecialchars($user['username']) ?></span>
                             <span class="post-author-meta">

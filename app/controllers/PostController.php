@@ -49,6 +49,22 @@ class PostController {
             $suggestions = [];
         }
 
+        // Friends for the online-status bar above the compose card
+        try {
+            $stmt = $this->db->prepare("
+                SELECT u.id, u.username, u.full_name, u.profile_image
+                FROM friendships f
+                JOIN users u ON f.friend_id = u.id
+                WHERE f.user_id = ? AND f.status = 'accepted'
+                ORDER BY u.full_name
+                LIMIT 20
+            ");
+            $stmt->execute([$currentUserId]);
+            $feedFriends = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $feedFriends = [];
+        }
+
         $pageTitle = 'Feed – Nexo';
         require __DIR__ . '/../views/posts/feed.php';
     }

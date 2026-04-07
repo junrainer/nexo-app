@@ -31,9 +31,11 @@ require __DIR__ . '/../partials/header.php';
                 <?php foreach ($conversations as $conv): ?>
                 <a href="index.php?url=messages&c=<?= $conv['id'] ?>" 
                    class="conversation-item <?= ($activeConversationId == $conv['id']) ? 'active' : '' ?>">
-                    <img src="assets/uploads/<?= htmlspecialchars($conv['other_image'] ?? 'default.png') ?>"
-                         alt="avatar" class="avatar-md"
-                         onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
+                    <div class="conv-avatar-wrap" data-uid="<?= (int)$conv['other_user_id'] ?>">
+                        <img src="assets/uploads/<?= htmlspecialchars($conv['other_image'] ?? 'default.png') ?>"
+                             alt="avatar" class="avatar-md"
+                             onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
+                    </div>
                     <div class="conversation-info">
                         <div class="conversation-top">
                             <span class="conversation-name"><?= htmlspecialchars($conv['other_name']) ?></span>
@@ -59,9 +61,11 @@ require __DIR__ . '/../partials/header.php';
                         <i class="fa fa-arrow-left"></i>
                     </a>
                     <a href="index.php?url=profile/<?= htmlspecialchars($activeUser['username']) ?>" class="chat-user-info">
-                        <img src="assets/uploads/<?= htmlspecialchars($activeUser['profile_image'] ?? 'default.png') ?>"
-                             alt="avatar" class="avatar-md"
-                             onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
+                        <div class="conv-avatar-wrap" data-uid="<?= (int)$activeUser['id'] ?>">
+                            <img src="assets/uploads/<?= htmlspecialchars($activeUser['profile_image'] ?? 'default.png') ?>"
+                                 alt="avatar" class="avatar-md"
+                                 onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
+                        </div>
                         <div>
                             <span class="chat-user-name"><?= htmlspecialchars($activeUser['full_name']) ?></span>
                             <span class="chat-user-status">@<?= htmlspecialchars($activeUser['username']) ?></span>

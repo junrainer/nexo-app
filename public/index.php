@@ -60,12 +60,13 @@ if (!$isGuest && in_array($url, $guestRoutes)) {
 // ── CSRF validation for all POST requests ─────────────────────
 // AJAX routes return JSON; regular routes redirect on failure.
 $ajaxRoutes = [
-    'post/like', 'post/save', 'post/unsave',
+    'post/like', 'post/save', 'post/unsave', 'post/check',
     'comment/like',
     'message/send', 'message/new', 'message/unread',
     'friend/request', 'friend/accept', 'friend/decline', 'friend/unfriend', 'friend/status',
     'notifications', 'notifications/count', 'notification/read', 'notifications/read',
     'settings/darkmode',
+    'user/heartbeat', 'user/online',
 ];
 
 if ($method === 'POST' && !Security::validateToken()) {
@@ -88,6 +89,16 @@ $messages = new MessageController();
 $friends  = new FriendController();
 $notifs   = new NotificationController();
 $settings = new SettingsController();
+
+// ── Update last_seen on every authenticated request ───────────
+if (!$isGuest) {
+    try {
+        $db = Database::getInstance()->getConnection();
+        $db->prepare('UPDATE users SET last_seen = NOW() WHERE id = ?')->execute([$_SESSION['user_id']]);
+    } catch (PDOException $e) {
+        // Column may not exist yet on first run; ignore.
+    }
+}
 
 // ── Route ─────────────────────────────────────────────────────
 switch (true) {
@@ -118,6 +129,21 @@ switch (true) {
 
     // Saved posts
     case $url === 'saved' && $method === 'GET': $posts->saved(); break;
+
+    // Post existence check (AJAX – used by saved posts navigation)
+    case $url === 'post/check' && $method === 'GET':
+        header('Content-Type: application/json');
+        $checkId = (int)($_GET['post_id'] ?? 0);
+        if (!$checkId) { echo json_encode(['exists' => false]); exit; }
+        try {
+            $checkDb   = Database::getInstance()->getConnection();
+            $checkStmt = $checkDb->prepare('SELECT id FROM posts WHERE id = ?');
+            $checkStmt->execute([$checkId]);
+            echo json_encode(['exists' => (bool)$checkStmt->fetch()]);
+        } catch (PDOException $e) {
+            echo json_encode(['exists' => false]);
+        }
+        exit;
 
     // Comments
     case $url === 'comment/add'    && $method === 'POST': $posts->addComment();    break;
@@ -169,6 +195,32 @@ switch (true) {
     case (bool) preg_match('#^profile/([a-zA-Z0-9_]+)$#', $url, $m):
         $profile->show($m[1]);
         break;
+
+    // ── Presence / online status ────────────────────────────────
+    case $url === 'user/heartbeat' && $method === 'POST':
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true]);   // last_seen already updated above
+        exit;
+
+    case $url === 'user/online' && $method === 'GET':
+        header('Content-Type: application/json');
+        $rawIds  = explode(',', $_GET['ids'] ?? '');
+        $userIds = array_values(array_unique(array_filter(array_map('intval', $rawIds))));
+        if (empty($userIds)) { echo json_encode(['online' => []]); exit; }
+        try {
+            $onlineDb    = Database::getInstance()->getConnection();
+            $placeholders = implode(',', array_fill(0, count($userIds), '?'));
+            $onlineStmt  = $onlineDb->prepare(
+                "SELECT id FROM users
+                 WHERE id IN ($placeholders)
+                   AND last_seen > NOW() - INTERVAL 5 MINUTE"
+            );
+            $onlineStmt->execute($userIds);
+            echo json_encode(['online' => array_map('intval', array_column($onlineStmt->fetchAll(PDO::FETCH_ASSOC), 'id'))]);
+        } catch (PDOException $e) {
+            echo json_encode(['online' => []]);
+        }
+        exit;
 
     // Default — redirect to feed or login
     default:

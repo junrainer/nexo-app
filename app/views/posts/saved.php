@@ -31,33 +31,35 @@ require __DIR__ . '/../partials/header.php';
                 }
             ?>
             <div class="gm-saved-card" id="saved-<?= $post['id'] ?>">
-                <?php if ($firstMedia): ?>
-                <div class="gm-saved-img">
-                    <?php if ($firstMedia['media_type'] === 'video'): ?>
-                        <video src="assets/uploads/<?= htmlspecialchars($firstMedia['filename']) ?>"
-                               preload="metadata" muted style="width:100%;height:100%;object-fit:cover;"></video>
-                    <?php else: ?>
-                        <img src="assets/uploads/<?= htmlspecialchars($firstMedia['filename']) ?>"
-                             alt="post image"
-                             onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
-                    <?php endif; ?>
-                </div>
-                <?php else: ?>
-                <div class="gm-saved-img gm-saved-no-img">
-                    <i class="fa fa-file-lines"></i>
-                </div>
-                <?php endif; ?>
-
-                <div class="gm-saved-body">
-                    <div class="gm-saved-info">
-                        <p class="gm-saved-title"><?= htmlspecialchars(mb_strimwidth($post['content'], 0, 60, '…')) ?></p>
-                        <p class="gm-saved-meta">
-                            <?= htmlspecialchars($post['full_name']) ?> · <time class="live-time" data-time="<?= htmlspecialchars($post['created_at']) ?>"><?= time_ago($post['created_at']) ?></time>
-                        </p>
+                <button class="gm-saved-x" onclick="unsavePost(<?= $post['id'] ?>, this)" title="Remove from saved">
+                    <i class="fa fa-xmark"></i>
+                </button>
+                <div class="gm-saved-clickable" onclick="navigateToSavedPost(<?= $post['id'] ?>)">
+                    <?php if ($firstMedia): ?>
+                    <div class="gm-saved-img">
+                        <?php if ($firstMedia['media_type'] === 'video'): ?>
+                            <video src="assets/uploads/<?= htmlspecialchars($firstMedia['filename']) ?>"
+                                   preload="metadata" muted style="width:100%;height:100%;object-fit:cover;"></video>
+                        <?php else: ?>
+                            <img src="assets/uploads/<?= htmlspecialchars($firstMedia['filename']) ?>"
+                                 alt="post image"
+                                 onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
+                        <?php endif; ?>
                     </div>
-                    <button class="gm-unsave-btn" onclick="unsavePost(<?= $post['id'] ?>, this)" title="Remove from saved">
-                        <i class="fa fa-bookmark-slash"></i>
-                    </button>
+                    <?php else: ?>
+                    <div class="gm-saved-img gm-saved-no-img">
+                        <i class="fa fa-file-lines"></i>
+                    </div>
+                    <?php endif; ?>
+
+                    <div class="gm-saved-body">
+                        <div class="gm-saved-info">
+                            <p class="gm-saved-title"><?= htmlspecialchars(mb_strimwidth($post['content'], 0, 60, '…')) ?></p>
+                            <p class="gm-saved-meta">
+                                <?= htmlspecialchars($post['full_name']) ?> · <time class="live-time" data-time="<?= htmlspecialchars($post['created_at']) ?>"><?= time_ago($post['created_at']) ?></time>
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
             <?php endforeach; ?>
@@ -65,24 +67,5 @@ require __DIR__ . '/../partials/header.php';
     <?php endif; ?>
 
 </div>
-
-<script>
-function unsavePost(postId, btn) {
-    const fd = new FormData();
-    fd.append('post_id', postId);
-    fetch('index.php?url=post/unsave', { method: 'POST', body: fd })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                const card = document.getElementById('saved-' + postId);
-                if (card) {
-                    card.style.transition = 'opacity 0.3s';
-                    card.style.opacity = '0';
-                    setTimeout(() => card.remove(), 300);
-                }
-            }
-        });
-}
-</script>
 
 <?php require __DIR__ . '/../partials/footer.php'; ?>
