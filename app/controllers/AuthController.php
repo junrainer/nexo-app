@@ -218,6 +218,7 @@ class AuthController {
 
         $cooldownRemaining = $this->getForgotPasswordCooldownRemaining($email);
         if ($cooldownRemaining > 0) {
+            $_SESSION['_fp_cooldown_seconds'] = $cooldownRemaining;
             $_SESSION['error'] = 'Please wait ' . $cooldownRemaining . ' seconds before requesting another reset email.';
             header('Location: index.php?url=forgot-password');
             exit;

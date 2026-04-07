@@ -880,6 +880,7 @@ input, textarea, select { font-family: inherit; }
 
 .auth-btn:hover  { background: var(--primary-h); }
 .auth-btn:active { transform: scale(0.98); }
+.auth-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 .auth-btn-linklike {
     display: block;
     text-align: center;
