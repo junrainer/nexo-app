@@ -146,7 +146,7 @@ class UserModel {
                             END AS is_friend,
                             CASE
                                 WHEN u.last_active_at IS NOT NULL
-                                     AND u.last_active_at >= (NOW() - INTERVAL {$this->onlineWindowMinutes} MINUTE)
+                                     AND u.last_active_at >= (NOW() - INTERVAL :online_window MINUTE)
                                 THEN 1 ELSE 0
                             END AS is_online
                      FROM users u
@@ -156,9 +156,10 @@ class UserModel {
                      LIMIT 20"
                 );
                 $params = [
-                    ':uid_friend' => $currentUserId,
-                    ':uid_self'   => $currentUserId,
-                    ':like'       => $like,
+                    ':uid_friend'    => $currentUserId,
+                    ':uid_self'      => $currentUserId,
+                    ':like'          => $like,
+                    ':online_window' => $this->onlineWindowMinutes,
                 ];
                 if ($friendsOnly) {
                     $params[':uid_filter'] = $currentUserId;
