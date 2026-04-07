@@ -4,6 +4,11 @@
    Inter font · Purple accent · Card layout
    ============================================ */
 
+/* Hide browser's native password reveal button (Edge / Chrome) */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-webkit-credentials-auto-fill-button { display: none !important; }
+input[type="password"]::-webkit-textfield-decoration-container { display: none; }
+
 :root {
     --bg:        #1f1f1f;
     --card:      #262626;
