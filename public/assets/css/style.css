@@ -81,7 +81,6 @@ input, textarea, select { font-family: inherit; }
     min-height: 100vh;
 }
 
-.app-shell--messages .sidebar,
 .app-shell--messages .topbar,
 .app-shell--messages .mobile-nav,
 .app-shell--messages .sidebar-overlay {
