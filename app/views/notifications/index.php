@@ -25,6 +25,16 @@ function notifLink($n) {
         <h1><i class="fa fa-bell"></i> Notifications</h1>
     </div>
 
+    <?php if (!empty($_SESSION['error'])): ?>
+        <div class="alert alert-error"><i class="fa fa-circle-exclamation"></i> <?= htmlspecialchars($_SESSION['error']) ?></div>
+        <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
+
+    <?php if (!empty($_SESSION['success'])): ?>
+        <div class="alert alert-success"><i class="fa fa-circle-check"></i> <?= htmlspecialchars($_SESSION['success']) ?></div>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
+
     <?php if (empty($notifications)): ?>
         <div class="notif-page-empty">
             <i class="fa fa-bell-slash"></i>

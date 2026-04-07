@@ -225,14 +225,17 @@ class UserModel {
         try {
             $stmt = $this->db->prepare(
                 'SELECT id, username, full_name, profile_image FROM users
-                 WHERE id != ?
-                   AND id NOT IN (
-                       SELECT friend_id FROM friendships
-                       WHERE user_id = ? AND status = \'accepted\'
-                   )
-                 ORDER BY created_at DESC LIMIT 5'
+                  WHERE id != ?
+                    AND id NOT IN (
+                        SELECT friend_id FROM friendships
+                        WHERE user_id = ?
+                        UNION
+                        SELECT user_id FROM friendships
+                        WHERE friend_id = ?
+                    )
+                  ORDER BY created_at DESC LIMIT 5'
             );
-            $stmt->execute([$currentUserId, $currentUserId]);
+            $stmt->execute([$currentUserId, $currentUserId, $currentUserId]);
             return $stmt->fetchAll();
         } catch (PDOException $e) {
             // friendships table may not exist yet — return users without friend filter
