@@ -17,10 +17,6 @@ require __DIR__ . '/../partials/header.php';
                 <span class="post-cooldown-text">
                     Please wait <?= $remaining ?> <?= $unit ?> before creating another post.
                 </span>
-                <span class="post-cooldown-count" aria-live="polite">
-                    <span class="post-cooldown-number"><?= $remaining ?></span>
-                    <span class="post-cooldown-label"><?= $unit ?> remaining</span>
-                </span>
             </div>
         </div>
         <?php unset($_SESSION['post_cooldown_until']); ?>
