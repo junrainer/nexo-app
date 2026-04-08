@@ -7,6 +7,7 @@ class AuthController {
     private const RESET_VERIFY_TTL_SECONDS = 3600;
     private const FORGOT_PASSWORD_COOLDOWN_SECONDS = 60;
     private const FORGOT_PASSWORD_COOLDOWN_KEY = '_forgot_password_cooldown';
+    private const LOGO_CID_RANDOM_BYTE_COUNT = 8;
 
     public function __construct() {
         $this->userModel = new UserModel();
@@ -265,14 +266,15 @@ class AuthController {
             if (is_file($logoPath) && is_readable($logoPath)) {
                 $logoContent = file_get_contents($logoPath);
                 if ($logoContent !== false) {
-                    $randomByteCount = 8;
                     $logoCidDomain = parse_url($baseUrl, PHP_URL_HOST) ?: 'localhost';
                     $domainWithoutPort = preg_replace('/:\\d+$/', '', (string) $logoCidDomain);
                     $logoCidDomain = preg_replace('/[^a-z0-9.-]/i', '', $domainWithoutPort);
+                    $logoCidDomain = preg_replace('/\\.{2,}/', '.', $logoCidDomain);
+                    $logoCidDomain = trim($logoCidDomain, '.-');
                     if ($logoCidDomain === '') {
                         $logoCidDomain = 'localhost';
                     }
-                    $logoCid = 'nexo-logo-' . bin2hex(random_bytes($randomByteCount)) . '@' . $logoCidDomain;
+                    $logoCid = 'nexo-logo-' . bin2hex(random_bytes(self::LOGO_CID_RANDOM_BYTE_COUNT)) . '@' . $logoCidDomain;
                     $logoSrc = 'cid:' . $logoCid;
                     $inlineAttachments[] = [
                         'cid' => $logoCid,
