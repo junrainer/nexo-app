@@ -447,7 +447,7 @@ class AuthController {
 
     private function sanitizeLogoCidDomain(string $baseUrl): string {
         $domain = parse_url($baseUrl, PHP_URL_HOST) ?: 'localhost';
-        $domain = preg_replace('/:\\d+$/', '', (string) $domain);
+        $domain = preg_replace('/:\\d+$/', '', $domain);
         $domain = preg_replace('/[^a-z0-9.-]/i', '', $domain);
         $domain = preg_replace('/\\.{2,}/', '.', $domain);
         $domain = trim($domain, '.-');
