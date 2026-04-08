@@ -1468,6 +1468,10 @@ document.addEventListener('click', e => {
     }
 });
 
+function isMessageDelivered(isRead) {
+    return Number(isRead) === 1 || isRead === true;
+}
+
 function sendMessage(e) {
     e.preventDefault();
     const form  = e.target;
@@ -1514,7 +1518,7 @@ function appendMessage(msg, isSent) {
     const sentTimeAttrs = msg.created_at
         ? ` class="live-time message-time" data-time="${sentTime}" datetime="${sentTime}"`
         : ' class="message-time"';
-    const isDelivered = isSent && (Number(msg.is_read) === 1 || msg.is_read === true);
+    const isDelivered = isSent && isMessageDelivered(msg.is_read);
     const statusLabel = isSent ? (isDelivered ? 'Delivered' : 'Sent') : '';
     html += `
             <div class="message-body">
@@ -1733,7 +1737,9 @@ function _loadFloatingChatMessages(convId) {
                     const recip = document.getElementById('floating-chat-recipient');
                     if (recip) recip.value = data.recipient_id;
                 }
-                (data.messages || []).forEach(msg => {
+                const messages = Array.isArray(data.messages) ? data.messages : [];
+                const hasMessages = messages.length > 0;
+                messages.forEach(msg => {
                     _appendFloatingMsg(
                         msg.message,
                         !!msg.is_mine,
@@ -1747,7 +1753,7 @@ function _loadFloatingChatMessages(convId) {
                 _scrollFloatingChatToBottom();
                 const inp = document.getElementById('floating-chat-input');
                 if (inp) inp.focus();
-                if (typeof fetchBadgeCounts === 'function') fetchBadgeCounts();
+                if (hasMessages && typeof fetchBadgeCounts === 'function') fetchBadgeCounts();
             }
         })
         .catch(() => {
@@ -1791,7 +1797,7 @@ function _appendFloatingMsg(text, isMine, profileImage, createdAt, msgId, isRead
     }
     const timeStr = createdAt ? timeAgo(createdAt) : 'just now';
     const timeAttr = createdAt ? ` class="live-time message-time" data-time="${escapeHtml(createdAt)}"` : ' class="message-time"';
-    const isDelivered = isMine && (Number(isRead) === 1 || isRead === true);
+    const isDelivered = isMine && isMessageDelivered(isRead);
     const statusLabel = isMine ? (isDelivered ? 'Delivered' : 'Sent') : '';
     html += `
             <div class="message-body">
