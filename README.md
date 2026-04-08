@@ -7,9 +7,9 @@
 ## Upload limits (photos)
 To attach up to 5 photos in a single post (5 MB each), ensure PHP limits allow it:
 - `upload_max_filesize` ≥ **5M**
-- `post_max_size` ≥ **40M**
+- `post_max_size` ≥ **30M**
 
-The 40M limit allows five 5 MB photos plus multipart form overhead.
+The 30M limit allows five 5 MB photos plus headroom for multipart form overhead.
 
 If you use Apache with `mod_php`, these are set in `public/.htaccess`. For PHP-FPM/NGINX, update your `php.ini`.
 

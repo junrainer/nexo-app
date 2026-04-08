@@ -49,8 +49,8 @@ ServerSignature Off
 <IfModule mod_php.c>
     php_flag display_errors Off
     php_flag expose_php Off
-    # Allow up to 5 photos (5 MB each) plus multipart form overhead.
+    # Allow up to 5 photos (5 MB each) with headroom for multipart form overhead.
     php_value upload_max_filesize 5M
-    php_value post_max_size 40M
+    php_value post_max_size 30M
     php_value max_file_uploads 5
 </IfModule>
