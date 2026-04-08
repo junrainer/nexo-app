@@ -221,6 +221,27 @@ class UserModel {
         }, $rows);
     }
 
+    public function getSidebarContacts(int $currentUserId, int $limit = 10): array {
+        try {
+            $limit = max(1, (int) $limit);
+            $stmt = $this->db->prepare(
+                'SELECT u.id, u.username, u.full_name, u.profile_image
+                 FROM friendships f
+                 JOIN users u ON f.friend_id = u.id
+                 WHERE f.user_id = :user_id AND f.status = :status
+                 ORDER BY u.full_name
+                 LIMIT :limit'
+            );
+            $stmt->bindValue(':user_id', $currentUserId, PDO::PARAM_INT);
+            $stmt->bindValue(':status', 'accepted', PDO::PARAM_STR);
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
     public function getSuggestions(int $currentUserId): array {
         try {
             $stmt = $this->db->prepare(

@@ -3,22 +3,7 @@
 
             <!-- RIGHT SIDEBAR -->
             <?php if (!isset($hideRightSidebar)): ?>
-            <?php
-            $sidebarContacts = [];
-            try {
-                $db = Database::getInstance()->getConnection();
-                $stmt = $db->prepare("
-                    SELECT u.id, u.username, u.full_name, u.profile_image
-                    FROM friendships f
-                    JOIN users u ON f.friend_id = u.id
-                    WHERE f.user_id = ? AND f.status = 'accepted'
-                    ORDER BY u.full_name
-                    LIMIT 10
-                ");
-                $stmt->execute([$_SESSION['user_id']]);
-                $sidebarContacts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            } catch (PDOException $e) { /* friendships table may not exist */ }
-            ?>
+            <?php $sidebarContacts = $sidebarContacts ?? []; ?>
             <aside class="right-sidebar">
                 <div class="sidebar-half">
                     <h3 class="right-sidebar-title">Suggested for you</h3>

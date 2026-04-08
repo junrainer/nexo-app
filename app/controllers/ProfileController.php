@@ -14,6 +14,9 @@ class ProfileController {
 
     public function show(string $username): void {
         $user = $this->userModel->findByUsername($username);
+        $currentUserId = $_SESSION['user_id'];
+
+        $sidebarContacts = $this->userModel->getSidebarContacts($currentUserId);
 
         if (!$user) {
             http_response_code(404);
@@ -24,7 +27,6 @@ class ProfileController {
             exit;
         }
 
-        $currentUserId = $_SESSION['user_id'];
         $posts         = $this->postModel->getByUser($user['id'], $currentUserId);
         $isOwner       = ((int)$user['id'] === (int)$currentUserId);
 

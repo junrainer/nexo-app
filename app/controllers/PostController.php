@@ -52,6 +52,8 @@ class PostController {
             $suggestions = [];
         }
 
+        $sidebarContacts = $this->userModel->getSidebarContacts($currentUserId);
+
         $pageTitle = 'Feed – Nexo';
         require __DIR__ . '/../views/posts/feed.php';
     }
@@ -399,6 +401,8 @@ class PostController {
         } catch (PDOException $e) {
             $suggestions = [];
         }
+
+        $sidebarContacts = $this->userModel->getSidebarContacts($userId);
 
         $pageTitle = 'Saved – Nexo';
         require __DIR__ . '/../views/posts/saved.php';
