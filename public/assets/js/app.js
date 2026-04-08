@@ -541,10 +541,10 @@ function previewPostMedia(type, input) {
 
         const selectedCount = input.files.length;
         const files = Array.from(input.files).slice(0, available);
-        let warningMessage = '';
+        let limitExceededMessage = '';
         if (selectedCount > available) {
-            warningMessage = `Only ${available} more photo(s) can be added (max ${COMPOSE_MAX_PHOTOS} total). Extra files were ignored.`;
-            alert(warningMessage);
+            limitExceededMessage = `Only ${available} more photo(s) can be added (max ${COMPOSE_MAX_PHOTOS} total). Extra files were ignored.`;
+            alert(limitExceededMessage);
         }
 
         files.forEach(file => {
@@ -567,7 +567,7 @@ function previewPostMedia(type, input) {
         });
         syncComposeImageInput(input);
         updateMediaCountHint();
-        setComposeMediaWarning(warningMessage);
+        setComposeMediaWarning(limitExceededMessage);
 
     } else if (type === 'video') {
         const file = input.files[0];
