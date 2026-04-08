@@ -32,21 +32,22 @@ class Mailer {
      * @param string $to      Recipient email address
      * @param string $subject Email subject
      * @param string $body    HTML body
+     * @param array  $inlineAttachments Inline attachments (cid, mime, filename, content)
      * @return bool
      */
-    public function send(string $to, string $subject, string $body): bool {
+    public function send(string $to, string $subject, string $body, array $inlineAttachments = []): bool {
         // Try SMTP (works on XAMPP / VPS, blocked on InfinityFree free tier)
-        if ($this->sendSmtp($to, $subject, $body)) {
+        if ($this->sendSmtp($to, $subject, $body, $inlineAttachments)) {
             return true;
         }
 
         // Fallback: PHP mail() — works on most shared hosting including InfinityFree
-        return $this->sendMail($to, $subject, $body);
+        return $this->sendMail($to, $subject, $body, $inlineAttachments);
     }
 
     // ── SMTP (Gmail STARTTLS) ──────────────────────────────────
 
-    private function sendSmtp(string $to, string $subject, string $body): bool {
+    private function sendSmtp(string $to, string $subject, string $body, array $inlineAttachments): bool {
         $errno  = 0;
         $errstr = '';
         $socket = @fsockopen('tcp://' . $this->host, $this->port, $errno, $errstr, 10);
@@ -85,16 +86,16 @@ class Mailer {
             $this->cmd($socket, 'DATA');
             $this->expect($socket, '354');
 
+            [$contentHeaders, $messageBody] = $this->buildMessage($body, $inlineAttachments);
             $headers  = "Date: " . date('r') . "\r\n";
             $headers .= "Message-ID: <" . time() . "." . bin2hex(random_bytes(8)) . "@nexo.app>\r\n";
             $headers .= "From: {$this->fromName} <{$this->username}>\r\n";
             $headers .= "To: <{$to}>\r\n";
             $headers .= "Subject: {$subject}\r\n";
-            $headers .= "MIME-Version: 1.0\r\n";
-            $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+            $headers .= $contentHeaders;
             $headers .= "X-Mailer: Nexo/1.0\r\n";
 
-            fwrite($socket, $headers . "\r\n" . $body . "\r\n.\r\n");
+            fwrite($socket, $headers . "\r\n" . $messageBody . "\r\n.\r\n");
             $this->expect($socket, '250');
 
             $this->cmd($socket, 'QUIT');
@@ -110,16 +111,16 @@ class Mailer {
 
     // ── PHP mail() fallback ────────────────────────────────────
 
-    private function sendMail(string $to, string $subject, string $body): bool {
+    private function sendMail(string $to, string $subject, string $body, array $inlineAttachments): bool {
+        [$contentHeaders, $messageBody] = $this->buildMessage($body, $inlineAttachments);
         $headers  = "Date: " . date('r') . "\r\n";
         $headers .= "Message-ID: <" . time() . "." . bin2hex(random_bytes(8)) . "@nexo.app>\r\n";
         $headers .= "From: {$this->fromName} <{$this->username}>\r\n";
         $headers .= "Reply-To: {$this->username}\r\n";
-        $headers .= "MIME-Version: 1.0\r\n";
-        $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+        $headers .= $contentHeaders;
         $headers .= "X-Mailer: Nexo/1.0\r\n";
 
-        $result = @mail($to, $subject, $body, $headers);
+        $result = @mail($to, $subject, $messageBody, $headers);
         if (!$result) {
             error_log("Mailer mail() failed sending to {$to}");
         }
@@ -149,5 +150,69 @@ class Mailer {
             throw new \RuntimeException("SMTP expected $code, got: $response");
         }
         return $response;
+    }
+
+    private function sanitizeMime($mime): string {
+        if (!is_string($mime)) {
+            return 'application/octet-stream';
+        }
+        $mime = str_replace(["\r", "\n"], '', $mime);
+        if (!preg_match('/^[a-z0-9.+-]+\\/[a-z0-9.+-]+$/i', $mime)) {
+            return 'application/octet-stream';
+        }
+        return $mime;
+    }
+
+    private function sanitizeFilename($filename): string {
+        if (!is_string($filename)) {
+            return 'attachment';
+        }
+        $filename = basename($filename);
+        $filename = str_replace(["\r", "\n", '"'], '', $filename);
+        return $filename !== '' ? $filename : 'attachment';
+    }
+
+    private function sanitizeCid($cid): string {
+        if (!is_string($cid)) {
+            return '';
+        }
+        return str_replace(["\r", "\n"], '', $cid);
+    }
+
+    private function buildMessage(string $body, array $inlineAttachments): array {
+        if (empty($inlineAttachments)) {
+            $headers  = "MIME-Version: 1.0\r\n";
+            $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+            return [$headers, $body];
+        }
+
+        $boundary = 'nexo_' . bin2hex(random_bytes(12));
+        $headers  = "MIME-Version: 1.0\r\n";
+        $headers .= "Content-Type: multipart/related; boundary=\"{$boundary}\"\r\n";
+
+        $message  = "--{$boundary}\r\n";
+        $message .= "Content-Type: text/html; charset=UTF-8\r\n";
+        $message .= "Content-Transfer-Encoding: base64\r\n\r\n";
+        $message .= chunk_split(base64_encode($body));
+
+        foreach ($inlineAttachments as $attachment) {
+            $cid = $this->sanitizeCid($attachment['cid'] ?? '');
+            $content = $attachment['content'] ?? null;
+            if ($cid === '' || !is_string($content) || $content === '') {
+                continue;
+            }
+            $mime = $this->sanitizeMime($attachment['mime'] ?? 'application/octet-stream');
+            $filename = $this->sanitizeFilename($attachment['filename'] ?? $cid);
+
+            $message .= "--{$boundary}\r\n";
+            $message .= "Content-Type: {$mime}; name=\"{$filename}\"\r\n";
+            $message .= "Content-Transfer-Encoding: base64\r\n";
+            $message .= "Content-ID: <{$cid}>\r\n";
+            $message .= "Content-Disposition: inline; filename=\"{$filename}\"\r\n\r\n";
+            $message .= chunk_split(base64_encode($content));
+        }
+
+        $message .= "--{$boundary}--\r\n";
+        return [$headers, $message];
     }
 }

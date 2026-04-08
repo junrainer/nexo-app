@@ -7,6 +7,7 @@
  */
 $year     = date('Y');
 $safeUrl  = htmlspecialchars($verifyUrl, ENT_QUOTES, 'UTF-8');
+$logoSrcSafe = htmlspecialchars($logoSrc ?? '', ENT_QUOTES, 'UTF-8');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -32,7 +33,7 @@ $safeUrl  = htmlspecialchars($verifyUrl, ENT_QUOTES, 'UTF-8');
               <table cellpadding="0" cellspacing="0" border="0" role="presentation" align="center" style="margin:0 auto 10px;">
                 <tr>
                   <td style="background:#ffffff;border-radius:18px;padding:8px;">
-                    <img src="<?= htmlspecialchars($baseUrl, ENT_QUOTES, 'UTF-8') ?>/assets/images/app-logo.png"
+                    <img src="<?= $logoSrcSafe ?>"
                          alt="Nexo logo" width="72" height="72"
                          style="display:block;border-radius:14px;">
                   </td>
