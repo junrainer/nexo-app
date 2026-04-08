@@ -70,16 +70,18 @@ class PostController {
         // Anti-spam: enforce cooldown between posts
         $lastPost = $this->postModel->getLastByUser($userId);
         if ($lastPost) {
-            $elapsed = time() - strtotime($lastPost['created_at']);
-            if ($elapsed < 0) {
-                $elapsed = 0;
-            }
-            if ($elapsed < self::POST_COOLDOWN) {
-                $wait = self::POST_COOLDOWN - $elapsed;
-                $unit = $wait === 1 ? 'second' : 'seconds';
-                $_SESSION['error'] = "Please wait {$wait} {$unit} before creating another post.";
-                header('Location: index.php?url=feed');
-                exit;
+            $lastPostTime = strtotime($lastPost['created_at']);
+            if ($lastPostTime !== false) {
+                $cooldownUntil = $lastPostTime + self::POST_COOLDOWN;
+                $wait = $cooldownUntil - time();
+                if ($wait > 0) {
+                    $wait = (int) $wait;
+                    $unit = $wait === 1 ? 'second' : 'seconds';
+                    $_SESSION['error'] = "Please wait {$wait} {$unit} before creating another post.";
+                    $_SESSION['post_cooldown_until'] = $cooldownUntil;
+                    header('Location: index.php?url=feed');
+                    exit;
+                }
             }
         }
 

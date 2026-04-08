@@ -5,7 +5,20 @@ require __DIR__ . '/../partials/header.php';
 
 <div class="feed-wrap">
 
-    <?php if (!empty($_SESSION['error'])): ?>
+    <?php if (!empty($_SESSION['post_cooldown_until'])): ?>
+        <?php
+        $remaining = max(0, (int) $_SESSION['post_cooldown_until'] - time());
+        $unit      = $remaining === 1 ? 'second' : 'seconds';
+        ?>
+        <div class="alert alert-error" id="post-cooldown-alert"
+             data-cooldown-until="<?= (int) $_SESSION['post_cooldown_until'] ?>">
+            <i class="fa fa-circle-exclamation"></i>
+            <span class="post-cooldown-text">
+                Please wait <?= $remaining ?> <?= $unit ?> before creating another post.
+            </span>
+        </div>
+        <?php unset($_SESSION['post_cooldown_until'], $_SESSION['error']); ?>
+    <?php elseif (!empty($_SESSION['error'])): ?>
         <div class="alert alert-error"><i class="fa fa-circle-exclamation"></i> <?= htmlspecialchars($_SESSION['error']) ?></div>
         <?php unset($_SESSION['error']); ?>
     <?php endif; ?>
