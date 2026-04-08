@@ -75,7 +75,6 @@ class PostController {
                 $cooldownUntil = $lastPostTime + self::POST_COOLDOWN;
                 $wait = $cooldownUntil - time();
                 if ($wait > 0) {
-                    $unit = $wait === 1 ? 'second' : 'seconds';
                     $_SESSION['post_cooldown_until'] = $cooldownUntil;
                     header('Location: index.php?url=feed');
                     exit;
