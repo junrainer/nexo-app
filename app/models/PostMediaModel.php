@@ -82,7 +82,7 @@ class PostMediaModel {
             );
             return true;
         } catch (PDOException $e) {
-            error_log('PostMediaModel::ensureTable error during post_media table creation/verification: ' . $e->getMessage());
+            error_log('PostMediaModel::ensureTable error during post_media table creation with foreign keys: ' . $e->getMessage());
             try {
                 // Some hosts block foreign keys or use engines that reject FK constraints.
                 $this->db->exec(
