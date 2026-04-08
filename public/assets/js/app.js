@@ -488,6 +488,18 @@ const COMPOSE_MAX_VIDEO_BYTES = COMPOSE_MAX_VIDEO_GB * 1024 * 1024 * 1024;
 let composeImageEntries = [];
 let composeImageNextId  = 0;
 
+function setComposeMediaWarning(message) {
+    const warning = document.getElementById('media-warning');
+    if (!warning) return;
+    if (message) {
+        warning.textContent = message;
+        warning.classList.add('compose-warning--show');
+    } else {
+        warning.textContent = '';
+        warning.classList.remove('compose-warning--show');
+    }
+}
+
 function getComposeImageInput() {
     return document.querySelector('.compose-card input[name="images[]"]');
 }
@@ -512,6 +524,7 @@ function previewPostMedia(type, input) {
         // Cannot mix images with an already-chosen video
         if (wrap.querySelector('.preview-thumb[data-type="video"]')) {
             alert('Remove the video first before adding photos.');
+            setComposeMediaWarning('');
             input.value = '';
             return;
         }
@@ -520,15 +533,19 @@ function previewPostMedia(type, input) {
         const available = COMPOSE_MAX_PHOTOS - existing;
 
         if (available <= 0) {
-            alert(`You can only upload up to ${COMPOSE_MAX_PHOTOS} photos per post.`);
+            const message = `You can only upload up to ${COMPOSE_MAX_PHOTOS} photos per post.`;
+            alert(message);
+            setComposeMediaWarning(message);
             input.value = '';
             return;
         }
 
         const selectedCount = input.files.length;
         const files = Array.from(input.files).slice(0, available);
+        let warningMessage = '';
         if (selectedCount > available) {
-            alert(`Only ${available} more photo(s) can be added (max ${COMPOSE_MAX_PHOTOS} total). Extra files were ignored.`);
+            warningMessage = `Only ${available} more photo(s) can be added (max ${COMPOSE_MAX_PHOTOS} total). Extra files were ignored.`;
+            alert(warningMessage);
         }
 
         files.forEach(file => {
@@ -551,14 +568,17 @@ function previewPostMedia(type, input) {
         });
         syncComposeImageInput(input);
         updateMediaCountHint();
+        setComposeMediaWarning(warningMessage);
 
     } else if (type === 'video') {
+        setComposeMediaWarning('');
         const file = input.files[0];
         if (!file) return;
 
         // Cannot mix video with already-chosen images
         if (wrap.querySelector('.preview-thumb[data-type="image"]')) {
             alert('Remove the photos first before adding a video.');
+            setComposeMediaWarning('');
             input.value = '';
             return;
         }
@@ -610,6 +630,7 @@ function removePostMediaPreview(btn) {
     }
     thumb.remove();
     updateMediaCountHint();
+    setComposeMediaWarning('');
 }
 
 function updateMediaCountHint() {
@@ -627,6 +648,7 @@ function clearFileInput() {
     composeImageEntries = [];
     document.querySelectorAll('.compose-card input[type="file"]').forEach(inp => { inp.value = ''; });
     syncComposeImageInput();
+    setComposeMediaWarning('');
 }
 
 // ── Post media viewer (lightbox) ───────────────────────

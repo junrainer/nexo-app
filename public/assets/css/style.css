@@ -1450,6 +1450,8 @@ input, textarea, select { font-family: inherit; }
 }
 
 .compose-hint { font-size: 10px; color: var(--muted-fg); text-align: right; margin-top: 4px; }
+.compose-warning { font-size: 11px; color: #f59e0b; text-align: right; margin-top: 4px; display: none; }
+.compose-warning.compose-warning--show { display: block; }
 
 /* ── Video preview in compose ─────────────────────── */
 .preview-thumb.preview-video-thumb {

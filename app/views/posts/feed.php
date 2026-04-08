@@ -54,6 +54,7 @@ require __DIR__ . '/../partials/header.php';
 
             <div id="media-previews" class="image-previews"></div>
             <span id="media-count-hint" class="compose-hint"></span>
+            <span id="media-warning" class="compose-warning" aria-live="polite"></span>
 
             <input type="hidden" name="visibility" id="compose-visibility" value="public">
 
