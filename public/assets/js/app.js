@@ -524,7 +524,6 @@ function previewPostMedia(type, input) {
         // Cannot mix images with an already-chosen video
         if (wrap.querySelector('.preview-thumb[data-type="video"]')) {
             alert('Remove the video first before adding photos.');
-            setComposeMediaWarning('');
             input.value = '';
             return;
         }
@@ -571,14 +570,12 @@ function previewPostMedia(type, input) {
         setComposeMediaWarning(warningMessage);
 
     } else if (type === 'video') {
-        setComposeMediaWarning('');
         const file = input.files[0];
         if (!file) return;
 
         // Cannot mix video with already-chosen images
         if (wrap.querySelector('.preview-thumb[data-type="image"]')) {
             alert('Remove the photos first before adding a video.');
-            setComposeMediaWarning('');
             input.value = '';
             return;
         }
