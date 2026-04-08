@@ -592,6 +592,89 @@ function clearFileInput() {
     document.querySelectorAll('.compose-card input[type="file"]').forEach(inp => { inp.value = ''; });
 }
 
+// ── Post media viewer (lightbox) ───────────────────────
+let postMediaViewerItems = [];
+let postMediaViewerIndex = 0;
+
+function openPostMediaViewer(items, startIndex = 0) {
+    const overlay = document.getElementById('post-media-viewer');
+    if (!overlay || !items || items.length === 0) return;
+    postMediaViewerItems = items;
+    postMediaViewerIndex = Math.min(Math.max(startIndex, 0), items.length - 1);
+    updatePostMediaViewer();
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function updatePostMediaViewer() {
+    const overlay = document.getElementById('post-media-viewer');
+    const imgEl = document.getElementById('post-media-viewer-img');
+    const countEl = document.getElementById('post-media-viewer-count');
+    if (!overlay || !imgEl || postMediaViewerItems.length === 0) return;
+
+    const total = postMediaViewerItems.length;
+    postMediaViewerIndex = ((postMediaViewerIndex % total) + total) % total;
+    const current = postMediaViewerItems[postMediaViewerIndex];
+
+    imgEl.src = current;
+    imgEl.alt = `Post media ${postMediaViewerIndex + 1} of ${total}`;
+    if (countEl) countEl.textContent = `${postMediaViewerIndex + 1} / ${total}`;
+
+    const prevBtn = overlay.querySelector('.media-viewer-prev');
+    const nextBtn = overlay.querySelector('.media-viewer-next');
+    const showNav = total > 1;
+    if (prevBtn) prevBtn.style.display = showNav ? 'flex' : 'none';
+    if (nextBtn) nextBtn.style.display = showNav ? 'flex' : 'none';
+}
+
+function closePostMediaViewer() {
+    const overlay = document.getElementById('post-media-viewer');
+    if (!overlay) return;
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+function showPrevPostMedia() {
+    if (postMediaViewerItems.length === 0) return;
+    postMediaViewerIndex = postMediaViewerIndex - 1;
+    updatePostMediaViewer();
+}
+
+function showNextPostMedia() {
+    if (postMediaViewerItems.length === 0) return;
+    postMediaViewerIndex = postMediaViewerIndex + 1;
+    updatePostMediaViewer();
+}
+
+document.addEventListener('click', e => {
+    const targetImg = e.target.closest('.post-media-grid img');
+    if (!targetImg) return;
+    const grid = targetImg.closest('.post-media-grid');
+    if (!grid) return;
+    const images = Array.from(grid.querySelectorAll('img'))
+        .filter(img => img.style.display !== 'none');
+    const sources = images.map(img => img.currentSrc || img.src).filter(Boolean);
+    if (sources.length === 0) return;
+    const startIndex = Math.max(images.indexOf(targetImg), 0);
+    openPostMediaViewer(sources, startIndex);
+});
+
+document.addEventListener('keydown', e => {
+    const overlay = document.getElementById('post-media-viewer');
+    if (!overlay || overlay.style.display === 'none') return;
+    if (e.key === 'ArrowLeft') showPrevPostMedia();
+    if (e.key === 'ArrowRight') showNextPostMedia();
+    if (e.key === 'Escape') closePostMediaViewer();
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const overlay = document.getElementById('post-media-viewer');
+    if (!overlay) return;
+    overlay.addEventListener('click', e => {
+        if (e.target === overlay) closePostMediaViewer();
+    });
+});
+
 // ── Avatar preview (edit profile) ─────────────────────
 function previewAvatar(input) {
     const img = document.getElementById('avatar-preview');

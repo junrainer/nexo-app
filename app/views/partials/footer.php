@@ -99,6 +99,23 @@
             </a>
         </nav>
 
+        <!-- Post media viewer -->
+        <div class="modal-overlay media-viewer-overlay" id="post-media-viewer" style="display:none;">
+            <div class="media-viewer" role="dialog" aria-modal="true" aria-label="Post media viewer">
+                <button class="media-viewer-close" type="button" aria-label="Close" onclick="closePostMediaViewer()">
+                    <i class="fa fa-xmark"></i>
+                </button>
+                <button class="media-viewer-nav media-viewer-prev" type="button" aria-label="Previous image" onclick="showPrevPostMedia()">
+                    <i class="fa fa-chevron-left"></i>
+                </button>
+                <img id="post-media-viewer-img" src="" alt="Post media">
+                <button class="media-viewer-nav media-viewer-next" type="button" aria-label="Next image" onclick="showNextPostMedia()">
+                    <i class="fa fa-chevron-right"></i>
+                </button>
+                <div class="media-viewer-count" id="post-media-viewer-count"></div>
+            </div>
+        </div>
+
     </div><!-- end main-wrapper -->
 </div><!-- end app-shell -->
 <?php endif; ?>
