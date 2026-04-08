@@ -41,6 +41,15 @@ require __DIR__ . '/../partials/header.php';
                 </div>
             <?php else: ?>
                 <?php foreach ($conversations as $conv): ?>
+                <?php
+                    $lastMessageTime = $conv['last_message_time'] ?? ($conv['last_message_at'] ?? null);
+                    $lastMessageSender = $conv['last_message_sender_id'] ?? null;
+                    $lastMessageIsRead = $conv['last_message_is_read'] ?? null;
+                    $statusLabel = '';
+                    if (!empty($lastMessageSender) && (int) $lastMessageSender === $currentUserId) {
+                        $statusLabel = ((int) $lastMessageIsRead === 1) ? 'Delivered' : 'Sent';
+                    }
+                ?>
                 <a href="index.php?url=messages&c=<?= $conv['id'] ?>" 
                    class="conversation-item <?= ($activeConversationId == $conv['id']) ? 'active' : '' ?>">
                     <img src="assets/uploads/<?= htmlspecialchars($conv['other_image'] ?? 'default.png') ?>"
@@ -49,11 +58,18 @@ require __DIR__ . '/../partials/header.php';
                     <div class="conversation-info">
                         <div class="conversation-top">
                             <span class="conversation-name"><?= htmlspecialchars($conv['other_name']) ?></span>
-                            <?php if (!empty($conv['last_message_at'])): ?>
+                            <?php if (!empty($lastMessageTime)): ?>
                                 <span class="conversation-time">
-                                    <time class="live-time" data-time="<?= htmlspecialchars(time_iso($conv['last_message_at'])) ?>">
-                                        <?= time_ago($conv['last_message_at']) ?>
+                                    <time class="live-time" data-time="<?= htmlspecialchars(time_iso($lastMessageTime)) ?>">
+                                        <?= time_ago($lastMessageTime) ?>
                                     </time>
+                                    <?php if ($statusLabel): ?>
+                                        <span class="conversation-status"> · <?= $statusLabel ?></span>
+                                    <?php endif; ?>
+                                </span>
+                            <?php elseif ($statusLabel): ?>
+                                <span class="conversation-time">
+                                    <span class="conversation-status"><?= $statusLabel ?></span>
                                 </span>
                             <?php endif; ?>
                             <?php if ($conv['unread_count'] > 0): ?>
@@ -91,9 +107,9 @@ require __DIR__ . '/../partials/header.php';
                 <!-- Messages -->
                 <div class="chat-messages" id="chat-messages">
                     <?php foreach ($messages as $msg): ?>
-                    <div class="message <?= ($msg['sender_id'] == $_SESSION['user_id']) ? 'sent' : 'received' ?>"
-                         data-message-id="<?= $msg['id'] ?>">
-                        <?php if ($msg['sender_id'] != $_SESSION['user_id']): ?>
+                    <div class="message <?= ($msg['sender_id'] == $currentUserId) ? 'sent' : 'received' ?>"
+                          data-message-id="<?= $msg['id'] ?>">
+                        <?php if ($msg['sender_id'] != $currentUserId): ?>
                         <img src="assets/uploads/<?= htmlspecialchars($msg['profile_image'] ?? 'default.png') ?>"
                              alt="avatar" class="message-avatar"
                              onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
@@ -104,7 +120,7 @@ require __DIR__ . '/../partials/header.php';
                             </div>
                             <div class="message-meta">
                                 <time class="live-time message-time" data-time="<?= htmlspecialchars(time_iso($msg['created_at'])) ?>"><?= time_ago($msg['created_at']) ?></time>
-                                <?php if ($msg['sender_id'] == $_SESSION['user_id']): ?>
+                                <?php if ($msg['sender_id'] == $currentUserId): ?>
                                     <?php $isDelivered = ((int) $msg['is_read'] === 1); ?>
                                     <span class="message-status"><?= $isDelivered ? 'Delivered' : 'Sent' ?></span>
                                 <?php endif; ?>
@@ -283,7 +299,7 @@ setInterval(() => {
         .then(data => {
             if (data.success && data.messages.length > 0) {
                 data.messages.forEach(msg => {
-                    if (msg.sender_id != <?= $_SESSION['user_id'] ?>) {
+                    if (msg.sender_id != <?= $currentUserId ?>) {
                         appendMessage(msg, false);
                     }
                     lastMessageId = Math.max(lastMessageId, msg.id);

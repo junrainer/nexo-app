@@ -12,6 +12,7 @@ class MessageController {
      */
     public function index() {
         $userId = $_SESSION['user_id'];
+        $currentUserId = (int) $userId;
         $activeConversationId = $_GET['c'] ?? null;
         
         $conversations = [];
@@ -70,12 +71,21 @@ class MessageController {
                    u.username as other_username,
                    u.full_name as other_name,
                    u.profile_image as other_image,
-                   (SELECT message FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as last_message,
+                   m.message as last_message,
+                   m.created_at as last_message_time,
+                   m.sender_id as last_message_sender_id,
+                   m.is_read as last_message_is_read,
                    (SELECT COUNT(*) FROM messages WHERE conversation_id = c.id AND sender_id != ? AND is_read = FALSE) as unread_count
             FROM conversations c
             JOIN users u ON (u.id = IF(c.user1_id = ?, c.user2_id, c.user1_id))
+            LEFT JOIN (
+                SELECT conversation_id, MAX(id) AS last_message_id
+                FROM messages
+                GROUP BY conversation_id
+            ) lm ON lm.conversation_id = c.id
+            LEFT JOIN messages m ON m.id = lm.last_message_id
             WHERE c.user1_id = ? OR c.user2_id = ?
-            ORDER BY c.last_message_at DESC
+            ORDER BY COALESCE(m.created_at, c.last_message_at) DESC
         ");
         $stmt->execute([$userId, $userId, $userId, $userId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

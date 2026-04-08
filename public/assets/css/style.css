@@ -2357,6 +2357,13 @@ input, textarea, select { font-family: inherit; }
     color: var(--muted-fg);
     flex-shrink: 0;
     margin-left: 6px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.conversation-status {
+    font-size: 10px;
+    color: var(--muted-fg);
 }
 
 .unread-badge {

@@ -24,9 +24,63 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
 // Approximate seconds in a year (365.25 days to account for leap years).
 const SECONDS_IN_YEAR = 31557600;
 
+function resolve_timestamp(string $datetime): ?int {
+    $value = trim($datetime);
+    if ($value === '') {
+        return null;
+    }
+    if (is_numeric($value)) {
+        return (int) $value;
+    }
+
+    $now = time();
+    $timestamps = [];
+    $zones = [
+        new DateTimeZone(date_default_timezone_get()),
+        new DateTimeZone('UTC'),
+    ];
+
+    foreach ($zones as $zone) {
+        try {
+            $dt = new DateTimeImmutable($value, $zone);
+            $timestamps[] = $dt->getTimestamp();
+        } catch (Exception $e) {
+            continue;
+        }
+    }
+
+    if (empty($timestamps)) {
+        return null;
+    }
+
+    $bestTs = null;
+    $bestDiff = null;
+    // Prefer a non-future timestamp closest to now; if all are future, pick the closest one.
+    foreach ($timestamps as $ts) {
+        $diff = $now - $ts;
+        if ($diff >= 0 && ($bestDiff === null || $diff < $bestDiff)) {
+            $bestDiff = $diff;
+            $bestTs = $ts;
+        }
+    }
+
+    if ($bestTs === null) {
+        $bestDiff = null;
+        foreach ($timestamps as $ts) {
+            $diff = abs($now - $ts);
+            if ($bestDiff === null || $diff < $bestDiff) {
+                $bestDiff = $diff;
+                $bestTs = $ts;
+            }
+        }
+    }
+
+    return $bestTs;
+}
+
 function time_ago(string $datetime): string {
-    $timestamp = strtotime($datetime);
-    if ($timestamp === false) {
+    $timestamp = resolve_timestamp($datetime);
+    if ($timestamp === null) {
         return 'just now';
     }
     $diff = time() - $timestamp;
@@ -50,8 +104,8 @@ function time_ago(string $datetime): string {
 }
 
 function time_iso(string $datetime): string {
-    $timestamp = strtotime($datetime);
-    if ($timestamp === false) {
+    $timestamp = resolve_timestamp($datetime);
+    if ($timestamp === null) {
         return '';
     }
     return date(DATE_ATOM, $timestamp);
