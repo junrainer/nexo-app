@@ -6,7 +6,7 @@
 
 ## Upload limits (photos)
 To attach up to 5 photos in a single post (5 MB each), ensure PHP limits allow it:
-- `upload_max_filesize` ≥ **8M**
+- `upload_max_filesize` ≥ **5M**
 - `post_max_size` ≥ **32M**
 
 If you use Apache with `mod_php`, these are set in `public/.htaccess`. For PHP-FPM/NGINX, update your `php.ini`.
