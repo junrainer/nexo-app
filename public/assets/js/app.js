@@ -615,7 +615,7 @@ function updateMediaCountHint() {
     const wrap      = document.getElementById('media-previews');
     const hint      = document.getElementById('media-count-hint');
     if (!wrap || !hint) return;
-    const photoCount = composeImageEntries.length || wrap.querySelectorAll('.preview-thumb[data-type="image"]').length;
+    const photoCount = composeImageEntries.length;
     hint.textContent = photoCount > 0 ? `${photoCount} / ${COMPOSE_MAX_PHOTOS} photo${photoCount === 1 ? '' : 's'}` : '';
 }
 
