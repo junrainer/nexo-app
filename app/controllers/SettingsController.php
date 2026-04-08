@@ -1,10 +1,13 @@
 <?php
+require_once __DIR__ . '/../models/UserModel.php';
 
 class SettingsController {
     private $db;
+    private UserModel $userModel;
 
     public function __construct() {
         $this->db = Database::getInstance()->getConnection();
+        $this->userModel = new UserModel();
     }
 
     public function index() {
@@ -25,6 +28,12 @@ class SettingsController {
             $stmt = $this->db->prepare('SELECT * FROM user_preferences WHERE user_id = ?');
             $stmt->execute([$userId]);
             $preferences = $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+
+        try {
+            $sidebarContacts = $this->userModel->getSidebarContacts($userId);
+        } catch (PDOException $e) {
+            $sidebarContacts = [];
         }
 
         $pageTitle = 'Settings – Nexo';
