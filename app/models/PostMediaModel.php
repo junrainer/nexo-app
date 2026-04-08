@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../config/database.php';
 
 class PostMediaModel {
     private PDO $db;
+    private static ?bool $tableReady = null;
 
     public function __construct() {
         $this->db = Database::getInstance()->getConnection();
@@ -59,6 +60,9 @@ class PostMediaModel {
     }
 
     private function ensureTable(): bool {
+        if (self::$tableReady !== null) {
+            return self::$tableReady;
+        }
         try {
             $this->db->exec(
                 "CREATE TABLE IF NOT EXISTS post_media (
@@ -71,10 +75,28 @@ class PostMediaModel {
                     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
                 )"
             );
+            self::$tableReady = true;
             return true;
         } catch (PDOException $e) {
             error_log('PostMediaModel::ensureTable error during post_media table creation/verification: ' . $e->getMessage());
-            return false;
+            try {
+                $this->db->exec(
+                    "CREATE TABLE IF NOT EXISTS post_media (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        post_id INT NOT NULL,
+                        filename VARCHAR(255) NOT NULL,
+                        media_type ENUM('image','video') NOT NULL DEFAULT 'image',
+                        sort_order TINYINT UNSIGNED NOT NULL DEFAULT 0,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )"
+                );
+                self::$tableReady = true;
+                return true;
+            } catch (PDOException $fallbackError) {
+                error_log('PostMediaModel::ensureTable fallback error: ' . $fallbackError->getMessage());
+                self::$tableReady = false;
+                return false;
+            }
         }
     }
 }
