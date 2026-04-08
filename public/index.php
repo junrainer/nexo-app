@@ -25,28 +25,36 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
 const SECONDS_IN_YEAR = 31557600;
 
 function time_ago(string $datetime): string {
-    $diff = time() - strtotime($datetime);
-    if ($diff < 0) {
-        $diff = 0;
+    $timestamp = strtotime($datetime);
+    if ($timestamp === false) {
+        return 'just now';
     }
-    if ($diff < 60) {
-        $seconds = (int) $diff;
-        return $seconds . ' ' . ($seconds === 1 ? 'sec' : 'secs') . ' ago';
+    $diff = time() - $timestamp;
+    if ($diff <= 0 || $diff < 60) {
+        return 'just now';
     }
     if ($diff < 3600) {
         $minutes = (int) floor($diff / 60);
-        return $minutes . ' ' . ($minutes === 1 ? 'min' : 'mins') . ' ago';
+        return $minutes . 'm';
     }
     if ($diff < 86400) {
         $hours = (int) floor($diff / 3600);
-        return $hours . ' ' . ($hours === 1 ? 'hr' : 'hrs') . ' ago';
+        return $hours . 'h';
     }
     if ($diff < 604800) {
         $days = (int) floor($diff / 86400);
-        return $days . ' ' . ($days === 1 ? 'day' : 'days') . ' ago';
+        return $days . 'd';
     }
     $showYear = $diff >= SECONDS_IN_YEAR;
-    return date($showYear ? 'M j, Y' : 'M j', strtotime($datetime));
+    return date($showYear ? 'M j, Y' : 'M j', $timestamp);
+}
+
+function time_iso(string $datetime): string {
+    $timestamp = strtotime($datetime);
+    if ($timestamp === false) {
+        return '';
+    }
+    return date(DATE_ATOM, $timestamp);
 }
 
 // ── Helper: post visibility icon + label ─────────────────────

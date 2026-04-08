@@ -95,7 +95,7 @@ require __DIR__ . '/../partials/header.php';
                             <div class="message-content">
                                 <p><?= nl2br(htmlspecialchars($msg['message'])) ?></p>
                             </div>
-                            <span class="message-time"><time class="live-time" data-time="<?= htmlspecialchars($msg['created_at']) ?>"><?= time_ago($msg['created_at']) ?></time></span>
+                            <span class="message-time"><time class="live-time" data-time="<?= htmlspecialchars(time_iso($msg['created_at'])) ?>"><?= time_ago($msg['created_at']) ?></time></span>
                         </div>
                     </div>
                     <?php endforeach; ?>
