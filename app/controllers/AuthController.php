@@ -266,15 +266,7 @@ class AuthController {
             if (is_file($logoPath) && is_readable($logoPath)) {
                 $logoContent = file_get_contents($logoPath);
                 if ($logoContent !== false) {
-                    $logoCidDomain = parse_url($baseUrl, PHP_URL_HOST) ?: 'localhost';
-                    $domainWithoutPort = preg_replace('/:\\d+$/', '', (string) $logoCidDomain);
-                    $logoCidDomain = preg_replace('/[^a-z0-9.-]/i', '', $domainWithoutPort);
-                    $logoCidDomain = preg_replace('/\\.{2,}/', '.', $logoCidDomain);
-                    $logoCidDomain = trim($logoCidDomain, '.-');
-                    $domainPattern = '/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)(?:\\.(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?))*$/i';
-                    if ($logoCidDomain === '' || !preg_match($domainPattern, $logoCidDomain)) {
-                        $logoCidDomain = 'localhost';
-                    }
+                    $logoCidDomain = $this->sanitizeLogoCidDomain($baseUrl);
                     $logoCid = 'nexo-logo-' . bin2hex(random_bytes(self::LOGO_CID_RANDOM_BYTE_COUNT)) . '@' . $logoCidDomain;
                     $logoSrc = 'cid:' . $logoCid;
                     $inlineAttachments[] = [
@@ -451,6 +443,19 @@ class AuthController {
             header('Location: index.php?url=forgot-password');
             exit;
         }
+    }
+
+    private function sanitizeLogoCidDomain(string $baseUrl): string {
+        $domain = parse_url($baseUrl, PHP_URL_HOST) ?: 'localhost';
+        $domain = preg_replace('/:\\d+$/', '', (string) $domain);
+        $domain = preg_replace('/[^a-z0-9.-]/i', '', $domain);
+        $domain = preg_replace('/\\.{2,}/', '.', $domain);
+        $domain = trim($domain, '.-');
+        $domainPattern = '/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)(?:\\.(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?))*$/i';
+        if ($domain === '' || !preg_match($domainPattern, $domain)) {
+            return 'localhost';
+        }
+        return $domain;
     }
 
     private function findValidResetToken(string $token): ?array {
