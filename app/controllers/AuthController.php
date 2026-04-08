@@ -271,7 +271,8 @@ class AuthController {
                     $logoCidDomain = preg_replace('/[^a-z0-9.-]/i', '', $domainWithoutPort);
                     $logoCidDomain = preg_replace('/\\.{2,}/', '.', $logoCidDomain);
                     $logoCidDomain = trim($logoCidDomain, '.-');
-                    if ($logoCidDomain === '') {
+                    $domainPattern = '/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)(?:\\.(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?))*$/i';
+                    if ($logoCidDomain === '' || !preg_match($domainPattern, $logoCidDomain)) {
                         $logoCidDomain = 'localhost';
                     }
                     $logoCid = 'nexo-logo-' . bin2hex(random_bytes(self::LOGO_CID_RANDOM_BYTE_COUNT)) . '@' . $logoCidDomain;
