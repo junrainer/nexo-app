@@ -68,25 +68,41 @@ class PostController {
         }
 
         // Anti-spam: enforce cooldown between posts
-        $lastPost = $this->postModel->getLastByUser($userId);
-        if ($lastPost) {
-            $secondsSince = $lastPost['seconds_since'] ?? null;
-            if ($secondsSince !== null) {
-                $secondsSince = (int) $secondsSince;
+        $skipCooldownCheck = false;
+        if (!empty($_SESSION['post_cooldown_until'])) {
+            $cooldownUntil = (int) $_SESSION['post_cooldown_until'];
+            if (time() < $cooldownUntil) {
+                header('Location: index.php?url=feed');
+                exit;
             }
-            if ($secondsSince === null) {
-                $lastPostTime = strtotime($lastPost['created_at']);
-                if ($lastPostTime !== false) {
-                    $secondsSince = time() - $lastPostTime;
-                }
-            }
+            unset($_SESSION['post_cooldown_until']);
+            $skipCooldownCheck = true;
+        }
 
-            if ($secondsSince !== null) {
-                $wait = self::POST_COOLDOWN - $secondsSince;
-                if ($wait > 0) {
-                    $_SESSION['post_cooldown_until'] = time() + $wait;
-                    header('Location: index.php?url=feed');
-                    exit;
+        if (!$skipCooldownCheck) {
+            $lastPost = $this->postModel->getLastByUser($userId);
+            if ($lastPost) {
+                $secondsSince = $lastPost['seconds_since'] ?? null;
+                if ($secondsSince !== null) {
+                    $secondsSince = (int) $secondsSince;
+                }
+                if ($secondsSince === null) {
+                    $lastPostTime = strtotime($lastPost['created_at']);
+                    if ($lastPostTime !== false) {
+                        $secondsSince = time() - $lastPostTime;
+                    }
+                }
+
+                if ($secondsSince !== null) {
+                    if ($secondsSince < 0) {
+                        $secondsSince = 0;
+                    }
+                    $wait = self::POST_COOLDOWN - $secondsSince;
+                    if ($wait > 0) {
+                        $_SESSION['post_cooldown_until'] = time() + $wait;
+                        header('Location: index.php?url=feed');
+                        exit;
+                    }
                 }
             }
         }
