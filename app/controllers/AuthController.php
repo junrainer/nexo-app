@@ -265,11 +265,8 @@ class AuthController {
             if (is_file($logoPath) && is_readable($logoPath)) {
                 $logoContent = file_get_contents($logoPath);
                 if ($logoContent !== false) {
-                    $logoCidRandomBytes = 8;
-                    $logoCidDomain = parse_url($baseUrl, PHP_URL_HOST);
-                    if (!$logoCidDomain) {
-                        $logoCidDomain = $_SERVER['SERVER_NAME'] ?? '';
-                    }
+                    $logoCidRandomByteCount = 8;
+                    $logoCidDomain = parse_url($baseUrl, PHP_URL_HOST) ?: 'localhost';
                     $logoCidDomain = preg_replace(
                         '/[^a-z0-9.-]/i',
                         '',
@@ -278,7 +275,7 @@ class AuthController {
                     if ($logoCidDomain === '') {
                         $logoCidDomain = 'localhost';
                     }
-                    $logoCid = 'nexo-logo-' . bin2hex(random_bytes($logoCidRandomBytes)) . '@' . $logoCidDomain;
+                    $logoCid = 'nexo-logo-' . bin2hex(random_bytes($logoCidRandomByteCount)) . '@' . $logoCidDomain;
                     $logoSrc = 'cid:' . $logoCid;
                     $inlineAttachments[] = [
                         'cid' => $logoCid,
