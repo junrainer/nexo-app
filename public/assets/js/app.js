@@ -667,13 +667,12 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closePostMediaViewer();
 });
 
-document.addEventListener('DOMContentLoaded', function () {
-    const overlay = document.getElementById('post-media-viewer');
-    if (!overlay) return;
-    overlay.addEventListener('click', e => {
-        if (e.target === overlay) closePostMediaViewer();
+const postMediaOverlay = document.getElementById('post-media-viewer');
+if (postMediaOverlay) {
+    postMediaOverlay.addEventListener('click', e => {
+        if (e.target === postMediaOverlay) closePostMediaViewer();
     });
-});
+}
 
 // ── Avatar preview (edit profile) ─────────────────────
 function previewAvatar(input) {
