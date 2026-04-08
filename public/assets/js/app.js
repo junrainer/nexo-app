@@ -1487,7 +1487,8 @@ document.querySelectorAll('textarea').forEach(ta => {
         return remaining;
     };
 
-    if (update() === 0) return;
+    const initialRemaining = update();
+    if (initialRemaining === 0) return;
 
     let timer = setInterval(() => {
         if (update() === 0) {
@@ -1495,13 +1496,6 @@ document.querySelectorAll('textarea').forEach(ta => {
             timer = null;
         }
     }, 1000);
-
-    window.addEventListener('beforeunload', () => {
-        if (timer) {
-            clearInterval(timer);
-            timer = null;
-        }
-    });
 })();
 
 // ── Floating Chat Window ──────────────────────────────
