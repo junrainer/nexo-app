@@ -172,6 +172,13 @@ class Mailer {
         return $filename !== '' ? $filename : 'attachment';
     }
 
+    private function sanitizeCid($cid): string {
+        if (!is_string($cid)) {
+            return '';
+        }
+        return str_replace(["\r", "\n"], '', $cid);
+    }
+
     private function buildMessage(string $body, array $inlineAttachments): array {
         if (empty($inlineAttachments)) {
             $headers  = "MIME-Version: 1.0\r\n";
@@ -189,7 +196,7 @@ class Mailer {
         $message .= quoted_printable_encode($body) . "\r\n";
 
         foreach ($inlineAttachments as $attachment) {
-            $cid = $attachment['cid'] ?? '';
+            $cid = $this->sanitizeCid($attachment['cid'] ?? '');
             $content = $attachment['content'] ?? null;
             if ($cid === '' || !is_string($content) || $content === '') {
                 continue;
