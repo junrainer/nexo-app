@@ -1738,7 +1738,6 @@ function _loadFloatingChatMessages(convId) {
                     if (recip) recip.value = data.recipient_id;
                 }
                 const messages = Array.isArray(data.messages) ? data.messages : [];
-                const hasMessages = messages.length > 0;
                 messages.forEach(msg => {
                     _appendFloatingMsg(
                         msg.message,
@@ -1753,7 +1752,7 @@ function _loadFloatingChatMessages(convId) {
                 _scrollFloatingChatToBottom();
                 const inp = document.getElementById('floating-chat-input');
                 if (inp) inp.focus();
-                if (hasMessages && typeof fetchBadgeCounts === 'function') fetchBadgeCounts();
+                if (messages.length > 0 && typeof fetchBadgeCounts === 'function') fetchBadgeCounts();
             }
         })
         .catch(() => {
