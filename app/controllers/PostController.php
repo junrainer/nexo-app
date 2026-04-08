@@ -70,7 +70,10 @@ class PostController {
         // Anti-spam: enforce cooldown between posts
         $lastPost = $this->postModel->getLastByUser($userId);
         if ($lastPost) {
-            $secondsSince = isset($lastPost['seconds_since']) ? (int) $lastPost['seconds_since'] : null;
+            $secondsSince = $lastPost['seconds_since'] ?? null;
+            if ($secondsSince !== null) {
+                $secondsSince = (int) $secondsSince;
+            }
             if ($secondsSince === null) {
                 $lastPostTime = strtotime($lastPost['created_at']);
                 if ($lastPostTime !== false) {
