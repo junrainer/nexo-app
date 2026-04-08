@@ -15,7 +15,7 @@ class PostController {
     private $db;
 
     /** Seconds a user must wait between creating posts (anti-spam). */
-    private const POST_COOLDOWN = 30;
+    private const POST_COOLDOWN = 20;
 
     /** Seconds a user must wait between posting comments (anti-spam). */
     private const COMMENT_COOLDOWN = 15;
@@ -71,6 +71,9 @@ class PostController {
         $lastPost = $this->postModel->getLastByUser($userId);
         if ($lastPost) {
             $elapsed = time() - strtotime($lastPost['created_at']);
+            if ($elapsed < 0) {
+                $elapsed = 0;
+            }
             if ($elapsed < self::POST_COOLDOWN) {
                 $wait = self::POST_COOLDOWN - $elapsed;
                 $unit = $wait === 1 ? 'second' : 'seconds';
