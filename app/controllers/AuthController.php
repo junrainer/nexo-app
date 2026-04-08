@@ -265,7 +265,8 @@ class AuthController {
             if (is_file($logoPath) && is_readable($logoPath)) {
                 $logoContent = file_get_contents($logoPath);
                 if ($logoContent !== false) {
-                    $logoCid = 'nexo-logo';
+                    $logoCidDomain = parse_url($baseUrl, PHP_URL_HOST) ?: 'nexo.app';
+                    $logoCid = 'nexo-logo-' . bin2hex(random_bytes(8)) . '@' . $logoCidDomain;
                     $logoSrc = 'cid:' . $logoCid;
                     $inlineAttachments[] = [
                         'cid' => $logoCid,
