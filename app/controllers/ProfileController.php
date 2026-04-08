@@ -16,11 +16,7 @@ class ProfileController {
         $user = $this->userModel->findByUsername($username);
         $currentUserId = $_SESSION['user_id'];
 
-        try {
-            $sidebarContacts = $this->userModel->getSidebarContacts($currentUserId);
-        } catch (PDOException $e) {
-            $sidebarContacts = [];
-        }
+        $sidebarContacts = $this->userModel->getSidebarContacts($currentUserId);
 
         if (!$user) {
             http_response_code(404);

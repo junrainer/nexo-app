@@ -30,11 +30,7 @@ class SettingsController {
             $preferences = $stmt->fetch(PDO::FETCH_ASSOC);
         }
 
-        try {
-            $sidebarContacts = $this->userModel->getSidebarContacts($userId);
-        } catch (PDOException $e) {
-            $sidebarContacts = [];
-        }
+        $sidebarContacts = $this->userModel->getSidebarContacts($userId);
 
         $pageTitle = 'Settings – Nexo';
         require_once __DIR__ . '/../views/settings/index.php';

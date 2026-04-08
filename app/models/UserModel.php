@@ -230,10 +230,11 @@ class UserModel {
                  JOIN users u ON f.friend_id = u.id
                  WHERE f.user_id = :user_id AND f.status = :status
                  ORDER BY u.full_name
-                 LIMIT ' . $limit
+                 LIMIT :limit'
             );
             $stmt->bindValue(':user_id', $currentUserId, PDO::PARAM_INT);
             $stmt->bindValue(':status', 'accepted', PDO::PARAM_STR);
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {

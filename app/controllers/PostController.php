@@ -52,11 +52,7 @@ class PostController {
             $suggestions = [];
         }
 
-        try {
-            $sidebarContacts = $this->userModel->getSidebarContacts($currentUserId);
-        } catch (PDOException $e) {
-            $sidebarContacts = [];
-        }
+        $sidebarContacts = $this->userModel->getSidebarContacts($currentUserId);
 
         $pageTitle = 'Feed – Nexo';
         require __DIR__ . '/../views/posts/feed.php';
@@ -406,11 +402,7 @@ class PostController {
             $suggestions = [];
         }
 
-        try {
-            $sidebarContacts = $this->userModel->getSidebarContacts($userId);
-        } catch (PDOException $e) {
-            $sidebarContacts = [];
-        }
+        $sidebarContacts = $this->userModel->getSidebarContacts($userId);
 
         $pageTitle = 'Saved – Nexo';
         require __DIR__ . '/../views/posts/saved.php';
