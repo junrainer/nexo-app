@@ -3,7 +3,6 @@ require_once __DIR__ . '/../../config/database.php';
 
 class PostMediaModel {
     private PDO $db;
-    private static ?bool $tableReady = null;
     private const TABLE_SCHEMA = "CREATE TABLE IF NOT EXISTS post_media (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         post_id INT NOT NULL,
@@ -69,25 +68,20 @@ class PostMediaModel {
     }
 
     private function ensureTable(): bool {
-        if (self::$tableReady === true) {
-            return true;
-        }
         try {
             $this->db->exec(
                 self::TABLE_SCHEMA . self::TABLE_FK_CLAUSE
             );
-            self::$tableReady = true;
             return true;
         } catch (PDOException $e) {
-            error_log('PostMediaModel::ensureTable error during post_media table creation/verification.');
+            error_log('PostMediaModel::ensureTable error during post_media table creation/verification: ' . $e->getMessage());
             try {
                 $this->db->exec(
                     self::TABLE_SCHEMA . self::TABLE_NO_FK_CLAUSE
                 );
-                self::$tableReady = true;
                 return true;
             } catch (PDOException $fallbackError) {
-                error_log('PostMediaModel::ensureTable fallback error.');
+                error_log('PostMediaModel::ensureTable fallback error: ' . $fallbackError->getMessage());
                 return false;
             }
         }
