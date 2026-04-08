@@ -616,7 +616,10 @@ function updatePostMediaViewer() {
     postMediaViewerIndex = ((postMediaViewerIndex % total) + total) % total;
     const current = postMediaViewerItems[postMediaViewerIndex];
 
+    imgEl.setAttribute('aria-busy', 'true');
     imgEl.src = current;
+    imgEl.onload = () => { imgEl.setAttribute('aria-busy', 'false'); };
+    imgEl.onerror = () => { imgEl.setAttribute('aria-busy', 'false'); };
     imgEl.alt = `Post media ${postMediaViewerIndex + 1} of ${total}`;
     if (countEl) countEl.textContent = `${postMediaViewerIndex + 1} / ${total}`;
 
@@ -652,7 +655,7 @@ document.addEventListener('click', e => {
     const grid = targetImg.closest('.post-media-grid');
     if (!grid) return;
     const images = Array.from(grid.querySelectorAll('img'))
-        .filter(img => window.getComputedStyle(img).display !== 'none');
+        .filter(img => img.offsetParent !== null);
     const sources = images.map(img => img.src).filter(Boolean);
     if (sources.length === 0) return;
     const startIndex = Math.max(images.indexOf(targetImg), 0);
