@@ -61,15 +61,15 @@ class PostMediaModel {
     private function ensureTable(): bool {
         try {
             $this->db->exec(
-                $this->tableSql(true)
+                $this->getCreateTableSql(true)
             );
             return true;
         } catch (PDOException $e) {
-            error_log('PostMediaModel::ensureTable failed to create post_media with foreign key constraints (constraints unsupported or parent table missing): ' . $e->getMessage());
+            error_log('PostMediaModel::ensureTable failed to create post_media with foreign key constraints: ' . $e->getMessage());
             try {
                 // Some hosts block foreign keys or use engines that reject FK constraints.
                 $this->db->exec(
-                    $this->tableSql(false)
+                    $this->getCreateTableSql(false)
                 );
                 return true;
             } catch (PDOException $fallbackError) {
@@ -79,7 +79,7 @@ class PostMediaModel {
         }
     }
 
-    private function tableSql(bool $withForeignKey): string {
+    private function getCreateTableSql(bool $withForeignKey): string {
         $sql = "CREATE TABLE IF NOT EXISTS post_media (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     post_id INT NOT NULL,
