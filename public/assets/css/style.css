@@ -2191,6 +2191,7 @@ input, textarea, select { font-family: inherit; }
     .auth-hero        { display: none; }
     .auth-form-panel  { min-height: 100vh; }
     .photos-grid { grid-template-columns: repeat(3, 1fr); }
+    /* Keep 5-photo grids readable on small screens */
     .post-media-grid.count-5 { grid-template-columns: 1fr 1fr; }
     .post-media-grid.count-5 .media-item:nth-child(4) { grid-column: auto; }
 }

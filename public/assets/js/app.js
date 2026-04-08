@@ -653,7 +653,7 @@ document.addEventListener('click', e => {
     if (!grid) return;
     const images = Array.from(grid.querySelectorAll('img'))
         .filter(img => img.style.display !== 'none');
-    const sources = images.map(img => img.currentSrc || img.src).filter(Boolean);
+    const sources = images.map(img => img.src).filter(Boolean);
     if (sources.length === 0) return;
     const startIndex = Math.max(images.indexOf(targetImg), 0);
     openPostMediaViewer(sources, startIndex);
