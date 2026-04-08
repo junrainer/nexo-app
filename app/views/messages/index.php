@@ -95,7 +95,13 @@ require __DIR__ . '/../partials/header.php';
                             <div class="message-content">
                                 <p><?= nl2br(htmlspecialchars($msg['message'])) ?></p>
                             </div>
-                            <span class="message-time"><time class="live-time" data-time="<?= htmlspecialchars(time_iso($msg['created_at'])) ?>"><?= time_ago($msg['created_at']) ?></time></span>
+                            <div class="message-meta">
+                                <time class="live-time message-time" data-time="<?= htmlspecialchars(time_iso($msg['created_at'])) ?>"><?= time_ago($msg['created_at']) ?></time>
+                                <?php if ($msg['sender_id'] == $_SESSION['user_id']): ?>
+                                    <?php $isDelivered = ((int) $msg['is_read'] === 1); ?>
+                                    <span class="message-status"><?= $isDelivered ? 'Delivered' : 'Sent' ?></span>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
                     <?php endforeach; ?>
@@ -196,7 +202,10 @@ function appendMessage(msg, isSent) {
                 <div class="message-content">
                     <p>${escapeHtml(msg.message)}</p>
                 </div>
-                <span class="message-time">just now</span>
+                <div class="message-meta">
+                    <span class="message-time">just now</span>
+                    ${isSent ? '<span class="message-status">Sent</span>' : ''}
+                </div>
             </div>`;
     
     div.innerHTML = html;

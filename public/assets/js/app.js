@@ -1468,6 +1468,10 @@ document.addEventListener('click', e => {
     }
 });
 
+function isMessageRead(isRead) {
+    return Number(isRead) === 1 || isRead === true;
+}
+
 function sendMessage(e) {
     e.preventDefault();
     const form  = e.target;
@@ -1514,12 +1518,17 @@ function appendMessage(msg, isSent) {
     const sentTimeAttrs = msg.created_at
         ? ` class="live-time message-time" data-time="${sentTime}" datetime="${sentTime}"`
         : ' class="message-time"';
+    const isDelivered = isSent && isMessageRead(msg.is_read);
+    const statusLabel = isSent ? (isDelivered ? 'Delivered' : 'Sent') : '';
     html += `
             <div class="message-body">
                 <div class="message-content">
                     <p>${escapeHtml(msg.message)}</p>
                 </div>
-                <time${sentTimeAttrs}>${sentTimeText}</time>
+                <div class="message-meta">
+                    <time${sentTimeAttrs}>${sentTimeText}</time>
+                    ${statusLabel ? `<span class="message-status">${statusLabel}</span>` : ''}
+                </div>
             </div>`;
     div.innerHTML = html;
     container.appendChild(div);
@@ -1728,13 +1737,22 @@ function _loadFloatingChatMessages(convId) {
                     const recip = document.getElementById('floating-chat-recipient');
                     if (recip) recip.value = data.recipient_id;
                 }
-                (data.messages || []).forEach(msg => {
-                    _appendFloatingMsg(msg.message, !!msg.is_mine, msg.profile_image, msg.created_at, msg.id);
+                const messages = Array.isArray(data.messages) ? data.messages : [];
+                messages.forEach(msg => {
+                    _appendFloatingMsg(
+                        msg.message,
+                        !!msg.is_mine,
+                        msg.profile_image,
+                        msg.created_at,
+                        msg.id,
+                        msg.is_read
+                    );
                     _floatingChatLastMsgId = Math.max(_floatingChatLastMsgId, msg.id);
                 });
                 _scrollFloatingChatToBottom();
                 const inp = document.getElementById('floating-chat-input');
                 if (inp) inp.focus();
+                if (messages.length > 0 && typeof fetchBadgeCounts === 'function') fetchBadgeCounts();
             }
         })
         .catch(() => {
@@ -1752,7 +1770,7 @@ function _pollFloatingChat(convId) {
                 const myId  = shell ? parseInt(shell.dataset.userId, 10) : -1;
                 data.messages.forEach(msg => {
                     if (parseInt(msg.sender_id) !== myId) {
-                        _appendFloatingMsg(msg.message, false, msg.profile_image, msg.created_at, msg.id);
+                        _appendFloatingMsg(msg.message, false, msg.profile_image, msg.created_at, msg.id, msg.is_read);
                     }
                     _floatingChatLastMsgId = Math.max(_floatingChatLastMsgId, msg.id);
                 });
@@ -1762,7 +1780,7 @@ function _pollFloatingChat(convId) {
         .catch(() => {});
 }
 
-function _appendFloatingMsg(text, isMine, profileImage, createdAt, msgId) {
+function _appendFloatingMsg(text, isMine, profileImage, createdAt, msgId, isRead) {
     const container = document.getElementById('floating-chat-messages');
     if (!container) return;
 
@@ -1778,12 +1796,17 @@ function _appendFloatingMsg(text, isMine, profileImage, createdAt, msgId) {
     }
     const timeStr = createdAt ? timeAgo(createdAt) : 'just now';
     const timeAttr = createdAt ? ` class="live-time message-time" data-time="${escapeHtml(createdAt)}"` : ' class="message-time"';
+    const isDelivered = isMine && isMessageRead(isRead);
+    const statusLabel = isMine ? (isDelivered ? 'Delivered' : 'Sent') : '';
     html += `
             <div class="message-body">
                 <div class="message-content">
                     <p>${escapeHtml(text)}</p>
                 </div>
-                <time${timeAttr}>${timeStr}</time>
+                <div class="message-meta">
+                    <time${timeAttr}>${timeStr}</time>
+                    ${statusLabel ? `<span class="message-status">${statusLabel}</span>` : ''}
+                </div>
             </div>`;
     div.innerHTML = html;
     container.appendChild(div);
@@ -1801,7 +1824,14 @@ function sendFloatingMessage(e) {
         .then(r => r.json())
         .then(data => {
             if (data.success && data.message) {
-                _appendFloatingMsg(data.message.message, true, null, data.message.created_at, data.message.id);
+                _appendFloatingMsg(
+                    data.message.message,
+                    true,
+                    null,
+                    data.message.created_at,
+                    data.message.id,
+                    data.message.is_read
+                );
                 _floatingChatLastMsgId = Math.max(_floatingChatLastMsgId, data.message.id);
                 _scrollFloatingChatToBottom();
                 if (input) input.value = '';
