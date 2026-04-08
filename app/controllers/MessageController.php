@@ -12,6 +12,7 @@ class MessageController {
      */
     public function index() {
         $userId = $_SESSION['user_id'];
+        $currentUserId = (int) $userId;
         $activeConversationId = $_GET['c'] ?? null;
         
         $conversations = [];

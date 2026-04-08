@@ -55,7 +55,7 @@ function resolve_timestamp(string $datetime): ?int {
 
     $bestTs = null;
     $bestDiff = null;
-    // Prefer a non-future timestamp closest to now; if all are future, pick the closest future one.
+    // Prefer a non-future timestamp closest to now; if all are future, pick the closest one.
     foreach ($timestamps as $ts) {
         $diff = $now - $ts;
         if ($diff >= 0 && ($bestDiff === null || $diff < $bestDiff)) {
@@ -65,9 +65,10 @@ function resolve_timestamp(string $datetime): ?int {
     }
 
     if ($bestTs === null) {
+        $bestDiff = null;
         foreach ($timestamps as $ts) {
-            $diff = $now - $ts;
-            if ($bestDiff === null || $diff > $bestDiff) {
+            $diff = abs($now - $ts);
+            if ($bestDiff === null || $diff < $bestDiff) {
                 $bestDiff = $diff;
                 $bestTs = $ts;
             }
