@@ -7,6 +7,7 @@ class AuthController {
     private const RESET_VERIFY_TTL_SECONDS = 3600;
     private const FORGOT_PASSWORD_COOLDOWN_SECONDS = 60;
     private const FORGOT_PASSWORD_COOLDOWN_KEY = '_forgot_password_cooldown';
+    private const LOGO_CID_RANDOM_BYTE_COUNT = 8;
 
     public function __construct() {
         $this->userModel = new UserModel();
@@ -265,7 +266,8 @@ class AuthController {
             if (is_file($logoPath) && is_readable($logoPath)) {
                 $logoContent = file_get_contents($logoPath);
                 if ($logoContent !== false) {
-                    $logoCid = 'nexo-logo';
+                    $logoCidDomain = $this->sanitizeLogoCidDomain($baseUrl);
+                    $logoCid = 'nexo-logo-' . bin2hex(random_bytes(self::LOGO_CID_RANDOM_BYTE_COUNT)) . '@' . $logoCidDomain;
                     $logoSrc = 'cid:' . $logoCid;
                     $inlineAttachments[] = [
                         'cid' => $logoCid,
@@ -441,6 +443,19 @@ class AuthController {
             header('Location: index.php?url=forgot-password');
             exit;
         }
+    }
+
+    private function sanitizeLogoCidDomain(string $baseUrl): string {
+        $domain = parse_url($baseUrl, PHP_URL_HOST) ?: 'localhost';
+        $domain = preg_replace('/:\\d+$/', '', $domain);
+        $domain = preg_replace('/[^a-z0-9.-]/i', '', $domain);
+        $domain = preg_replace('/\\.{2,}/', '.', $domain);
+        $domain = trim($domain, '.-');
+        $domainPattern = '/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)(?:\\.(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?))*$/i';
+        if ($domain === '' || !preg_match($domainPattern, $domain)) {
+            return 'localhost';
+        }
+        return $domain;
     }
 
     private function findValidResetToken(string $token): ?array {
