@@ -533,7 +533,6 @@ function previewPostMedia(type, input) {
 
         if (available <= 0) {
             const message = `You can only upload up to ${COMPOSE_MAX_PHOTOS} photos per post.`;
-            alert(message);
             setComposeMediaWarning(message);
             input.value = '';
             return;
@@ -544,7 +543,6 @@ function previewPostMedia(type, input) {
         let limitWarning = '';
         if (selectedCount > available) {
             limitWarning = `Only ${available} more photo(s) can be added (max ${COMPOSE_MAX_PHOTOS} total). Extra files were ignored.`;
-            alert(limitWarning);
         }
 
         files.forEach(file => {
