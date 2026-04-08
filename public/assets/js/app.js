@@ -72,13 +72,22 @@ function parseDateTime(datetime) {
     const input = String(datetime).trim();
     if (!input) return null;
 
-    let parsed = new Date(input);
-    if (!Number.isNaN(parsed.getTime())) return parsed;
+    // Plain Unix epoch integer (from UNIX_TIMESTAMP() SQL calls)
+    if (/^\d+$/.test(input)) {
+        return new Date(parseInt(input, 10) * 1000);
+    }
 
-    if (input.includes(' ') && !input.includes('T')) {
-        parsed = new Date(input.replace(' ', 'T'));
+    // ISO string with timezone offset — parse directly
+    if (input.includes('+') || input.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(input)) {
+        const parsed = new Date(input);
         if (!Number.isNaN(parsed.getTime())) return parsed;
     }
+
+    // Naive datetime from MySQL ("2025-04-07 10:00:00" or "2025-04-07T10:00:00")
+    // MySQL TIMESTAMP is stored/returned in UTC — append 'Z' to force UTC parsing.
+    const normalised = input.includes(' ') ? input.replace(' ', 'T') : input;
+    const parsed = new Date(normalised + 'Z');
+    if (!Number.isNaN(parsed.getTime())) return parsed;
 
     return null;
 }
@@ -1513,11 +1522,12 @@ function appendMessage(msg, isSent) {
                       alt="avatar" class="message-avatar"
                       onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">`;
     }
-    const sentTime = msg.created_at ? escapeHtml(msg.created_at) : '';
-    const sentTimeText = msg.created_at ? timeAgo(msg.created_at) : 'just now';
-    const sentTimeAttrs = msg.created_at
-        ? ` class="live-time message-time" data-time="${sentTime}" datetime="${sentTime}"`
-        : ' class="message-time"';
+    const msgTime = msg.created_at_unix || msg.created_at || null;
+const sentTime = msgTime ? escapeHtml(String(msgTime)) : '';
+const sentTimeText = msgTime ? timeAgo(msgTime) : 'just now';
+const sentTimeAttrs = msgTime
+    ? ` class="live-time message-time" data-time="${sentTime}" datetime="${sentTime}"`
+    : ' class="message-time"';
     const isDelivered = isSent && isMessageRead(msg.is_read);
     const statusLabel = isSent ? (isDelivered ? 'Delivered' : 'Sent') : '';
     html += `
@@ -1740,13 +1750,13 @@ function _loadFloatingChatMessages(convId) {
                 const messages = Array.isArray(data.messages) ? data.messages : [];
                 messages.forEach(msg => {
                     _appendFloatingMsg(
-                        msg.message,
-                        !!msg.is_mine,
-                        msg.profile_image,
-                        msg.created_at,
-                        msg.id,
-                        msg.is_read
-                    );
+    msg.message,
+    !!msg.is_mine,
+    msg.profile_image,
+    msg.created_at_unix || msg.created_at,
+    msg.id,
+    msg.is_read
+);
                     _floatingChatLastMsgId = Math.max(_floatingChatLastMsgId, msg.id);
                 });
                 _scrollFloatingChatToBottom();
@@ -1770,8 +1780,7 @@ function _pollFloatingChat(convId) {
                 const myId  = shell ? parseInt(shell.dataset.userId, 10) : -1;
                 data.messages.forEach(msg => {
                     if (parseInt(msg.sender_id) !== myId) {
-                        _appendFloatingMsg(msg.message, false, msg.profile_image, msg.created_at, msg.id, msg.is_read);
-                    }
+_appendFloatingMsg(msg.message, false, msg.profile_image, msg.created_at_unix || msg.created_at, msg.id, msg.is_read);                    }
                     _floatingChatLastMsgId = Math.max(_floatingChatLastMsgId, msg.id);
                 });
                 _scrollFloatingChatToBottom();

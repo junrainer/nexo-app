@@ -72,7 +72,7 @@ class MessageController {
                    u.full_name as other_name,
                    u.profile_image as other_image,
                    m.message as last_message,
-                   m.created_at as last_message_time,
+                   UNIX_TIMESTAMP(m.created_at) as last_message_time,
                    m.sender_id as last_message_sender_id,
                    m.is_read as last_message_is_read,
                    (SELECT COUNT(*) FROM messages WHERE conversation_id = c.id AND sender_id != ? AND is_read = FALSE) as unread_count
@@ -96,8 +96,7 @@ class MessageController {
      */
     private function getMessagesForConversation($conversationId, $userId) {
         $stmt = $this->db->prepare("
-            SELECT m.*, u.username, u.full_name, u.profile_image
-            FROM messages m
+SELECT m.*, UNIX_TIMESTAMP(m.created_at) AS created_at_unix, u.username, u.full_name, u.profile_image            FROM messages m
             JOIN users u ON m.sender_id = u.id
             JOIN conversations c ON m.conversation_id = c.id
             WHERE m.conversation_id = ? 
@@ -250,7 +249,7 @@ class MessageController {
         try {
             $stmt = $this->db->prepare("
                 SELECT m.*, u.username, u.full_name, u.profile_image
-                FROM messages m
+               SELECT m.*, UNIX_TIMESTAMP(m.created_at) AS created_at_unix, u.username, u.full_name, u.profile_image
                 JOIN users u ON m.sender_id = u.id
                 JOIN conversations c ON m.conversation_id = c.id
                 WHERE m.conversation_id = ? 
@@ -361,8 +360,7 @@ class MessageController {
                        u.full_name  AS name,
                        u.profile_image AS avatar,
                        (SELECT message FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) AS last_message,
-                       (SELECT created_at FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) AS last_time,
-                       (SELECT COUNT(*) FROM messages WHERE conversation_id = c.id AND sender_id != :uid2 AND is_read = FALSE) AS unread
+(SELECT UNIX_TIMESTAMP(created_at) FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) AS last_time,                       (SELECT COUNT(*) FROM messages WHERE conversation_id = c.id AND sender_id != :uid2 AND is_read = FALSE) AS unread
                 FROM conversations c
                 JOIN users u ON u.id = IF(c.user1_id = :uid3, c.user2_id, c.user1_id)
                 WHERE c.user1_id = :uid4 OR c.user2_id = :uid5

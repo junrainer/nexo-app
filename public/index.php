@@ -77,7 +77,6 @@ function resolve_timestamp(string $datetime): ?int {
 
     return $bestTs;
 }
-
 function time_ago(string $datetime): string {
     $timestamp = resolve_timestamp($datetime);
     if ($timestamp === null) {
