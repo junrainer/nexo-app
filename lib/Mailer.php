@@ -170,7 +170,7 @@ class Mailer {
 
         foreach ($inlineAttachments as $attachment) {
             $cid = $attachment['cid'] ?? '';
-            $content = $attachment['content'] ?? '';
+            $content = $attachment['content'] ?? null;
             if ($cid === '' || !is_string($content) || $content === '') {
                 continue;
             }
