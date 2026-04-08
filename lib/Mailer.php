@@ -191,7 +191,7 @@ class Mailer {
         foreach ($inlineAttachments as $attachment) {
             $cid = $attachment['cid'] ?? '';
             $content = $attachment['content'] ?? null;
-            if ($cid === '' || !is_string($content)) {
+            if ($cid === '' || !is_string($content) || $content === '') {
                 continue;
             }
             $mime = $this->sanitizeMime($attachment['mime'] ?? 'application/octet-stream');
