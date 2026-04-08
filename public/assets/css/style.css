@@ -2352,6 +2352,13 @@ input, textarea, select { font-family: inherit; }
 .conversation-name { font-size: 14px; font-weight: 600; }
 .conversation-preview { font-size: 12.5px; color: var(--muted-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
 
+.conversation-time {
+    font-size: 10px;
+    color: var(--muted-fg);
+    flex-shrink: 0;
+    margin-left: 6px;
+}
+
 .unread-badge {
     background: var(--danger);
     color: white;
