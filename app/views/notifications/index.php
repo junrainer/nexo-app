@@ -83,7 +83,7 @@ function notifLink($n) {
                                  onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                             <div class="notif-content">
                                 <p><?= htmlspecialchars($n['message']) ?></p>
-                                <span class="notif-time"><time class="live-time" data-time="<?= htmlspecialchars($n['created_at']) ?>"><?= time_ago($n['created_at']) ?></time></span>
+                                <span class="notif-time"><time class="live-time" data-time="<?= htmlspecialchars(time_iso($n['created_at'])) ?>"><?= time_ago($n['created_at']) ?></time></span>
                             </div>
                             <?php if (!$n['is_read']): ?>
                                 <span class="notif-dot"></span>

@@ -94,7 +94,7 @@ require __DIR__ . '/../partials/header.php';
                         <?= htmlspecialchars($post['username']) ?>
                     </a>
                     <span class="post-author-meta">
-                        <?= htmlspecialchars($post['full_name']) ?> · <time class="live-time" data-time="<?= htmlspecialchars($post['created_at']) ?>"><?= time_ago($post['created_at']) ?></time>
+                        <?= htmlspecialchars($post['full_name']) ?> · <time class="live-time" data-time="<?= htmlspecialchars(time_iso($post['created_at'])) ?>"><?= time_ago($post['created_at']) ?></time>
                         <?php [$visIcon, $visLabel] = post_visibility_meta($post['visibility'] ?? 'public'); ?>
                         · <span class="post-visibility" title="<?= $visLabel ?>"><i class="fa <?= $visIcon ?>"></i> <?= $visLabel ?></span>
                     </span>
@@ -186,7 +186,7 @@ require __DIR__ . '/../partials/header.php';
                             <p class="comment-text"><?= nl2br(htmlspecialchars($c['content'])) ?></p>
                         </div>
                         <div class="comment-meta-row">
-                            <span class="comment-time"><time class="live-time" data-time="<?= htmlspecialchars($c['created_at']) ?>"><?= time_ago($c['created_at']) ?></time></span>
+                            <span class="comment-time"><time class="live-time" data-time="<?= htmlspecialchars(time_iso($c['created_at'])) ?>"><?= time_ago($c['created_at']) ?></time></span>
                             <button class="comment-action-btn <?= !empty($c['user_liked']) ? 'liked' : '' ?>"
                                     onclick="toggleCommentLike(<?= (int)$c['id'] ?>, this)">
                                 <span class="comment-like-label"><?= !empty($c['user_liked']) ? 'Unlike' : 'Like' ?></span>

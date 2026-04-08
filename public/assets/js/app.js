@@ -67,26 +67,28 @@ function escapeHtml(text) {
 const SECONDS_IN_YEAR = 31557600;
 
 function timeAgo(datetime) {
-    let diff = Math.floor((Date.now() - new Date(datetime).getTime()) / 1000);
-    if (diff < 0) diff = 0;
-    if (diff < 60) {
-        const seconds = diff;
-        return seconds + ' ' + (seconds === 1 ? 'sec' : 'secs') + ' ago';
+    const parsed = new Date(datetime);
+    if (Number.isNaN(parsed.getTime())) {
+        return 'just now';
+    }
+    let diff = Math.floor((Date.now() - parsed.getTime()) / 1000);
+    if (diff <= 0 || diff < 60) {
+        return 'just now';
     }
     if (diff < 3600) {
         const minutes = Math.floor(diff / 60);
-        return minutes + ' ' + (minutes === 1 ? 'min' : 'mins') + ' ago';
+        return minutes + 'm';
     }
     if (diff < 86400) {
         const hours = Math.floor(diff / 3600);
-        return hours + ' ' + (hours === 1 ? 'hr' : 'hrs') + ' ago';
+        return hours + 'h';
     }
     if (diff < 604800) {
         const days = Math.floor(diff / 86400);
-        return days + ' ' + (days === 1 ? 'day' : 'days') + ' ago';
+        return days + 'd';
     }
     const showYear = diff >= SECONDS_IN_YEAR;
-    return new Date(datetime).toLocaleDateString(
+    return parsed.toLocaleDateString(
         'en-US',
         showYear ? { month: 'short', day: 'numeric', year: 'numeric' } : { month: 'short', day: 'numeric' }
     );
