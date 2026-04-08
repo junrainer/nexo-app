@@ -267,10 +267,13 @@ class AuthController {
                 if ($logoContent !== false) {
                     $logoCidDomain = parse_url($baseUrl, PHP_URL_HOST);
                     if (!$logoCidDomain) {
-                        $logoCidDomain = $_SERVER['HTTP_HOST'] ?? 'localhost';
+                        $logoCidDomain = $_SERVER['HTTP_HOST'] ?? '';
                     }
-                    $logoCidDomain = preg_replace('/:\\d+$/', '', $logoCidDomain);
-                    $logoCidDomain = preg_replace('/[^a-z0-9.-]/i', '', $logoCidDomain);
+                    $logoCidDomain = preg_replace(
+                        '/[^a-z0-9.-]/i',
+                        '',
+                        preg_replace('/:\\d+$/', '', (string) $logoCidDomain)
+                    );
                     if ($logoCidDomain === '') {
                         $logoCidDomain = 'localhost';
                     }
