@@ -35,15 +35,15 @@ function time_ago(string $datetime): string {
     }
     if ($diff < 3600) {
         $minutes = (int) floor($diff / 60);
-        return $minutes . 'm';
+        return $minutes . ' min' . ($minutes === 1 ? '' : 's') . ' ago';
     }
     if ($diff < 86400) {
         $hours = (int) floor($diff / 3600);
-        return $hours . 'h';
+        return $hours . ' hr' . ($hours === 1 ? '' : 's') . ' ago';
     }
     if ($diff < 604800) {
         $days = (int) floor($diff / 86400);
-        return $days . 'd';
+        return $days . ' day' . ($days === 1 ? '' : 's') . ' ago';
     }
     $showYear = $diff >= SECONDS_IN_YEAR;
     return date($showYear ? 'M j, Y' : 'M j', $timestamp);

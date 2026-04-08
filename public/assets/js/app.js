@@ -66,9 +66,26 @@ function escapeHtml(text) {
 // Approximate seconds in a year (365.25 days to account for leap years).
 const SECONDS_IN_YEAR = 31557600;
 
+function parseDateTime(datetime) {
+    if (!datetime) return null;
+    if (datetime instanceof Date) return datetime;
+    const input = String(datetime).trim();
+    if (!input) return null;
+
+    let parsed = new Date(input);
+    if (!Number.isNaN(parsed.getTime())) return parsed;
+
+    if (input.includes(' ') && !input.includes('T')) {
+        parsed = new Date(input.replace(' ', 'T'));
+        if (!Number.isNaN(parsed.getTime())) return parsed;
+    }
+
+    return null;
+}
+
 function timeAgo(datetime) {
-    const parsed = new Date(datetime);
-    if (Number.isNaN(parsed.getTime())) {
+    const parsed = parseDateTime(datetime);
+    if (!parsed) {
         return 'just now';
     }
     let diff = Math.floor((Date.now() - parsed.getTime()) / 1000);
@@ -77,15 +94,15 @@ function timeAgo(datetime) {
     }
     if (diff < 3600) {
         const minutes = Math.floor(diff / 60);
-        return minutes + 'm';
+        return minutes + ' min' + (minutes === 1 ? '' : 's') + ' ago';
     }
     if (diff < 86400) {
         const hours = Math.floor(diff / 3600);
-        return hours + 'h';
+        return hours + ' hr' + (hours === 1 ? '' : 's') + ' ago';
     }
     if (diff < 604800) {
         const days = Math.floor(diff / 86400);
-        return days + 'd';
+        return days + ' day' + (days === 1 ? '' : 's') + ' ago';
     }
     const showYear = diff >= SECONDS_IN_YEAR;
     return parsed.toLocaleDateString(
