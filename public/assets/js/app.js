@@ -550,8 +550,6 @@ function previewPostMedia(type, input) {
             reader.readAsDataURL(file);
         });
         syncComposeImageInput(input);
-        input.value = '';
-        syncComposeImageInput(input);
         updateMediaCountHint();
 
     } else if (type === 'video') {
