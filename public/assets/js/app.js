@@ -649,22 +649,27 @@ function showNextPostMedia() {
     updatePostMediaViewer();
 }
 
-document.addEventListener('click', e => {
-    const targetImg = e.target.closest('.post-media-grid img');
-    if (!targetImg) return;
-    const grid = targetImg.closest('.post-media-grid');
-    if (!grid) return;
-    const images = Array.from(grid.querySelectorAll('img'))
-        .filter(img => img.offsetParent !== null);
-    const sources = images.map(img => img.src).filter(Boolean);
-    if (sources.length === 0) return;
-    const startIndex = Math.max(images.indexOf(targetImg), 0);
-    openPostMediaViewer(sources, startIndex);
+document.querySelectorAll('.feed-wrap, .profile-wrap').forEach(container => {
+    container.addEventListener('click', e => {
+        const targetImg = e.target.closest('.post-media-grid img');
+        if (!targetImg) return;
+        const grid = targetImg.closest('.post-media-grid');
+        if (!grid) return;
+        const images = Array.from(grid.querySelectorAll('img'))
+            .filter(img => img.offsetParent !== null);
+        const sources = images.map(img => img.src).filter(Boolean);
+        if (sources.length === 0) return;
+        const startIndex = Math.max(images.indexOf(targetImg), 0);
+        openPostMediaViewer(sources, startIndex);
+    });
 });
 
 document.addEventListener('keydown', e => {
     const overlay = document.getElementById('post-media-viewer');
     if (!overlay || overlay.style.display === 'none') return;
+    const target = e.target;
+    const interactiveTags = ['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON', 'A'];
+    if (target && (interactiveTags.includes(target.tagName) || target.isContentEditable)) return;
     if (e.key === 'ArrowLeft') {
         e.preventDefault();
         showPrevPostMedia();
