@@ -2154,3 +2154,26 @@ function _scrollFloatingChatToBottom() {
         }
     });
 })();
+
+
+// Auto-update relative timestamps (add anywhere near the bottom of app.js)
+function updateLiveTimes() {
+    document.querySelectorAll('.live-time[data-time]').forEach(el => {
+        const iso = el.dataset.time;
+        if (!iso) return;
+        const date = new Date(iso);
+        const diffSec = Math.floor((Date.now() - date.getTime()) / 1000);
+
+        let label;
+        if (diffSec < 60)        label = 'just now';
+        else if (diffSec < 3600) label = Math.floor(diffSec / 60) + ' mins ago';
+        else if (diffSec < 86400)label = Math.floor(diffSec / 3600) + ' hrs ago';
+        else                     label = Math.floor(diffSec / 86400) + ' days ago';
+
+        el.textContent = label;
+    });
+}
+
+// Run on load and every 60 seconds
+updateLiveTimes();
+setInterval(updateLiveTimes, 60000);
