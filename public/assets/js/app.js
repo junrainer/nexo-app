@@ -1468,7 +1468,7 @@ document.addEventListener('click', e => {
     }
 });
 
-function isMessageDelivered(isRead) {
+function isMessageRead(isRead) {
     return Number(isRead) === 1 || isRead === true;
 }
 
@@ -1518,7 +1518,7 @@ function appendMessage(msg, isSent) {
     const sentTimeAttrs = msg.created_at
         ? ` class="live-time message-time" data-time="${sentTime}" datetime="${sentTime}"`
         : ' class="message-time"';
-    const isDelivered = isSent && isMessageDelivered(msg.is_read);
+    const isDelivered = isSent && isMessageRead(msg.is_read);
     const statusLabel = isSent ? (isDelivered ? 'Delivered' : 'Sent') : '';
     html += `
             <div class="message-body">
@@ -1796,7 +1796,7 @@ function _appendFloatingMsg(text, isMine, profileImage, createdAt, msgId, isRead
     }
     const timeStr = createdAt ? timeAgo(createdAt) : 'just now';
     const timeAttr = createdAt ? ` class="live-time message-time" data-time="${escapeHtml(createdAt)}"` : ' class="message-time"';
-    const isDelivered = isMine && isMessageDelivered(isRead);
+    const isDelivered = isMine && isMessageRead(isRead);
     const statusLabel = isMine ? (isDelivered ? 'Delivered' : 'Sent') : '';
     html += `
             <div class="message-body">
