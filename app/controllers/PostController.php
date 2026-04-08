@@ -23,6 +23,9 @@ class PostController {
     /** Maximum video upload size in GB. */
     private const MAX_VIDEO_SIZE_GB = 10;
 
+    /** Maximum number of photos per post. */
+    private const MAX_PHOTOS = 5;
+
     public function __construct() {
         $this->postModel      = new PostModel();
         $this->postMediaModel = new PostMediaModel();
@@ -58,7 +61,38 @@ class PostController {
         $userId     = $_SESSION['user_id'];
         $visibility = $_POST['visibility'] ?? 'public';
 
-        $hasImages = !empty($_FILES['images']['name'][0]) && $_FILES['images']['error'][0] === UPLOAD_ERR_OK;
+        $imageFiles   = $_FILES['images'] ?? null;
+        $imageNames   = [];
+        $imageErrors  = [];
+        $imageTypes   = [];
+        $imageTmpNames = [];
+        $imageSizes   = [];
+        $imageIndexes = [];
+
+        if ($imageFiles && !empty($imageFiles['name'])) {
+            $imageNames   = is_array($imageFiles['name']) ? $imageFiles['name'] : [$imageFiles['name']];
+            $imageErrors  = is_array($imageFiles['error']) ? $imageFiles['error'] : [$imageFiles['error']];
+            $imageTypes   = is_array($imageFiles['type']) ? $imageFiles['type'] : [$imageFiles['type']];
+            $imageTmpNames = is_array($imageFiles['tmp_name']) ? $imageFiles['tmp_name'] : [$imageFiles['tmp_name']];
+            $imageSizes   = is_array($imageFiles['size']) ? $imageFiles['size'] : [$imageFiles['size']];
+
+            foreach ($imageNames as $idx => $name) {
+                if ($name !== '') {
+                    $imageIndexes[] = $idx;
+                }
+            }
+        }
+
+        $hasImages = false;
+        $firstValidImageIndex = null;
+        foreach ($imageIndexes as $idx) {
+            if (($imageErrors[$idx] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
+                $hasImages = true;
+                $firstValidImageIndex = $idx;
+                break;
+            }
+        }
+
         $hasVideo  = !empty($_FILES['video']['name']) && $_FILES['video']['error'] === UPLOAD_ERR_OK;
 
         if (empty($content) && !$hasImages && !$hasVideo) {
@@ -109,13 +143,13 @@ class PostController {
         }
 
         $legacyImage = null;
-        if ($hasImages && empty($_FILES['video']['name'])) {
+        if ($hasImages && empty($_FILES['video']['name']) && $firstValidImageIndex !== null) {
             $legacyImage = $this->handleImageUpload([
-                'name'     => $_FILES['images']['name'][0] ?? '',
-                'type'     => $_FILES['images']['type'][0] ?? '',
-                'tmp_name' => $_FILES['images']['tmp_name'][0] ?? '',
-                'error'    => $_FILES['images']['error'][0] ?? UPLOAD_ERR_NO_FILE,
-                'size'     => $_FILES['images']['size'][0] ?? 0,
+                'name'     => $imageNames[$firstValidImageIndex] ?? '',
+                'type'     => $imageTypes[$firstValidImageIndex] ?? '',
+                'tmp_name' => $imageTmpNames[$firstValidImageIndex] ?? '',
+                'error'    => $imageErrors[$firstValidImageIndex] ?? UPLOAD_ERR_NO_FILE,
+                'size'     => $imageSizes[$firstValidImageIndex] ?? 0,
             ]);
             if ($legacyImage === false) {
                 $legacyImage = null;
@@ -125,20 +159,25 @@ class PostController {
         $postId = $this->postModel->create($userId, htmlspecialchars($content, ENT_QUOTES, 'UTF-8'), $legacyImage, $visibility);
 
         // Handle multiple images (max 5)
-        if (!empty($_FILES['images']['name'][0])) {
-            $files     = $_FILES['images'];
-            $fileCount = min(count($files['name']), 5);
+        if (!empty($imageIndexes)) {
+            $selectedCount = count($imageIndexes);
+            if ($selectedCount > self::MAX_PHOTOS) {
+                $_SESSION['warning'] = 'Only the first ' . self::MAX_PHOTOS . ' photos were uploaded. Extra photos were ignored.';
+            }
+            $imageIndexes = array_slice($imageIndexes, 0, self::MAX_PHOTOS);
             $order     = 0;
-            for ($i = 0; $i < $fileCount; $i++) {
-                if ($files['error'][$i] !== UPLOAD_ERR_OK) continue;
+            foreach ($imageIndexes as $idx) {
+                if (($imageErrors[$idx] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+                    continue;
+                }
                 $file = [
-                    'name'     => $files['name'][$i],
-                    'type'     => $files['type'][$i],
-                    'tmp_name' => $files['tmp_name'][$i],
-                    'error'    => $files['error'][$i],
-                    'size'     => $files['size'][$i],
+                    'name'     => $imageNames[$idx] ?? '',
+                    'type'     => $imageTypes[$idx] ?? '',
+                    'tmp_name' => $imageTmpNames[$idx] ?? '',
+                    'error'    => $imageErrors[$idx] ?? UPLOAD_ERR_NO_FILE,
+                    'size'     => $imageSizes[$idx] ?? 0,
                 ];
-                if ($i === 0 && $legacyImage !== null) {
+                if ($order === 0 && $legacyImage !== null) {
                     $filename = $legacyImage;
                 } else {
                     $filename = $this->handleImageUpload($file);
