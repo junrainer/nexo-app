@@ -1467,6 +1467,8 @@ document.querySelectorAll('textarea').forEach(ta => {
     const alert = document.getElementById('post-cooldown-alert');
     if (!alert) return;
     const label = alert.querySelector('.post-cooldown-text');
+    const number = alert.querySelector('.post-cooldown-number');
+    const countLabel = alert.querySelector('.post-cooldown-label');
     const until = Number(alert.dataset.cooldownUntil);
     if (!label || !Number.isFinite(until)) return;
 
@@ -1474,9 +1476,13 @@ document.querySelectorAll('textarea').forEach(ta => {
         const remaining = Math.max(0, until - Math.floor(Date.now() / 1000));
         if (remaining === 0) {
             label.textContent = 'You can post again now.';
+            if (number) number.textContent = '0';
+            if (countLabel) countLabel.textContent = 'Ready to post';
         } else {
             const unit = remaining === 1 ? 'second' : 'seconds';
             label.textContent = `Please wait ${remaining} ${unit} before creating another post.`;
+            if (number) number.textContent = remaining.toString();
+            if (countLabel) countLabel.textContent = `${unit} remaining`;
         }
         return remaining;
     };
