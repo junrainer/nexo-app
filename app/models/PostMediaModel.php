@@ -65,7 +65,7 @@ class PostMediaModel {
             );
             return true;
         } catch (PDOException $e) {
-            error_log('PostMediaModel::ensureTable failed to create post_media with foreign key constraints. Attempting retry without constraints: ' . $e->getMessage());
+            error_log('PostMediaModel::ensureTable failed to create post_media table with foreign keys, retrying without constraints: ' . $e->getMessage());
             try {
                 // Some hosts block foreign keys or use engines that reject FK constraints.
                 $this->db->exec(
@@ -73,7 +73,7 @@ class PostMediaModel {
                 );
                 return true;
             } catch (PDOException $fallbackError) {
-                error_log('PostMediaModel::ensureTable failed to create post_media even without foreign key constraints (check database permissions/configuration): ' . $fallbackError->getMessage());
+                error_log('PostMediaModel::ensureTable failed to create post_media table without foreign keys. Check database permissions and configuration: ' . $fallbackError->getMessage());
                 return false;
             }
         }
