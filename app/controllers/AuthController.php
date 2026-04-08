@@ -259,24 +259,8 @@ class AuthController {
             }
             $verifyUrl        = $baseUrl . '/index.php?url=verify-reset&token=' . urlencode($token);
             $verificationCode = $code;
-            $logoSrc          = rtrim($baseUrl, '/') . '/assets/images/app-logo.png';
             $inlineAttachments = [];
-
-            $logoPath = __DIR__ . '/../../public/assets/images/app-logo.png';
-            if (is_file($logoPath) && is_readable($logoPath)) {
-                $logoContent = file_get_contents($logoPath);
-                if ($logoContent !== false) {
-                    $logoCidDomain = $this->sanitizeLogoCidDomain($baseUrl);
-                    $logoCid = 'nexo-logo-' . bin2hex(random_bytes(self::LOGO_CID_RANDOM_BYTE_COUNT)) . '@' . $logoCidDomain;
-                    $logoSrc = 'cid:' . $logoCid;
-                    $inlineAttachments[] = [
-                        'cid' => $logoCid,
-                        'mime' => 'image/png',
-                        'filename' => 'app-logo.png',
-                        'content' => $logoContent,
-                    ];
-                }
-            }
+            
 
             // Send the reset email with the 6-digit code
             require_once __DIR__ . '/../../config/mail.php';

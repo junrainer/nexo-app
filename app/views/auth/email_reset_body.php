@@ -30,17 +30,7 @@ $logoSrcSafe = htmlspecialchars($logoSrc ?? '', ENT_QUOTES, 'UTF-8');
           <!-- ── Header ── -->
           <tr>
             <td style="background:#7431e8;padding:28px 40px;text-align:center;">
-              <table cellpadding="0" cellspacing="0" border="0" role="presentation" align="center" style="margin:0 auto 10px;">
-                <tr>
-                  <td style="background:#ffffff;border-radius:18px;padding:8px;">
-                    <img src="<?= $logoSrcSafe ?>"
-                         alt="Nexo logo" width="72" height="72"
-                         style="display:block;border-radius:14px;">
-                  </td>
-                </tr>
-              </table>
-              <span style="color:#ffffff;font-size:24px;font-weight:700;letter-spacing:-0.5px;line-height:1;">Nexo</span>
-            </td>
+              <div style="color:#ffffff;font-size:36px;font-weight:700;letter-spacing:-0.5px;line-height:1;text-align:center;width:100%;">Nexo</div>            </td>
           </tr>
 
           <!-- ── Body ── -->
