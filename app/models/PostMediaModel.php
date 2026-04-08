@@ -3,14 +3,14 @@ require_once __DIR__ . '/../../config/database.php';
 
 class PostMediaModel {
     private PDO $db;
-    private bool $tableReady = false;
+    private static bool $tableReady = false;
 
     public function __construct() {
         $this->db = Database::getInstance()->getConnection();
     }
 
     public function getByPost(int $postId): array {
-        $this->ensureTable();
+        if (!$this->ensureTable()) return [];
         try {
             $stmt = $this->db->prepare(
                 'SELECT * FROM post_media WHERE post_id = ? ORDER BY sort_order ASC, id ASC'
@@ -24,7 +24,7 @@ class PostMediaModel {
     }
 
     public function create(int $postId, string $filename, string $type, int $sortOrder = 0): int {
-        $this->ensureTable();
+        if (!$this->ensureTable()) return 0;
         try {
             $stmt = $this->db->prepare(
                 'INSERT INTO post_media (post_id, filename, media_type, sort_order) VALUES (?, ?, ?, ?)'
@@ -41,7 +41,7 @@ class PostMediaModel {
      * Returns the list of filenames that were deleted (so callers can remove the files).
      */
     public function deleteByPost(int $postId): array {
-        $this->ensureTable();
+        if (!$this->ensureTable()) return [];
         try {
             $stmt = $this->db->prepare('SELECT filename FROM post_media WHERE post_id = ?');
             $stmt->execute([$postId]);
@@ -56,8 +56,8 @@ class PostMediaModel {
         }
     }
 
-    private function ensureTable(): void {
-        if ($this->tableReady) return;
+    private function ensureTable(): bool {
+        if (self::$tableReady) return true;
         try {
             $this->db->exec(
                 "CREATE TABLE IF NOT EXISTS post_media (
@@ -70,9 +70,11 @@ class PostMediaModel {
                     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
                 )"
             );
-            $this->tableReady = true;
+            self::$tableReady = true;
+            return true;
         } catch (PDOException $e) {
             error_log('PostMediaModel::ensureTable error: ' . $e->getMessage());
+            return false;
         }
     }
 }
