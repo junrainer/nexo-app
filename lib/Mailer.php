@@ -192,8 +192,8 @@ class Mailer {
 
         $message  = "--{$boundary}\r\n";
         $message .= "Content-Type: text/html; charset=UTF-8\r\n";
-        $message .= "Content-Transfer-Encoding: quoted-printable\r\n\r\n";
-        $message .= quoted_printable_encode($body) . "\r\n";
+        $message .= "Content-Transfer-Encoding: base64\r\n\r\n";
+        $message .= chunk_split(base64_encode($body));
 
         foreach ($inlineAttachments as $attachment) {
             $cid = $this->sanitizeCid($attachment['cid'] ?? '');
@@ -209,7 +209,7 @@ class Mailer {
             $message .= "Content-Transfer-Encoding: base64\r\n";
             $message .= "Content-ID: <{$cid}>\r\n";
             $message .= "Content-Disposition: inline; filename=\"{$filename}\"\r\n\r\n";
-            $message .= chunk_split(base64_encode($content)) . "\r\n";
+            $message .= chunk_split(base64_encode($content));
         }
 
         $message .= "--{$boundary}--\r\n";
