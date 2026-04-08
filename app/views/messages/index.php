@@ -41,6 +41,15 @@ require __DIR__ . '/../partials/header.php';
                 </div>
             <?php else: ?>
                 <?php foreach ($conversations as $conv): ?>
+                <?php
+                    $lastMessageTime = $conv['last_message_time'] ?? ($conv['last_message_at'] ?? null);
+                    $lastMessageSender = $conv['last_message_sender_id'] ?? null;
+                    $lastMessageIsRead = $conv['last_message_is_read'] ?? null;
+                    $statusLabel = '';
+                    if (!empty($lastMessageSender) && (int) $lastMessageSender === (int) $_SESSION['user_id']) {
+                        $statusLabel = ((int) $lastMessageIsRead === 1) ? 'Delivered' : 'Sent';
+                    }
+                ?>
                 <a href="index.php?url=messages&c=<?= $conv['id'] ?>" 
                    class="conversation-item <?= ($activeConversationId == $conv['id']) ? 'active' : '' ?>">
                     <img src="assets/uploads/<?= htmlspecialchars($conv['other_image'] ?? 'default.png') ?>"
@@ -49,11 +58,18 @@ require __DIR__ . '/../partials/header.php';
                     <div class="conversation-info">
                         <div class="conversation-top">
                             <span class="conversation-name"><?= htmlspecialchars($conv['other_name']) ?></span>
-                            <?php if (!empty($conv['last_message_at'])): ?>
+                            <?php if (!empty($lastMessageTime)): ?>
                                 <span class="conversation-time">
-                                    <time class="live-time" data-time="<?= htmlspecialchars(time_iso($conv['last_message_at'])) ?>">
-                                        <?= time_ago($conv['last_message_at']) ?>
+                                    <time class="live-time" data-time="<?= htmlspecialchars(time_iso($lastMessageTime)) ?>">
+                                        <?= time_ago($lastMessageTime) ?>
                                     </time>
+                                    <?php if ($statusLabel): ?>
+                                        <span class="conversation-status"> · <?= $statusLabel ?></span>
+                                    <?php endif; ?>
+                                </span>
+                            <?php elseif ($statusLabel): ?>
+                                <span class="conversation-time">
+                                    <span class="conversation-status"><?= $statusLabel ?></span>
                                 </span>
                             <?php endif; ?>
                             <?php if ($conv['unread_count'] > 0): ?>
