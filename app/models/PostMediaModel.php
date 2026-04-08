@@ -74,9 +74,6 @@ class PostMediaModel {
             return true;
         } catch (PDOException $e) {
             error_log('PostMediaModel::ensureTable error (post_media table required for multi-image uploads): ' . $e->getMessage());
-            if (session_status() === PHP_SESSION_ACTIVE && empty($_SESSION['warning'])) {
-                $_SESSION['warning'] = 'Multi-photo uploads are temporarily unavailable.';
-            }
             return false;
         }
     }
