@@ -61,20 +61,38 @@ class PostMediaModel {
     private function ensureTable(): bool {
         try {
             $this->db->exec(
-                "CREATE TABLE IF NOT EXISTS post_media (
+                $this->getCreateTableSql(true)
+            );
+            return true;
+        } catch (PDOException $e) {
+            error_log('PostMediaModel::ensureTable failed to create post_media table with foreign keys. Attempting to create without foreign keys: ' . $e->getMessage());
+            try {
+                // Some hosts block foreign keys or use engines that reject FK constraints.
+                $this->db->exec(
+                    $this->getCreateTableSql(false)
+                );
+                return true;
+            } catch (PDOException $fallbackError) {
+                error_log('PostMediaModel::ensureTable failed to create post_media table. Ensure CREATE TABLE privileges and verify storage engine compatibility: ' . $fallbackError->getMessage());
+                return false;
+            }
+        }
+    }
+
+    private function getCreateTableSql(bool $withForeignKey): string {
+        $sql = "CREATE TABLE IF NOT EXISTS post_media (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     post_id INT NOT NULL,
                     filename VARCHAR(255) NOT NULL,
                     media_type ENUM('image','video') NOT NULL DEFAULT 'image',
                     sort_order TINYINT UNSIGNED NOT NULL DEFAULT 0,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
-                )"
-            );
-            return true;
-        } catch (PDOException $e) {
-            error_log('PostMediaModel::ensureTable error during post_media table creation/verification: ' . $e->getMessage());
-            return false;
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP";
+        if ($withForeignKey) {
+            $sql .= ",
+                    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE";
         }
+        $sql .= "
+                )";
+        return $sql;
     }
 }
