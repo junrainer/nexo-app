@@ -285,8 +285,7 @@ function loadMessages() {
                        data-avatar="${escapeHtml(c.avatar || '')}"
                        onclick="openFloatingChat(this.dataset.convId, this.dataset.name, this.dataset.avatar); return false;">
                         <div class="msg-avatar-wrap">
-                            <img src="${c.avatar ? 'assets/uploads/' + escapeHtml(c.avatar) : 'assets/images/default-profile.webp'}"
-                                 alt="avatar" class="msg-avatar"
+                            <img src="${(c.avatar && c.avatar !== 'default.png') ? 'assets/uploads/' + escapeHtml(c.avatar) : 'assets/images/default-profile.webp'}"
                                  onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
                             ${c.online ? '<div class="msg-online-dot"></div>' : ''}
                         </div>
@@ -1703,9 +1702,7 @@ function openFloatingChat(convId, name, avatar) {
     const linkEl   = document.getElementById('floating-chat-open-full');
 
     if (nameEl)   nameEl.textContent = name;
-    if (avatarEl) avatarEl.src = avatar ? 'assets/uploads/' + avatar : 'assets/images/default-profile.webp';
-    if (linkEl)   linkEl.href = 'index.php?url=messages&c=' + encodeURIComponent(convId);
-
+if (avatarEl) avatarEl.src = (avatar && avatar !== 'default.png') ? 'assets/uploads/' + avatar : 'assets/images/default-profile.webp';
     // Clear messages
     const msgs = document.getElementById('floating-chat-messages');
     if (msgs) msgs.innerHTML = '<div class="fc-loading"><i class="fa fa-spinner fa-spin"></i></div>';
