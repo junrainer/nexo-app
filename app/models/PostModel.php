@@ -139,7 +139,8 @@ class PostModel {
      */
     public function getLastByUser(int $userId): ?array {
         $stmt = $this->db->prepare(
-            'SELECT created_at FROM posts WHERE user_id = ? ORDER BY created_at DESC LIMIT 1'
+            'SELECT created_at, TIMESTAMPDIFF(SECOND, created_at, NOW()) AS seconds_since
+             FROM posts WHERE user_id = ? ORDER BY created_at DESC LIMIT 1'
         );
         $stmt->execute([$userId]);
         $result = $stmt->fetch();
