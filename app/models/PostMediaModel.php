@@ -23,7 +23,10 @@ class PostMediaModel {
     }
 
     public function create(int $postId, string $filename, string $type, int $sortOrder = 0): int {
-        if (!$this->ensureTable()) return 0;
+        if (!$this->ensureTable()) {
+            error_log('PostMediaModel::create skipped because post_media table is unavailable.');
+            return 0;
+        }
         try {
             $stmt = $this->db->prepare(
                 'INSERT INTO post_media (post_id, filename, media_type, sort_order) VALUES (?, ?, ?, ?)'
