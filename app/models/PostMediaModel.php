@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../config/database.php';
 
 class PostMediaModel {
     private PDO $db;
+    private bool $tableEnsured = false;
 
     public function __construct() {
         $this->db = Database::getInstance()->getConnection();
@@ -56,6 +57,7 @@ class PostMediaModel {
     }
 
     private function ensureTable(): bool {
+        if ($this->tableEnsured) return true;
         try {
             $this->db->exec(
                 "CREATE TABLE IF NOT EXISTS post_media (
@@ -68,9 +70,13 @@ class PostMediaModel {
                     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
                 )"
             );
+            $this->tableEnsured = true;
             return true;
         } catch (PDOException $e) {
             error_log('PostMediaModel::ensureTable error (post_media table required for multi-image uploads): ' . $e->getMessage());
+            if (session_status() === PHP_SESSION_ACTIVE && empty($_SESSION['warning'])) {
+                $_SESSION['warning'] = 'Multi-photo uploads are temporarily unavailable.';
+            }
             return false;
         }
     }
