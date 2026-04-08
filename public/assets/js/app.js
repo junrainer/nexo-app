@@ -1514,8 +1514,8 @@ function appendMessage(msg, isSent) {
     const sentTimeAttrs = msg.created_at
         ? ` class="live-time message-time" data-time="${sentTime}" datetime="${sentTime}"`
         : ' class="message-time"';
-    const isRead = isSent && (Number(msg.is_read) === 1 || msg.is_read === true);
-    const statusLabel = isSent ? (isRead ? 'Delivered' : 'Sent') : '';
+    const isDelivered = isSent && (Number(msg.is_read) === 1 || msg.is_read === true);
+    const statusLabel = isSent ? (isDelivered ? 'Delivered' : 'Sent') : '';
     html += `
             <div class="message-body">
                 <div class="message-content">
@@ -1791,8 +1791,8 @@ function _appendFloatingMsg(text, isMine, profileImage, createdAt, msgId, isRead
     }
     const timeStr = createdAt ? timeAgo(createdAt) : 'just now';
     const timeAttr = createdAt ? ` class="live-time message-time" data-time="${escapeHtml(createdAt)}"` : ' class="message-time"';
-    const readFlag = isMine && (Number(isRead) === 1 || isRead === true);
-    const statusLabel = isMine ? (readFlag ? 'Delivered' : 'Sent') : '';
+    const isDelivered = isMine && (Number(isRead) === 1 || isRead === true);
+    const statusLabel = isMine ? (isDelivered ? 'Delivered' : 'Sent') : '';
     html += `
             <div class="message-body">
                 <div class="message-content">

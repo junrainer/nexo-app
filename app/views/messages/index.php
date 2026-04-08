@@ -98,7 +98,8 @@ require __DIR__ . '/../partials/header.php';
                             <div class="message-meta">
                                 <time class="live-time message-time" data-time="<?= htmlspecialchars(time_iso($msg['created_at'])) ?>"><?= time_ago($msg['created_at']) ?></time>
                                 <?php if ($msg['sender_id'] == $_SESSION['user_id']): ?>
-                                    <span class="message-status"><?= !empty($msg['is_read']) ? 'Delivered' : 'Sent' ?></span>
+                                    <?php $isDelivered = ((int) $msg['is_read'] === 1); ?>
+                                    <span class="message-status"><?= $isDelivered ? 'Delivered' : 'Sent' ?></span>
                                 <?php endif; ?>
                             </div>
                         </div>
