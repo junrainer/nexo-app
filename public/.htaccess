@@ -50,6 +50,6 @@ ServerSignature Off
     php_flag display_errors Off
     php_flag expose_php Off
     php_value upload_max_filesize 5M
-    php_value post_max_size 27M
+    php_value post_max_size 35M
     php_value max_file_uploads 5
 </IfModule>
