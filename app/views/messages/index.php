@@ -49,6 +49,13 @@ require __DIR__ . '/../partials/header.php';
                     <div class="conversation-info">
                         <div class="conversation-top">
                             <span class="conversation-name"><?= htmlspecialchars($conv['other_name']) ?></span>
+                            <?php if (!empty($conv['last_message_at'])): ?>
+                                <span class="conversation-time">
+                                    <time class="live-time" data-time="<?= htmlspecialchars(time_iso($conv['last_message_at'])) ?>">
+                                        <?= time_ago($conv['last_message_at']) ?>
+                                    </time>
+                                </span>
+                            <?php endif; ?>
                             <?php if ($conv['unread_count'] > 0): ?>
                                 <span class="unread-badge"><?= $conv['unread_count'] ?></span>
                             <?php endif; ?>
