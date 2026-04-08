@@ -152,6 +152,26 @@ class Mailer {
         return $response;
     }
 
+    private function sanitizeMime($mime): string {
+        if (!is_string($mime)) {
+            return 'application/octet-stream';
+        }
+        $mime = str_replace(["\r", "\n"], '', $mime);
+        if (!preg_match('/^[a-z0-9.+-]+\\/[a-z0-9.+-]+$/i', $mime)) {
+            return 'application/octet-stream';
+        }
+        return $mime;
+    }
+
+    private function sanitizeFilename($filename): string {
+        if (!is_string($filename)) {
+            return 'attachment';
+        }
+        $filename = basename($filename);
+        $filename = str_replace(["\r", "\n", '"'], '', $filename);
+        return $filename !== '' ? $filename : 'attachment';
+    }
+
     private function buildMessage(string $body, array $inlineAttachments): array {
         if (empty($inlineAttachments)) {
             $headers  = "MIME-Version: 1.0\r\n";
@@ -171,11 +191,11 @@ class Mailer {
         foreach ($inlineAttachments as $attachment) {
             $cid = $attachment['cid'] ?? '';
             $content = $attachment['content'] ?? null;
-            if ($cid === '' || !is_string($content) || $content === '') {
+            if ($cid === '' || !is_string($content)) {
                 continue;
             }
-            $mime = $attachment['mime'] ?? 'application/octet-stream';
-            $filename = $attachment['filename'] ?? $cid;
+            $mime = $this->sanitizeMime($attachment['mime'] ?? 'application/octet-stream');
+            $filename = $this->sanitizeFilename($attachment['filename'] ?? $cid);
 
             $message .= "--{$boundary}\r\n";
             $message .= "Content-Type: {$mime}; name=\"{$filename}\"\r\n";
