@@ -3,23 +3,6 @@ require_once __DIR__ . '/../../config/database.php';
 
 class PostMediaModel {
     private PDO $db;
-    private const TABLE_WITH_FK = "CREATE TABLE IF NOT EXISTS post_media (
-                        id INT AUTO_INCREMENT PRIMARY KEY,
-                        post_id INT NOT NULL,
-                        filename VARCHAR(255) NOT NULL,
-                        media_type ENUM('image','video') NOT NULL DEFAULT 'image',
-                        sort_order TINYINT UNSIGNED NOT NULL DEFAULT 0,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
-                    )";
-    private const TABLE_NO_FK = "CREATE TABLE IF NOT EXISTS post_media (
-                        id INT AUTO_INCREMENT PRIMARY KEY,
-                        post_id INT NOT NULL,
-                        filename VARCHAR(255) NOT NULL,
-                        media_type ENUM('image','video') NOT NULL DEFAULT 'image',
-                        sort_order TINYINT UNSIGNED NOT NULL DEFAULT 0,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                    )";
 
     public function __construct() {
         $this->db = Database::getInstance()->getConnection();
@@ -78,7 +61,7 @@ class PostMediaModel {
     private function ensureTable(): bool {
         try {
             $this->db->exec(
-                self::TABLE_WITH_FK
+                $this->tableSql(true)
             );
             return true;
         } catch (PDOException $e) {
@@ -86,7 +69,7 @@ class PostMediaModel {
             try {
                 // Some hosts block foreign keys or use engines that reject FK constraints.
                 $this->db->exec(
-                    self::TABLE_NO_FK
+                    $this->tableSql(false)
                 );
                 return true;
             } catch (PDOException $fallbackError) {
@@ -94,5 +77,22 @@ class PostMediaModel {
                 return false;
             }
         }
+    }
+
+    private function tableSql(bool $withForeignKey): string {
+        $sql = "CREATE TABLE IF NOT EXISTS post_media (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    post_id INT NOT NULL,
+                    filename VARCHAR(255) NOT NULL,
+                    media_type ENUM('image','video') NOT NULL DEFAULT 'image',
+                    sort_order TINYINT UNSIGNED NOT NULL DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP";
+        if ($withForeignKey) {
+            $sql .= ",
+                    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE";
+        }
+        $sql .= "
+                )";
+        return $sql;
     }
 }
