@@ -3,15 +3,23 @@ require_once __DIR__ . '/../../config/database.php';
 
 class PostMediaModel {
     private PDO $db;
-    private const TABLE_SCHEMA = "CREATE TABLE IF NOT EXISTS post_media (
+    private const TABLE_WITH_FK = "CREATE TABLE IF NOT EXISTS post_media (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         post_id INT NOT NULL,
                         filename VARCHAR(255) NOT NULL,
                         media_type ENUM('image','video') NOT NULL DEFAULT 'image',
                         sort_order TINYINT UNSIGNED NOT NULL DEFAULT 0,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP";
-    private const TABLE_FK_CLAUSE = ",\n                        FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE\n                    )";
-    private const TABLE_NO_FK_CLAUSE = "\n                    )";
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+                    )";
+    private const TABLE_NO_FK = "CREATE TABLE IF NOT EXISTS post_media (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        post_id INT NOT NULL,
+                        filename VARCHAR(255) NOT NULL,
+                        media_type ENUM('image','video') NOT NULL DEFAULT 'image',
+                        sort_order TINYINT UNSIGNED NOT NULL DEFAULT 0,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )";
 
     public function __construct() {
         $this->db = Database::getInstance()->getConnection();
@@ -70,14 +78,15 @@ class PostMediaModel {
     private function ensureTable(): bool {
         try {
             $this->db->exec(
-                self::TABLE_SCHEMA . self::TABLE_FK_CLAUSE
+                self::TABLE_WITH_FK
             );
             return true;
         } catch (PDOException $e) {
             error_log('PostMediaModel::ensureTable error during post_media table creation/verification: ' . $e->getMessage());
             try {
+                // Some hosts block foreign keys or use engines that reject FK constraints.
                 $this->db->exec(
-                    self::TABLE_SCHEMA . self::TABLE_NO_FK_CLAUSE
+                    self::TABLE_NO_FK
                 );
                 return true;
             } catch (PDOException $fallbackError) {
