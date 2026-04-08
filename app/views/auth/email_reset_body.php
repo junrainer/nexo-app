@@ -7,8 +7,7 @@
  */
 $year     = date('Y');
 $safeUrl  = htmlspecialchars($verifyUrl, ENT_QUOTES, 'UTF-8');
-$logoSrc  = $logoSrc ?? (isset($baseUrl) ? rtrim($baseUrl, '/') . '/assets/images/app-logo.png' : '');
-$logoSrcSafe = htmlspecialchars($logoSrc, ENT_QUOTES, 'UTF-8');
+$logoSrcSafe = htmlspecialchars($logoSrc ?? '', ENT_QUOTES, 'UTF-8');
 ?>
 <!DOCTYPE html>
 <html lang="en">

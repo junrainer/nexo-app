@@ -170,8 +170,8 @@ class Mailer {
 
         foreach ($inlineAttachments as $attachment) {
             $cid = $attachment['cid'] ?? '';
-            $content = (string) ($attachment['content'] ?? '');
-            if ($cid === '' || $content === '') {
+            $content = $attachment['content'] ?? '';
+            if ($cid === '' || !is_string($content) || $content === '') {
                 continue;
             }
             $mime = $attachment['mime'] ?? 'application/octet-stream';
