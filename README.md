@@ -184,7 +184,7 @@ NEXO APP/               ← GitHub Desktop repo folder
 │       └── images/
 │           └── default.png
 └── sql/
-    ├── nexo_app.sql
+    ├── social_app.sql
     ├── navbar_features.sql
     └── forgot_password.sql  ← NEW
 ```
