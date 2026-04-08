@@ -485,6 +485,24 @@ function confirmDeletePost(postId) {
 const COMPOSE_MAX_PHOTOS    = 5;
 const COMPOSE_MAX_VIDEO_GB  = 10;
 const COMPOSE_MAX_VIDEO_BYTES = COMPOSE_MAX_VIDEO_GB * 1024 * 1024 * 1024;
+let composeImageEntries = [];
+let composeImageNextId  = 0;
+
+function getComposeImageInput() {
+    return document.querySelector('.compose-card input[name="images[]"]');
+}
+
+function getComposeVideoInput() {
+    return document.querySelector('.compose-card input[name="video"]');
+}
+
+function syncComposeImageInput(input) {
+    const target = input || getComposeImageInput();
+    if (!target) return;
+    const dt = new DataTransfer();
+    composeImageEntries.forEach(entry => dt.items.add(entry.file));
+    target.files = dt.files;
+}
 
 function previewPostMedia(type, input) {
     const wrap = document.getElementById('media-previews');
@@ -498,7 +516,7 @@ function previewPostMedia(type, input) {
             return;
         }
 
-        const existing  = wrap.querySelectorAll('.preview-thumb[data-type="image"]').length;
+        const existing  = composeImageEntries.length;
         const available = COMPOSE_MAX_PHOTOS - existing;
 
         if (available <= 0) {
@@ -513,20 +531,25 @@ function previewPostMedia(type, input) {
         }
 
         files.forEach(file => {
+            const entryId = composeImageNextId++;
+            composeImageEntries.push({ id: entryId, file });
             const reader = new FileReader();
             reader.onload = ev => {
                 const div = document.createElement('div');
                 div.className    = 'preview-thumb';
                 div.dataset.type = 'image';
+                div.dataset.fileId = String(entryId);
                 div.innerHTML    = `<img src="${ev.target.result}" alt="preview">
                     <button type="button" class="preview-remove" onclick="removePostMediaPreview(this)">
                         <i class="fa fa-xmark"></i>
                     </button>`;
                 wrap.appendChild(div);
-                updateMediaCountHint();
             };
             reader.readAsDataURL(file);
         });
+        input.value = '';
+        syncComposeImageInput(input);
+        updateMediaCountHint();
 
     } else if (type === 'video') {
         const file = input.files[0];
@@ -571,9 +594,20 @@ function previewPostMedia(type, input) {
 }
 
 function removePostMediaPreview(btn) {
-    btn.parentElement.remove();
-    // Reset file inputs so the user can re-select
-    document.querySelectorAll('.compose-card input[type="file"]').forEach(inp => { inp.value = ''; });
+    const thumb = btn.closest('.preview-thumb');
+    if (!thumb) return;
+    const type = thumb.dataset.type;
+    if (type === 'image') {
+        const fileId = Number(thumb.dataset.fileId);
+        if (!Number.isNaN(fileId)) {
+            composeImageEntries = composeImageEntries.filter(entry => entry.id !== fileId);
+            syncComposeImageInput();
+        }
+    } else if (type === 'video') {
+        const videoInput = getComposeVideoInput();
+        if (videoInput) videoInput.value = '';
+    }
+    thumb.remove();
     updateMediaCountHint();
 }
 
@@ -581,7 +615,7 @@ function updateMediaCountHint() {
     const wrap      = document.getElementById('media-previews');
     const hint      = document.getElementById('media-count-hint');
     if (!wrap || !hint) return;
-    const photoCount = wrap.querySelectorAll('.preview-thumb[data-type="image"]').length;
+    const photoCount = composeImageEntries.length || wrap.querySelectorAll('.preview-thumb[data-type="image"]').length;
     hint.textContent = photoCount > 0 ? `${photoCount} / ${COMPOSE_MAX_PHOTOS} photo${photoCount === 1 ? '' : 's'}` : '';
 }
 
@@ -589,7 +623,10 @@ function updateMediaCountHint() {
 function previewPostImage(input) { previewPostMedia('image', input); }
 
 function clearFileInput() {
+    composeImageEntries = [];
+    composeImageNextId = 0;
     document.querySelectorAll('.compose-card input[type="file"]').forEach(inp => { inp.value = ''; });
+    syncComposeImageInput();
 }
 
 // ── Post media viewer (lightbox) ───────────────────────
