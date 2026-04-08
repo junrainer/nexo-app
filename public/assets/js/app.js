@@ -1512,8 +1512,8 @@ function appendMessage(msg, isSent) {
     const sentTime = msg.created_at ? escapeHtml(msg.created_at) : '';
     const sentTimeText = msg.created_at ? timeAgo(msg.created_at) : 'just now';
     const sentTimeAttrs = msg.created_at
-        ? `class="live-time message-time" data-time="${sentTime}" datetime="${sentTime}"`
-        : 'class="message-time"';
+        ? ` class="live-time message-time" data-time="${sentTime}" datetime="${sentTime}"`
+        : ' class="message-time"';
     const isRead = isSent && (Number(msg.is_read) === 1 || msg.is_read === true);
     const statusLabel = isSent ? (isRead ? 'Delivered' : 'Sent') : '';
     html += `
@@ -1522,7 +1522,7 @@ function appendMessage(msg, isSent) {
                     <p>${escapeHtml(msg.message)}</p>
                 </div>
                 <div class="message-meta">
-                    <time ${sentTimeAttrs}>${sentTimeText}</time>
+                    <time${sentTimeAttrs}>${sentTimeText}</time>
                     ${statusLabel ? `<span class="message-status">${statusLabel}</span>` : ''}
                 </div>
             </div>`;
@@ -1790,7 +1790,7 @@ function _appendFloatingMsg(text, isMine, profileImage, createdAt, msgId, isRead
                       onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">`;
     }
     const timeStr = createdAt ? timeAgo(createdAt) : 'just now';
-    const timeAttr = createdAt ? `class="live-time message-time" data-time="${escapeHtml(createdAt)}"` : 'class="message-time"';
+    const timeAttr = createdAt ? ` class="live-time message-time" data-time="${escapeHtml(createdAt)}"` : ' class="message-time"';
     const readFlag = isMine && (Number(isRead) === 1 || isRead === true);
     const statusLabel = isMine ? (readFlag ? 'Delivered' : 'Sent') : '';
     html += `
@@ -1799,7 +1799,7 @@ function _appendFloatingMsg(text, isMine, profileImage, createdAt, msgId, isRead
                     <p>${escapeHtml(text)}</p>
                 </div>
                 <div class="message-meta">
-                    <time ${timeAttr}>${timeStr}</time>
+                    <time${timeAttr}>${timeStr}</time>
                     ${statusLabel ? `<span class="message-status">${statusLabel}</span>` : ''}
                 </div>
             </div>`;
