@@ -1489,9 +1489,19 @@ document.querySelectorAll('textarea').forEach(ta => {
 
     if (update() === 0) return;
 
-    const timer = setInterval(() => {
-        if (update() === 0) clearInterval(timer);
+    let timer = setInterval(() => {
+        if (update() === 0 && timer) {
+            clearInterval(timer);
+            timer = null;
+        }
     }, 1000);
+
+    window.addEventListener('beforeunload', () => {
+        if (timer) {
+            clearInterval(timer);
+            timer = null;
+        }
+    });
 })();
 
 // ── Floating Chat Window ──────────────────────────────
