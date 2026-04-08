@@ -77,7 +77,6 @@ class PostController {
                 if ($wait > 0) {
                     $wait = (int) $wait;
                     $unit = $wait === 1 ? 'second' : 'seconds';
-                    $_SESSION['error'] = "Please wait {$wait} {$unit} before creating another post.";
                     $_SESSION['post_cooldown_until'] = $cooldownUntil;
                     header('Location: index.php?url=feed');
                     exit;

@@ -1490,7 +1490,7 @@ document.querySelectorAll('textarea').forEach(ta => {
     if (update() === 0) return;
 
     let timer = setInterval(() => {
-        if (update() === 0 && timer) {
+        if (update() === 0) {
             clearInterval(timer);
             timer = null;
         }

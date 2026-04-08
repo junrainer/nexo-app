@@ -23,7 +23,7 @@ require __DIR__ . '/../partials/header.php';
                 </span>
             </div>
         </div>
-        <?php unset($_SESSION['post_cooldown_until'], $_SESSION['error']); ?>
+        <?php unset($_SESSION['post_cooldown_until']); ?>
     <?php elseif (!empty($_SESSION['error'])): ?>
         <div class="alert alert-error"><i class="fa fa-circle-exclamation"></i> <?= htmlspecialchars($_SESSION['error']) ?></div>
         <?php unset($_SESSION['error']); ?>
