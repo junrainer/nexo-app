@@ -258,6 +258,23 @@ class AuthController {
             }
             $verifyUrl        = $baseUrl . '/index.php?url=verify-reset&token=' . urlencode($token);
             $verificationCode = $code;
+            $logoSrc          = rtrim($baseUrl, '/') . '/assets/images/app-logo.png';
+            $inlineAttachments = [];
+
+            $logoPath = __DIR__ . '/../../public/assets/images/app-logo.png';
+            if (is_file($logoPath) && is_readable($logoPath)) {
+                $logoContent = file_get_contents($logoPath);
+                if (is_string($logoContent) && $logoContent !== '') {
+                    $logoCid = 'nexo-logo-' . bin2hex(random_bytes(6));
+                    $logoSrc = 'cid:' . $logoCid;
+                    $inlineAttachments[] = [
+                        'cid' => $logoCid,
+                        'mime' => 'image/png',
+                        'filename' => 'app-logo.png',
+                        'content' => $logoContent,
+                    ];
+                }
+            }
 
             // Send the reset email with the 6-digit code
             require_once __DIR__ . '/../../config/mail.php';
@@ -267,7 +284,7 @@ class AuthController {
             require __DIR__ . '/../views/auth/email_reset_body.php';
             $body = ob_get_clean();
 
-            if (!$mailer->send($email, 'Your Nexo password reset code', $body)) {
+            if (!$mailer->send($email, 'Your Nexo password reset code', $body, $inlineAttachments)) {
                 $this->setForgotPasswordCooldown($email);
                 $_SESSION['error'] = 'Unable to send the verification email. Please try again in a moment.';
                 header('Location: index.php?url=forgot-password');
