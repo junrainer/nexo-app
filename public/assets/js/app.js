@@ -488,6 +488,18 @@ const COMPOSE_MAX_VIDEO_BYTES = COMPOSE_MAX_VIDEO_GB * 1024 * 1024 * 1024;
 let composeImageEntries = [];
 let composeImageNextId  = 0;
 
+function setComposeMediaWarning(message) {
+    const warning = document.getElementById('media-warning');
+    if (!warning) return;
+    if (message) {
+        warning.textContent = message;
+        warning.classList.add('compose-warning--show');
+    } else {
+        warning.textContent = '';
+        warning.classList.remove('compose-warning--show');
+    }
+}
+
 function getComposeImageInput() {
     return document.querySelector('.compose-card input[name="images[]"]');
 }
@@ -520,15 +532,17 @@ function previewPostMedia(type, input) {
         const available = COMPOSE_MAX_PHOTOS - existing;
 
         if (available <= 0) {
-            alert(`You can only upload up to ${COMPOSE_MAX_PHOTOS} photos per post.`);
+            const message = `You can only upload up to ${COMPOSE_MAX_PHOTOS} photos per post.`;
+            setComposeMediaWarning(message);
             input.value = '';
             return;
         }
 
         const selectedCount = input.files.length;
         const files = Array.from(input.files).slice(0, available);
+        let composeMediaWarning = '';
         if (selectedCount > available) {
-            alert(`Only ${available} more photo(s) can be added (max ${COMPOSE_MAX_PHOTOS} total). Extra files were ignored.`);
+            composeMediaWarning = `Only ${available} more photo(s) can be added (max ${COMPOSE_MAX_PHOTOS} total). Extra files were ignored.`;
         }
 
         files.forEach(file => {
@@ -551,6 +565,7 @@ function previewPostMedia(type, input) {
         });
         syncComposeImageInput(input);
         updateMediaCountHint();
+        setComposeMediaWarning(composeMediaWarning);
 
     } else if (type === 'video') {
         const file = input.files[0];
@@ -610,6 +625,7 @@ function removePostMediaPreview(btn) {
     }
     thumb.remove();
     updateMediaCountHint();
+    setComposeMediaWarning('');
 }
 
 function updateMediaCountHint() {
@@ -627,6 +643,7 @@ function clearFileInput() {
     composeImageEntries = [];
     document.querySelectorAll('.compose-card input[type="file"]').forEach(inp => { inp.value = ''; });
     syncComposeImageInput();
+    setComposeMediaWarning('');
 }
 
 // ── Post media viewer (lightbox) ───────────────────────
