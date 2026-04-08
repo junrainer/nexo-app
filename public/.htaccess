@@ -49,4 +49,7 @@ ServerSignature Off
 <IfModule mod_php.c>
     php_flag display_errors Off
     php_flag expose_php Off
+    php_value upload_max_filesize 8M
+    php_value post_max_size 32M
+    php_value max_file_uploads 5
 </IfModule>

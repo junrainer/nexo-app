@@ -4,6 +4,13 @@
 - **Local**: XAMPP / WAMP / Laragon (PHP 8.1+, MySQL, Apache) with mod_rewrite enabled
 - **Hosted**: InfinityFree (free) or any cPanel host with PHP 8.1+ and MySQL
 
+## Upload limits (photos)
+To attach up to 5 photos in a single post (5 MB each), ensure PHP limits allow it:
+- `upload_max_filesize` ≥ **8M**
+- `post_max_size` ≥ **32M**
+
+If you use Apache with `mod_php`, these are set in `public/.htaccess`. For PHP-FPM/NGINX, update your `php.ini`.
+
 ---
 
 ## Option A – Local Development (XAMPP)
