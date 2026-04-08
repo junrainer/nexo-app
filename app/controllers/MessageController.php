@@ -19,9 +19,6 @@ class MessageController {
         $activeUser = null;
         
         try {
-            // Get all conversations
-            $conversations = $this->getConversationsForUser($userId);
-            
             // If active conversation specified, get messages
             if ($activeConversationId && is_numeric($activeConversationId)) {
                 $messages = $this->getMessagesForConversation($activeConversationId, $userId);
@@ -36,9 +33,14 @@ class MessageController {
                 $stmt->execute([$userId, $activeConversationId, $userId, $userId]);
                 $activeUser = $stmt->fetch(PDO::FETCH_ASSOC);
                 
-                // Mark messages as read
-                $this->markConversationAsRead($activeConversationId, $userId);
+                if ($activeUser) {
+                    // Mark messages as read
+                    $this->markConversationAsRead($activeConversationId, $userId);
+                }
             }
+            
+            // Get all conversations
+            $conversations = $this->getConversationsForUser($userId);
         } catch (PDOException $e) {
             // Tables might not exist
         }

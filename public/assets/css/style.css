@@ -196,7 +196,7 @@ input, textarea, select { font-family: inherit; }
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: var(--primary);
+    background: var(--danger);
     color: #fff;
     font-size: 10px;
     font-weight: 700;
@@ -206,8 +206,8 @@ input, textarea, select { font-family: inherit; }
 }
 
 .nav-item.active .nav-badge {
-    background: #fff;
-    color: var(--primary);
+    background: var(--danger);
+    color: #fff;
 }
 
 .nav-section-label {
@@ -2450,7 +2450,23 @@ input, textarea, select { font-family: inherit; }
 }
 
 .message-content p { font-size: 14px; line-height: 1.4; word-break: break-word; }
-.message-time { font-size: 11px; color: var(--muted-fg); display: block; margin-top: 4px; padding: 0 4px; }
+.message-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    padding: 0 4px;
+    font-size: 11px;
+    color: var(--muted-fg);
+}
+
+.message-time { font-size: 11px; color: var(--muted-fg); }
+
+.message-status {
+    font-size: 11px;
+    color: var(--muted-fg);
+    font-weight: 600;
+}
 
 .no-chat-selected {
     flex: 1;
