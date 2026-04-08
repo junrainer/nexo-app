@@ -525,9 +525,9 @@ function previewPostMedia(type, input) {
             return;
         }
 
+        const selectedCount = input.files.length;
         const files = Array.from(input.files).slice(0, available);
-        input.value = '';
-        if (input.files.length > available) {
+        if (selectedCount > available) {
             alert(`Only ${available} more photo(s) can be added (max ${COMPOSE_MAX_PHOTOS} total). Extra files were ignored.`);
         }
 
@@ -549,6 +549,8 @@ function previewPostMedia(type, input) {
             };
             reader.readAsDataURL(file);
         });
+        syncComposeImageInput(input);
+        input.value = '';
         syncComposeImageInput(input);
         updateMediaCountHint();
 
@@ -600,7 +602,7 @@ function removePostMediaPreview(btn) {
     const type = thumb.dataset.type;
     if (type === 'image') {
         const fileId = Number(thumb.dataset.fileId);
-        if (!Number.isNaN(fileId)) {
+        if (Number.isFinite(fileId)) {
             composeImageEntries = composeImageEntries.filter(entry => entry.id !== fileId);
             syncComposeImageInput();
         }
