@@ -95,9 +95,10 @@ class PostController {
 
                 if ($secondsSince !== null) {
                     if ($secondsSince < 0) {
-                        $secondsSince = 0;
+                        $wait = self::POST_COOLDOWN;
+                    } else {
+                        $wait = self::POST_COOLDOWN - $secondsSince;
                     }
-                    $wait = self::POST_COOLDOWN - $secondsSince;
                     if ($wait > 0) {
                         $_SESSION['post_cooldown_until'] = time() + $wait;
                         header('Location: index.php?url=feed');
