@@ -79,7 +79,6 @@ class PostController {
             }
 
             if ($secondsSince !== null) {
-                $secondsSince = max(0, $secondsSince);
                 $wait = self::POST_COOLDOWN - $secondsSince;
                 if ($wait > 0) {
                     $_SESSION['post_cooldown_until'] = time() + $wait;
