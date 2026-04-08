@@ -7,7 +7,6 @@ class PostMediaModel {
 
     public function __construct() {
         $this->db = Database::getInstance()->getConnection();
-        $this->ensureTable();
     }
 
     public function getByPost(int $postId): array {
