@@ -652,7 +652,7 @@ document.addEventListener('click', e => {
     const grid = targetImg.closest('.post-media-grid');
     if (!grid) return;
     const images = Array.from(grid.querySelectorAll('img'))
-        .filter(img => img.style.display !== 'none');
+        .filter(img => window.getComputedStyle(img).display !== 'none');
     const sources = images.map(img => img.src).filter(Boolean);
     if (sources.length === 0) return;
     const startIndex = Math.max(images.indexOf(targetImg), 0);
@@ -662,9 +662,16 @@ document.addEventListener('click', e => {
 document.addEventListener('keydown', e => {
     const overlay = document.getElementById('post-media-viewer');
     if (!overlay || overlay.style.display === 'none') return;
-    if (e.key === 'ArrowLeft') showPrevPostMedia();
-    if (e.key === 'ArrowRight') showNextPostMedia();
-    if (e.key === 'Escape') closePostMediaViewer();
+    if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        showPrevPostMedia();
+    } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        showNextPostMedia();
+    } else if (e.key === 'Escape') {
+        e.preventDefault();
+        closePostMediaViewer();
+    }
 });
 
 const postMediaOverlay = document.getElementById('post-media-viewer');
