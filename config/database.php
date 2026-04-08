@@ -38,6 +38,8 @@ class Database {
                     PDO::ATTR_EMULATE_PREPARES   => false,
                 ]
             );
+            // Sync MySQL session timezone with PHP
+$this->pdo->exec("SET time_zone = '+08:00'");
         } catch (PDOException $e) {
             die('Database connection failed. Check config/database.php');
         }
