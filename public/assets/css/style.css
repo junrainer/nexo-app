@@ -677,6 +677,34 @@ input, textarea, select { font-family: inherit; }
 .alert-error   { background: hsla(0,72%,51%,0.15);   border: 1px solid hsla(0,72%,51%,0.35);   color: #f47b7b; }
 .alert-success { background: hsla(142,70%,45%,0.12); border: 1px solid hsla(142,70%,45%,0.35); color: #5fd08c; }
 
+.post-cooldown-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.post-cooldown-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: hsla(0,72%,51%,0.2);
+    border: 1px solid hsla(0,72%,51%,0.4);
+    font-weight: 600;
+    width: fit-content;
+}
+
+.post-cooldown-number {
+    font-variant-numeric: tabular-nums;
+    font-size: 14px;
+}
+
+.post-cooldown-label {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
 /* Auth-page inline notification (error / success above form) */
 .auth-alert {
     display: flex;
