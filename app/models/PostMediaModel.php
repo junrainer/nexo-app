@@ -24,7 +24,7 @@ class PostMediaModel {
 
     public function create(int $postId, string $filename, string $type, int $sortOrder = 0): int {
         if (!$this->ensureTable()) {
-            error_log('PostMediaModel::create skipped because post_media table is unavailable.');
+            error_log('PostMediaModel::create skipped for post ' . $postId . ' because post_media table is unavailable.');
             return 0;
         }
         try {
