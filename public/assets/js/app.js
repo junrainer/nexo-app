@@ -544,6 +544,7 @@ function previewPostMedia(type, input) {
                         <i class="fa fa-xmark"></i>
                     </button>`;
                 wrap.appendChild(div);
+                updateMediaCountHint();
             };
             reader.readAsDataURL(file);
         });
