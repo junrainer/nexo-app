@@ -33,7 +33,7 @@ $safeUrl  = htmlspecialchars($verifyUrl, ENT_QUOTES, 'UTF-8');
                 <tr>
                   <td style="background:#ffffff;border-radius:18px;padding:8px;">
                     <img src="<?= htmlspecialchars($baseUrl, ENT_QUOTES, 'UTF-8') ?>/assets/images/app-logo.png"
-                         alt="Nexo" width="72" height="72"
+                         alt="Nexo logo" width="72" height="72"
                          style="display:block;border-radius:14px;">
                   </td>
                 </tr>
