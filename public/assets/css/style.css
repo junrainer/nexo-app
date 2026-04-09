@@ -303,7 +303,61 @@ input, textarea, select { font-family: inherit; }
 
 .topbar-left {
     padding: 0 16px;
-    display: none;
+    display: flex;
+    align-items: center;
+}
+
+/* Back arrow in messages header (mobile only) */
+.back-to-feed {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: var(--fg);
+    font-size: 15px;
+    transition: background 0.15s;
+    flex-shrink: 0;
+}
+
+.back-to-feed:hover { background: var(--muted); }
+
+/* Mobile messages icon in topbar beside logo */
+.topbar-msg-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--muted);
+    color: var(--muted-fg);
+    font-size: 16px;
+    margin-left: 8px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.topbar-msg-icon:hover {
+    background: color-mix(in srgb, var(--primary) 20%, var(--muted));
+    color: var(--fg);
+}
+
+.topbar-msg-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 16px;
+    height: 16px;
+    background: var(--danger);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 9px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .mobile-brand {
@@ -313,6 +367,46 @@ input, textarea, select { font-family: inherit; }
     font-weight: 700;
     font-size: 1rem;
     color: var(--fg);
+}
+
+/* Mobile profile card inside sidebar */
+.sidebar-profile-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    color: var(--fg);
+    transition: background 0.15s;
+}
+
+.sidebar-profile-card:hover { background: var(--card2); }
+
+.sidebar-profile-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sidebar-profile-name {
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-profile-username {
+    font-size: 12px;
+    color: var(--muted-fg);
+}
+
+.sidebar-profile-arrow {
+    font-size: 12px;
+    color: var(--muted-fg);
+    flex-shrink: 0;
 }
 
 .topbar-fill {
@@ -435,10 +529,8 @@ input, textarea, select { font-family: inherit; }
 @media (max-width: 768px) {
     .topbar-right { justify-content: flex-end; }
     .topbar-search-form { display: none; }
-    /* Hide message/notification/avatar icons in topbar on mobile — bottom nav handles these */
-    .topbar-right .message-menu,
-    .topbar-right .notification-menu,
-    .topbar-right .avatar-menu { display: none; }
+    /* Hide only messages icon on mobile — bell and avatar stay */
+    .topbar-right .message-menu { display: none !important; }
 }
 
 
@@ -620,11 +712,13 @@ input, textarea, select { font-family: inherit; }
     bottom: 0;
     left: 0;
     right: 0;
+    width: 100%;
     background: var(--card);
     border-top: 1px solid var(--border);
-    z-index: 50;
+    z-index: 9999;
     justify-content: space-around;
     padding: 8px 0;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
 }
 
 .mobile-nav-item {
@@ -2188,15 +2282,14 @@ input, textarea, select { font-family: inherit; }
    RESPONSIVE
    ============================================================ */
 @media (max-width: 900px) {
-    .sidebar      { display: none; }
+    .sidebar      { display: none !important; }
+    .sidebar-overlay { display: none !important; }
     .right-sidebar { display: none; }
     .topbar-left  { display: flex; }
     .mobile-nav   { display: flex; }
     .feed-wrap, .search-wrap, .profile-wrap { padding-bottom: 80px; }
-    /* Hide topbar icons — bottom nav handles navigation on mobile */
-    .topbar-right .message-menu,
-    .topbar-right .notification-menu,
-    .topbar-right .avatar-menu { display: none; }
+    /* Hide only messages icon on mobile — bell and avatar stay */
+    .topbar-right .message-menu { display: none !important; }
 }
 
 @media (max-width: 600px) {
@@ -3539,17 +3632,29 @@ input, textarea, select { font-family: inherit; }
         left: 0;
         top: 0;
         height: 100vh;
+        width: 280px;
         z-index: 149;
         transform: translateX(-100%);
         transition: transform 0.28s ease;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
     }
 
     .sidebar.sidebar-open { transform: translateX(0); }
 
     /* ── Show mobile nav bar ── */
-    .mobile-nav { display: flex; }
+    .mobile-nav {
+        display: flex !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        z-index: 9999 !important;
+    }
 
-    /* ── Topbar: show hamburger + brand ── */
+    /* ── Topbar: logo always visible on left ── */
     .topbar-left { display: flex; align-items: center; gap: 8px; }
 
     /* Search is still visible but smaller */

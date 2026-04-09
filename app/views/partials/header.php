@@ -92,6 +92,18 @@ $username   = $_SESSION['username'];
             </button>
         </div>
 
+        <!-- Mobile profile card (only visible inside sidebar on mobile) -->
+        <a href="index.php?url=profile/<?= htmlspecialchars($username) ?>" class="sidebar-profile-card hide-desktop">
+            <img src="<?= ($_SESSION['profile_image'] ?? 'default.png') !== 'default.png' ? 'assets/uploads/' . htmlspecialchars($_SESSION['profile_image']) : 'assets/images/default-profile.webp' ?>"
+                 alt="avatar" class="avatar-md avatar-ring"
+                 onerror="this.onerror=null; this.src='assets/images/default-profile.webp'">
+            <div class="sidebar-profile-info">
+                <span class="sidebar-profile-name"><?= htmlspecialchars($_SESSION['full_name']) ?></span>
+                <span class="sidebar-profile-username">@<?= htmlspecialchars($username) ?></span>
+            </div>
+            <i class="fa fa-chevron-right sidebar-profile-arrow"></i>
+        </a>
+
         <nav class="sidebar-nav">
             <a href="index.php?url=feed" class="nav-item <?= $currentUrl === 'feed' ? 'active' : '' ?>">
                 <i class="fa fa-house"></i> Home
@@ -138,11 +150,7 @@ $username   = $_SESSION['username'];
         <!-- TOP BAR -->
         <header class="topbar">
             <div class="topbar-left">
-                <!-- Hamburger (mobile only) -->
-                <button class="hamburger-btn hide-desktop" onclick="openSidebar()" aria-label="Open menu">
-                    <i class="fa fa-bars"></i>
-                </button>
-                <a href="index.php?url=feed" class="mobile-brand hide-desktop">
+                <a href="index.php?url=feed" class="mobile-brand">
                     <img src="assets/images/app-logo.png"
                          alt="Nexo"
                          class="brand-logo-sm"

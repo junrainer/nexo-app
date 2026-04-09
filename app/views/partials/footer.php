@@ -62,28 +62,6 @@
 
         </div><!-- end content-area -->
 
-        <!-- MOBILE BOTTOM NAV -->
-        <nav class="mobile-nav">
-            <?php $currentUrl = $_GET['url'] ?? 'feed'; $username = $_SESSION['username']; ?>
-            <a href="index.php?url=feed" class="mobile-nav-item <?= $currentUrl === 'feed' ? 'active' : '' ?>">
-                <i class="fa fa-house"></i>
-            </a>
-            <a href="index.php?url=search" class="mobile-nav-item <?= $currentUrl === 'search' ? 'active' : '' ?>">
-                <i class="fa fa-search"></i>
-            </a>
-            <a href="index.php?url=messages" class="mobile-nav-item <?= $currentUrl === 'messages' ? 'active' : '' ?>" style="position:relative">
-                <i class="fa fa-comment-dots"></i>
-                <span class="mobile-badge message-count" style="display:none"></span>
-            </a>
-            <a href="#" onclick="toggleNotifications(event)" class="mobile-nav-item" style="position:relative">
-                <i class="fa fa-bell"></i>
-                <span class="mobile-badge notif-count" style="display:none"></span>
-            </a>
-            <a href="index.php?url=profile/<?= htmlspecialchars($username) ?>" class="mobile-nav-item <?= str_starts_with($currentUrl, 'profile') ? 'active' : '' ?>">
-                <i class="fa fa-user"></i>
-            </a>
-        </nav>
-
         <!-- Post media viewer -->
         <div class="modal-overlay media-viewer-overlay" id="post-media-viewer" style="display:none;">
             <div class="media-viewer" role="dialog" aria-modal="true" aria-label="Post media viewer">
@@ -103,6 +81,23 @@
 
     </div><!-- end main-wrapper -->
 </div><!-- end app-shell -->
+
+<!-- MOBILE BOTTOM NAV — outside app-shell so position:fixed is never broken -->
+<?php if (isset($_SESSION['user_id'])): ?>
+<?php $currentUrl = $_GET['url'] ?? 'feed'; $username = $_SESSION['username']; ?>
+<nav class="mobile-nav">
+    <a href="index.php?url=feed" class="mobile-nav-item <?= $currentUrl === 'feed' ? 'active' : '' ?>">
+        <i class="fa fa-house"></i>
+    </a>
+    <a href="index.php?url=search" class="mobile-nav-item <?= $currentUrl === 'search' ? 'active' : '' ?>">
+        <i class="fa fa-search"></i>
+    </a>
+    <a href="index.php?url=messages" class="mobile-nav-item <?= $currentUrl === 'messages' ? 'active' : '' ?>" style="position:relative">
+        <i class="fa fa-comment-dots"></i>
+        <span class="mobile-badge message-count" style="display:none"></span>
+    </a>
+</nav>
+<?php endif; ?>
 <?php endif; ?>
 
 <script src="assets/js/app.js"></script>

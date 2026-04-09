@@ -21,6 +21,9 @@ require __DIR__ . '/../partials/header.php';
         <!-- Conversations List -->
         <div class="conversations-list <?= $activeConversationId ? 'hide-mobile' : '' ?>">
             <div class="conversations-header">
+                <a href="index.php?url=feed" class="back-to-feed hide-desktop" title="Back to Home">
+                    <i class="fa fa-arrow-left"></i>
+                </a>
                 <h2>Messages</h2>
                 <button class="icon-btn-sm" title="New message" onclick="openNewMessageModal()">
                     <i class="fa fa-pen-to-square"></i>
