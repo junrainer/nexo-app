@@ -529,13 +529,15 @@ input, textarea, select { font-family: inherit; }
 @media (max-width: 768px) {
     .topbar-right { justify-content: flex-end; }
     .topbar-search-form { display: none; }
-    /* Hide only messages icon on mobile — bell and avatar stay */
-    .topbar-right .message-menu { display: none !important; }
+    .message-menu { position: static; }
     .message-dropdown {
+        position: fixed;
         left: 50%;
         right: auto;
         transform: translateX(-50%);
-        width: 290px;
+        width: calc(100vw - 24px);
+        max-width: 360px;
+        top: 60px;
     }
 }
 
@@ -2299,8 +2301,6 @@ input, textarea, select { font-family: inherit; }
     .topbar-left  { display: flex; }
     .mobile-nav   { display: flex; }
     .feed-wrap, .search-wrap, .profile-wrap { padding-bottom: 80px; }
-    /* Hide only messages icon on mobile — bell and avatar stay */
-    .topbar-right .message-menu { display: none !important; }
 }
 
 @media (max-width: 600px) {
@@ -3031,7 +3031,7 @@ input, textarea, select { font-family: inherit; }
 /* ============================================================
    MESSAGE DROPDOWN  (guide-me MessageDropdown style)
    ============================================================ */
-.message-menu { position: relative; }
+.message-menu { position: relativccenterentere; }
 
 .message-dropdown {
     position: absolute;
