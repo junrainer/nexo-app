@@ -150,8 +150,7 @@ $username   = $_SESSION['username'];
         <!-- TOP BAR -->
         <header class="topbar">
             <div class="topbar-left">
-                <a href="index.php?url=feed" class="mobile-brand">
-                    <img src="assets/images/app-logo.png"
+<a href="index.php?url=feed" class="mobile-brand hide-desktop">                    <img src="assets/images/app-logo.png"
                          alt="Nexo"
                          class="brand-logo-sm"
                          onerror="this.style.display='none'; document.getElementById('brand-fallback-tb').style.display='flex'">

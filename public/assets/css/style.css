@@ -4351,3 +4351,10 @@ select.modal-input {
 .gm-btn-rounded {
     border-radius: 99px;
 }
+
+@media (max-width: 768px) {
+    .brand-logo-sm {
+        width: 60px;
+        height: 60px;
+    }
+}
