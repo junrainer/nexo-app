@@ -2,9 +2,6 @@
 -- Web Systems and Technologies - Final Project
 -- Saint Michael College of Caraga
 
-CREATE DATABASE IF NOT EXISTS nexo;
-USE nexo;
-
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,

@@ -2,8 +2,6 @@
 -- Run AFTER nexo_app.sql
 -- Tables: friendships, conversations, messages, notifications, user_preferences, saved_posts
 
-USE nexo;
-
 -- ============================================
 -- TABLE: friendships
 -- ============================================

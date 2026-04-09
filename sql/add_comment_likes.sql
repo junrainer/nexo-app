@@ -1,7 +1,6 @@
 -- Nexo – Comment Likes
 -- Run this after nexo_app.sql
 
-USE nexo;
 
 CREATE TABLE IF NOT EXISTS comment_likes (
     id         INT AUTO_INCREMENT PRIMARY KEY,

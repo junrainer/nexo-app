@@ -1,7 +1,6 @@
 -- Nexo – Add optional profile fields to users table
 -- Run this if you already have an existing nexo database (after nexo_app.sql was imported).
 
-USE nexo;
 
 ALTER TABLE users
     ADD COLUMN IF NOT EXISTS cover_image VARCHAR(255) DEFAULT NULL AFTER profile_image,
