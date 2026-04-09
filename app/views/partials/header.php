@@ -234,9 +234,9 @@ $username   = $_SESSION['username'];
                         <a href="index.php?url=saved" class="dropdown-item">
                             <i class="fa fa-bookmark"></i> Saved posts
                         </a>
-                        <button class="dropdown-item" onclick="toggleDarkMode()">
+                        <a href="#" class="dropdown-item" onclick="toggleDarkMode(); return false;">
                             <i class="fa fa-moon"></i> Dark mode
-                        </button>
+                        </a>
                         <div class="dropdown-divider"></div>
                         <a href="index.php?url=logout" class="dropdown-item danger">
                             <i class="fa fa-right-from-bracket"></i> Log out

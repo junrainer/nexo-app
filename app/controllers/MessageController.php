@@ -95,8 +95,10 @@ class MessageController {
      * Get messages for conversation
      */
     private function getMessagesForConversation($conversationId, $userId) {
+        // FIX: Separated SELECT and FROM onto their own lines (were merged into one broken line)
         $stmt = $this->db->prepare("
-SELECT m.*, UNIX_TIMESTAMP(m.created_at) AS created_at_unix, u.username, u.full_name, u.profile_image            FROM messages m
+            SELECT m.*, UNIX_TIMESTAMP(m.created_at) AS created_at_unix, u.username, u.full_name, u.profile_image
+            FROM messages m
             JOIN users u ON m.sender_id = u.id
             JOIN conversations c ON m.conversation_id = c.id
             WHERE m.conversation_id = ? 
@@ -247,9 +249,10 @@ SELECT m.*, UNIX_TIMESTAMP(m.created_at) AS created_at_unix, u.username, u.full_
         }
         
         try {
+            // FIX: Removed duplicate/orphaned SELECT line and added missing FROM clause
             $stmt = $this->db->prepare("
-                SELECT m.*, u.username, u.full_name, u.profile_image
-               SELECT m.*, UNIX_TIMESTAMP(m.created_at) AS created_at_unix, u.username, u.full_name, u.profile_image
+                SELECT m.*, UNIX_TIMESTAMP(m.created_at) AS created_at_unix, u.username, u.full_name, u.profile_image
+                FROM messages m
                 JOIN users u ON m.sender_id = u.id
                 JOIN conversations c ON m.conversation_id = c.id
                 WHERE m.conversation_id = ? 
@@ -344,6 +347,7 @@ SELECT m.*, UNIX_TIMESTAMP(m.created_at) AS created_at_unix, u.username, u.full_
     }
 
     /**
+     * Get recent conversations (AJAX – used by topbar message dropdown)
      */
     public function getRecent() {
         if (!isset($_SESSION['user_id'])) {
@@ -355,12 +359,14 @@ SELECT m.*, UNIX_TIMESTAMP(m.created_at) AS created_at_unix, u.username, u.full_
         $userId = $_SESSION['user_id'];
 
         try {
+            // FIX: Separated the two subqueries onto their own lines (were merged into one broken line)
             $stmt = $this->db->prepare("
                 SELECT c.id,
                        u.full_name  AS name,
                        u.profile_image AS avatar,
                        (SELECT message FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) AS last_message,
-(SELECT UNIX_TIMESTAMP(created_at) FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) AS last_time,                       (SELECT COUNT(*) FROM messages WHERE conversation_id = c.id AND sender_id != :uid2 AND is_read = FALSE) AS unread
+                       (SELECT UNIX_TIMESTAMP(created_at) FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) AS last_time,
+                       (SELECT COUNT(*) FROM messages WHERE conversation_id = c.id AND sender_id != :uid2 AND is_read = FALSE) AS unread
                 FROM conversations c
                 JOIN users u ON u.id = IF(c.user1_id = :uid3, c.user2_id, c.user1_id)
                 WHERE c.user1_id = :uid4 OR c.user2_id = :uid5
