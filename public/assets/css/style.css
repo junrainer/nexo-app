@@ -531,6 +531,12 @@ input, textarea, select { font-family: inherit; }
     .topbar-search-form { display: none; }
     /* Hide only messages icon on mobile — bell and avatar stay */
     .topbar-right .message-menu { display: none !important; }
+    .message-dropdown {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        width: 290px;
+    }
 }
 
 
@@ -616,6 +622,11 @@ input, textarea, select { font-family: inherit; }
     color: var(--fg2);
     transition: background 0.15s, color 0.15s;
     cursor: pointer;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    box-sizing: border-box;
 }
 
 .dropdown-item:hover { background: var(--muted); color: var(--fg); }
@@ -3025,7 +3036,8 @@ input, textarea, select { font-family: inherit; }
 .message-dropdown {
     position: absolute;
     top: calc(100% + 8px);
-    right: 0;
+    left: 50%;
+    transform: translateX(-50%);
     width: 320px;
     background: var(--card);
     border: 1px solid var(--border);
