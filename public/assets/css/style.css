@@ -435,6 +435,10 @@ input, textarea, select { font-family: inherit; }
 @media (max-width: 768px) {
     .topbar-right { justify-content: flex-end; }
     .topbar-search-form { display: none; }
+    /* Hide message/notification/avatar icons in topbar on mobile — bottom nav handles these */
+    .topbar-right .message-menu,
+    .topbar-right .notification-menu,
+    .topbar-right .avatar-menu { display: none; }
 }
 
 
@@ -2189,6 +2193,10 @@ input, textarea, select { font-family: inherit; }
     .topbar-left  { display: flex; }
     .mobile-nav   { display: flex; }
     .feed-wrap, .search-wrap, .profile-wrap { padding-bottom: 80px; }
+    /* Hide topbar icons — bottom nav handles navigation on mobile */
+    .topbar-right .message-menu,
+    .topbar-right .notification-menu,
+    .topbar-right .avatar-menu { display: none; }
 }
 
 @media (max-width: 600px) {
