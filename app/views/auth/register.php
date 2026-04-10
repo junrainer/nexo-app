@@ -322,20 +322,14 @@
             <div class="hero-circle hero-circle-2"></div>
         </div>
 
-        <div class="hero-logo-row">
-            <img src="assets/images/app-logo.png" alt="Nexo" class="hero-logo-img"
-                 onerror="this.style.display='none'">
-            <span class="hero-logo-name">NEXO</span>
-        </div>
-
         <div class="hero-body">
-            <h1 class="hero-headline">Connect with your campus community</h1>
-            <p class="hero-sub">Share moments, exchange ideas, and stay connected with your classmates at Saint Michael College of Caraga.</p>
+            <h1 class="hero-headline">See what's happening in your world right now.</h1>
+            <p class="hero-sub">Share what's on your mind, stay updated with the people you care about, and never miss a moment.</p>
             <div class="hero-pills">
-                <div class="hero-pill">✏️ Post updates</div>
-                <div class="hero-pill">💬 Comment & discuss</div>
-                <div class="hero-pill">❤️ Like & react</div>
-                <div class="hero-pill">🔵 Discover peers</div>
+                <div class="hero-pill">✏️ Share moments</div>
+                <div class="hero-pill">💬 Start conversations</div>
+                <div class="hero-pill">❤️ React & connect</div>
+                <div class="hero-pill">🔔 Stay updated</div>
             </div>
         </div>
     </div>
